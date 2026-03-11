@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Click Frenzy</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Syne:wght@700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070e;--surface:#0e0e1a;--surface2:#131320;--border:#1c1c30;--border2:#28284a;
+  --text:#dcdcf0;--muted:#52527a;
+  --p1:#00f0ff;--p2:#ff3060;--gold:#ffd700;--green:#00ff88;--purple:#9945ff;--orange:#ff8800;
+  --mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:var(--mono);overflow:hidden;}
+
+/* LAYOUT */
+#game{display:flex;width:100%;height:100vh;}
+
+/* LEFT: UPGRADES PANEL */
+#upgrades-panel{
+  width:280px;flex-shrink:0;height:100%;overflow-y:auto;overflow-x:hidden;
+  background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+#upgrades-panel::-webkit-scrollbar{width:4px;}
+#upgrades-panel::-webkit-scrollbar-track{background:transparent;}
+#upgrades-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.up-header{padding:16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.up-header-title{font-family:var(--display);font-size:14px;font-weight:800;letter-spacing:2px;}
+.up-tabs{display:flex;gap:2px;margin-top:8px;}
+.up-tab{
+  flex:1;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;
+  padding:5px;background:transparent;border:1px solid var(--border);border-radius:3px;
+  color:var(--muted);cursor:pointer;transition:all 0.15s;text-transform:uppercase;
+}
+.up-tab.active{color:var(--p1);border-color:rgba(0,240,255,0.4);background:rgba(0,240,255,0.06);}
+.upgrades-list{flex:1;padding:10px;display:flex;flex-direction:column;gap:6px;}
+.upg-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+  padding:12px;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;
+}
+.upg-card::after{content:'';position:absolute;inset:0;background:var(--glow);opacity:0;transition:opacity 0.18s;pointer-events:none;}
+.upg-card:hover::after{opacity:0.08;}
+.upg-card:hover{border-color:var(--border2);transform:translateX(2px);}
+.upg-card.maxed{opacity:0.5;pointer-events:none;}
+.upg-card.affordable .upg-cost{color:var(--gold);}
+.upg-card.maxed-badge::before{content:'MAX';position:absolute;top:8px;right:8px;font-size:8px;font-weight:800;letter-spacing:2px;color:var(--green);border:1px solid var(--green);padding:2px 6px;border-radius:2px;}
+.upg-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.upg-icon{font-size:22px;flex-shrink:0;}
+.upg-name{font-size:11px;font-weight:700;}
+.upg-level{font-size:9px;color:var(--muted);margin-top:1px;}
+.upg-desc{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.upg-cost{font-size:11px;font-weight:700;color:var(--muted);transition:color 0.15s;}
+.upg-bar-bg{height:3px;background:var(--border2);border-radius:2px;margin-top:6px;overflow:hidden;}
+.upg-bar-fill{height:100%;border-radius:2px;transition:width 0.3s;}
+
+/* CENTER: CLICKER */
+#clicker-center{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;gap:0;
+}
+#particles-canvas{position:absolute;inset:0;pointer-events:none;z-index:0;}
+
+/* STATS BAR */
+#stats-bar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;background:rgba(7,7,14,0.8);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(8px);z-index:10;
+}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.stat-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.stat-val{font-family:var(--display);font-size:18px;font-weight:800;line-height:1;}
+.stat-val.coins{color:var(--gold);}
+.stat-val.cps{color:var(--green);}
+.stat-val.clicks{color:var(--p1);}
+.stat-val.mult{color:var(--p2);}
+
+/* MAIN BUTTON */
+#click-btn-wrap{position:relative;z-index:5;margin-top:40px;}
+#click-btn{
+  width:180px;height:180px;border-radius:50%;border:3px solid var(--p1);
+  background:radial-gradient(circle at 40% 35%,rgba(0,240,255,0.2),rgba(0,240,255,0.05));
+  cursor:pointer;transition:all 0.08s;position:relative;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;
+  box-shadow:0 0 40px rgba(0,240,255,0.2),inset 0 0 40px rgba(0,240,255,0.05);
+  font-family:var(--mono);
+  user-select:none;-webkit-user-select:none;
+}
+#click-btn:hover{transform:scale(1.04);box-shadow:0 0 60px rgba(0,240,255,0.35),inset 0 0 50px rgba(0,240,255,0.1);}
+#click-btn:active{transform:scale(0.94);}
+#click-btn.pressed{transform:scale(0.92)!important;}
+.btn-icon{font-size:48px;pointer-events:none;}
+.btn-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--p1);pointer-events:none;}
+.btn-sub{font-size:9px;color:var(--muted);pointer-events:none;}
+
+/* BOOST BAR */
+#boost-wrap{position:relative;z-index:5;margin-top:16px;text-align:center;}
+#boost-bar-bg{width:200px;height:6px;background:var(--border2);border-radius:3px;margin:6px auto 0;overflow:hidden;}
+#boost-bar-fill{height:100%;background:linear-gradient(90deg,var(--p2),var(--orange));border-radius:3px;transition:width 0.1s;width:0%;}
+#boost-label{font-size:9px;color:var(--muted);letter-spacing:2px;}
+.boost-active-label{color:var(--p2)!important;animation:flicker 0.4s infinite alternate;}
+@keyframes flicker{from{opacity:1}to{opacity:0.5}}
+
+/* CLICK FLOATING TEXT */
+.float-text{
+  position:absolute;pointer-events:none;font-family:var(--display);
+  font-size:20px;font-weight:800;z-index:20;
+  animation:floatup 0.9s ease forwards;white-space:nowrap;
+  text-shadow:0 0 10px currentColor;
+}
+@keyframes floatup{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(0.7);}
+  20%{opacity:1;transform:translate(-50%,-100%) scale(1.1);}
+  100%{opacity:0;transform:translate(-50%,-280%) scale(0.8);}
+}
+
+/* CRIT TEXT */
+.crit-text{font-size:28px!important;animation-duration:1.1s!important;}
+
+/* PRESTIGE */
+#prestige-btn{
+  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:3px;
+  padding:8px 20px;background:transparent;border:1px solid var(--purple);
+  border-radius:4px;color:var(--purple);cursor:pointer;transition:all 0.18s;display:none;
+}
+#prestige-btn:hover{background:var(--purple);color:#07070e;box-shadow:0 0 20px rgba(153,69,255,0.4);}
+
+/* KEY HINT */
+#key-hint{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);letter-spacing:2px;z-index:5;}
+
+/* RIGHT: STATS + LB */
+#right-panel{
+  width:260px;flex-shrink:0;height:100%;overflow-y:auto;
+  background:var(--surface);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;padding:14px;gap:14px;
+}
+#right-panel::-webkit-scrollbar{width:4px;}
+#right-panel::-webkit-scrollbar-track{background:transparent;}
+#right-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.rp-title{font-family:var(--display);font-size:12px;font-weight:800;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.rp-stat{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.rp-stat:last-child{border-bottom:none;}
+.rp-key{color:var(--muted);}
+.rp-val{font-weight:700;}
+
+/* MINI LEADERBOARD */
+.mini-lb-row{
+  display:flex;align-items:center;gap:8px;padding:8px;
+  background:var(--surface2);border-radius:5px;margin-bottom:4px;font-size:11px;
+}
+.mini-lb-rank{width:20px;text-align:center;font-weight:800;color:var(--muted);}
+.mini-lb-name{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mini-lb-val{color:var(--gold);font-size:10px;font-weight:700;}
+.mini-lb-me{background:rgba(0,240,255,0.06);border:1px solid rgba(0,240,255,0.2);}
+
+/* OFFLINE EARNINGS */
+.offline-banner{
+  background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.3);
+  border-radius:6px;padding:12px;font-size:11px;
+  animation:fadein 0.4s ease;
+}
+@keyframes fadein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* LOGIN PROMPT */
+#login-prompt{
+  position:absolute;inset:0;background:rgba(7,7,14,0.85);z-index:50;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  backdrop-filter:blur(4px);
+}
+#login-prompt.hidden{display:none;}
+.lp-title{font-family:var(--display);font-size:24px;font-weight:800;color:var(--p1);}
+.lp-sub{font-size:11px;color:var(--muted);text-align:center;line-height:1.8;}
+.lp-btn{
+  font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:3px;
+  padding:12px 32px;background:linear-gradient(135deg,var(--p1),var(--purple));
+  color:#07070e;border:none;border-radius:4px;cursor:pointer;transition:all 0.18s;margin-top:4px;
+}
+.lp-btn:hover{transform:scale(1.05);box-shadow:0 0 24px rgba(0,240,255,0.4);}
+
+/* ACHIEVEMENT POP */
+#ach-root{position:fixed;top:80px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.ach-toast{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border:1px solid var(--gold);border-radius:8px;
+  padding:12px 16px;min-width:220px;
+  animation:achpop 0.3s ease,achfade 0.4s 3.6s forwards;
+  box-shadow:0 0 20px rgba(255,215,0,0.2);
+}
+@keyframes achpop{from{opacity:0;transform:scale(0.8) translateX(20px)}to{opacity:1;transform:scale(1) translateX(0)}}
+@keyframes achfade{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
+.ach-icon{font-size:24px;}
+.ach-text .ach-t{font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:2px;}
+.ach-text .ach-n{font-size:12px;font-weight:700;}
+</style>
+</head>
+<body>
+<div id="ach-root"></div>
+
+<div id="game">
+  <!-- UPGRADES -->
+  <div id="upgrades-panel">
+    <div class="up-header">
+      <div class="up-header-title">⚡ UPGRADES</div>
+      <div class="up-tabs">
+        <button class="up-tab active" onclick="switchUpgTab('click',this)">Click</button>
+        <button class="up-tab" onclick="switchUpgTab('passive',this)">Passive</button>
+        <button class="up-tab" onclick="switchUpgTab('special',this)">Special</button>
+      </div>
+    </div>
+    <div class="upgrades-list" id="upgrades-list"></div>
+  </div>
+
+  <!-- CLICKER CENTER -->
+  <div id="clicker-center">
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- STATS -->
+    <div id="stats-bar">
+      <div class="stat-item"><div class="stat-label">coins</div><div class="stat-val coins" id="stat-coins">0</div></div>
+      <div class="stat-item"><div class="stat-label">per sec</div><div class="stat-val cps" id="stat-cps">0</div></div>
+      <div class="stat-item"><div class="stat-label">total clicks</div><div class="stat-val clicks" id="stat-clicks">0</div></div>
+      <div class="stat-item"><div class="stat-label">multiplier</div><div class="stat-val mult" id="stat-mult">×1</div></div>
+      <div class="stat-item"><div class="stat-label">prestige</div><div class="stat-val" id="stat-prestige" style="color:var(--purple)">0</div></div>
+    </div>
+
+    <div id="login-prompt" class="hidden">
+      <div class="lp-title">🖱️ CLICK FRENZY</div>
+      <div class="lp-sub">Sign in to save your progress,<br>compete on leaderboards, and buy cosmetics.</div>
+      <button class="lp-btn" onclick="window.parent.postMessage({type:'open_auth'},{})">Sign In / Register</button>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">or play as guest (progress not saved)</div>
+      <button style="font-family:var(--mono);font-size:10px;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:6px 16px;border-radius:3px;cursor:pointer;margin-top:4px" onclick="playAsGuest()">Play as Guest</button>
+    </div>
+
+    <!-- CLICK BUTTON -->
+    <div id="click-btn-wrap">
+      <button id="click-btn" onmousedown="handleClick(event)" ontouchstart="handleTouch(event)">
+        <span class="btn-icon" id="btn-icon">🖱️</span>
+        <span class="btn-label">CLICK</span>
+        <span class="btn-sub" id="btn-sub">+1 per click</span>
+      </button>
+    </div>
+
+    <!-- BOOST -->
+    <div id="boost-wrap">
+      <div id="boost-label">BOOST READY</div>
+      <div id="boost-bar-bg"><div id="boost-bar-fill"></div></div>
+    </div>
+
+    <div id="key-hint"></div>
+    <button id="prestige-btn" onclick="doPrestige()">✨ PRESTIGE (reset for ×2 bonus)</button>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+    <div>
+      <div class="rp-title">📊 Session</div>
+      <div class="rp-stat"><span class="rp-key">earned this session</span><span class="rp-val" id="rp-session" style="color:var(--gold)">0</span></div>
+      <div class="rp-stat"><span class="rp-key">click power</span><span class="rp-val" id="rp-power" style="color:var(--p1)">1</span></div>
+      <div class="rp-stat"><span class="rp-key">passive/sec</span><span class="rp-val" id="rp-passive" style="color:var(--green)">0</span></div>
+      <div class="rp-stat"><span class="rp-key">best crit</span><span class="rp-val" id="rp-bestcrit" style="color:var(--p2)">0</span></div>
+      <div class="rp-stat"><span class="rp-key">upgrades owned</span><span class="rp-val" id="rp-upgs">0</span></div>
+      <div class="rp-stat"><span class="rp-key">click key</span><span class="rp-val" id="rp-key" style="color:var(--p1)">SPACE</span></div>
+    </div>
+
+    <div id="offline-banner-wrap"></div>
+
+    <div>
+      <div class="rp-title">🏆 Leaderboard</div>
+      <div id="mini-lb"><div style="font-size:10px;color:var(--muted)">loading...</div></div>
+      <button onclick="loadMiniLb()" style="font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:5px 10px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--muted);cursor:pointer;margin-top:6px;transition:all 0.15s;width:100%" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">↺ REFRESH</button>
+    </div>
+
+    <div>
+      <div class="rp-title">🏅 Achievements</div>
+      <div id="ach-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="pf.js"></script>
+<script>
+// ── UPGRADES DATA ─────────────────────────────────────────
+const UPGRADES_DATA = {
+  click:[
+    {id:'c1',name:'Better Mouse',icon:'🖱️',desc:'Double your click power',baseCost:50,maxLevel:10,costMult:2.2,effect:'clickPow',val:2,type:'mult',glow:'rgba(0,240,255,0.15)'},
+    {id:'c2',name:'Mechanical Keyboard',icon:'⌨️',desc:'+5 bonus per click',baseCost:200,maxLevel:15,costMult:2.0,effect:'clickFlat',val:5,type:'flat',glow:'rgba(0,240,255,0.1)'},
+    {id:'c3',name:'Ergonomic Setup',icon:'🪑',desc:'Triple click power',baseCost:800,maxLevel:8,costMult:2.8,effect:'clickPow',val:3,type:'mult',glow:'rgba(153,69,255,0.15)'},
+    {id:'c4',name:'RGB Everything',icon:'🌈',desc:'+25 per click (obviously)',baseCost:2000,maxLevel:10,costMult:2.5,effect:'clickFlat',val:25,type:'flat',glow:'rgba(255,0,200,0.1)'},
+    {id:'c5',name:'10-Finger Technique',icon:'🤲',desc:'×5 click power',baseCost:10000,maxLevel:5,costMult:3.5,effect:'clickPow',val:5,type:'mult',glow:'rgba(0,240,255,0.2)'},
+    {id:'c6',name:'Wrist Warmers',icon:'🧤',desc:'+100 per click',baseCost:25000,maxLevel:8,costMult:3.0,effect:'clickFlat',val:100,type:'flat',glow:'rgba(255,136,0,0.1)'},
+    {id:'c7',name:'Neural Interface',icon:'🧠',desc:'×10 click power. Big brain.',baseCost:100000,maxLevel:5,costMult:4.0,effect:'clickPow',val:10,type:'mult',glow:'rgba(153,69,255,0.2)'},
+    {id:'c8',name:'Quantum Clicking',icon:'⚛️',desc:'+1000 per click',baseCost:500000,maxLevel:5,costMult:4.5,effect:'clickFlat',val:1000,type:'flat',glow:'rgba(0,240,255,0.25)'},
+    {id:'c9',name:'God Mode Cursor',icon:'✨',desc:'×50 all click power',baseCost:5000000,maxLevel:3,costMult:6.0,effect:'clickPow',val:50,type:'mult',glow:'rgba(255,215,0,0.2)'},
+  ],
+  passive:[
+    {id:'p1',name:'Coffee Machine',icon:'☕',desc:'Automatically earns coins while you sleep',baseCost:100,maxLevel:20,costMult:1.8,effect:'cps',val:1,type:'flat',glow:'rgba(139,69,19,0.15)'},
+    {id:'p2',name:'Mining Bot',icon:'🤖',desc:'Bot clicks for you (+3/sec)',baseCost:500,maxLevel:15,costMult:2.0,effect:'cps',val:3,type:'flat',glow:'rgba(0,240,255,0.1)'},
+    {id:'p3',name:'Server Farm',icon:'🖥️',desc:'Each server earns +10/sec',baseCost:2000,maxLevel:12,costMult:2.3,effect:'cps',val:10,type:'flat',glow:'rgba(0,255,136,0.1)'},
+    {id:'p4',name:'AI Assistant',icon:'🤖',desc:'Passive ×2 multiplier on all CPS',baseCost:8000,maxLevel:8,costMult:2.8,effect:'cpsMult',val:2,type:'mult',glow:'rgba(153,69,255,0.15)'},
+    {id:'p5',name:'Cloud Cluster',icon:'☁️',desc:'+50 coins/sec from the cloud',baseCost:30000,maxLevel:10,costMult:3.0,effect:'cps',val:50,type:'flat',glow:'rgba(100,200,255,0.1)'},
+    {id:'p6',name:'Quantum Computer',icon:'💻',desc:'×3 all passive income',baseCost:150000,maxLevel:6,costMult:3.5,effect:'cpsMult',val:3,type:'mult',glow:'rgba(0,240,255,0.2)'},
+    {id:'p7',name:'Hyperscaler',icon:'🌍',desc:'+500 coins/sec globally',baseCost:1000000,maxLevel:5,costMult:4.0,effect:'cps',val:500,type:'flat',glow:'rgba(0,255,136,0.2)'},
+    {id:'p8',name:'Time Machine',icon:'⏰',desc:'×10 passive income (time hacking)',baseCost:10000000,maxLevel:3,costMult:5.0,effect:'cpsMult',val:10,type:'mult',glow:'rgba(255,215,0,0.2)'},
+  ],
+  special:[
+    {id:'s1',name:'Crit Chance',icon:'💥',desc:'10% chance for 5× click crit',baseCost:1000,maxLevel:10,costMult:2.5,effect:'critChance',val:0.05,type:'add',glow:'rgba(255,48,96,0.15)'},
+    {id:'s2',name:'Combo Multiplier',icon:'🔥',desc:'Rapid clicks build a combo',baseCost:3000,maxLevel:8,costMult:2.8,effect:'combo',val:0.1,type:'add',glow:'rgba(255,136,0,0.15)'},
+    {id:'s3',name:'Boost Duration',icon:'⚡',desc:'+2s to boost duration',baseCost:5000,maxLevel:10,costMult:2.5,effect:'boostDur',val:2,type:'add',glow:'rgba(255,215,0,0.15)'},
+    {id:'s4',name:'Boost Power',icon:'🚀',desc:'Boost multiplier ×1.5',baseCost:12000,maxLevel:6,costMult:3.0,effect:'boostMult',val:1.5,type:'mult',glow:'rgba(255,48,96,0.2)'},
+    {id:'s5',name:'Offline Progress',icon:'💤',desc:'Earn 50% CPS while offline',baseCost:25000,maxLevel:5,costMult:3.5,effect:'offlinePct',val:0.1,type:'add',glow:'rgba(153,69,255,0.15)'},
+    {id:'s6',name:'Lucky Click',icon:'🍀',desc:'1% chance for 100× click',baseCost:50000,maxLevel:5,costMult:4.0,effect:'luckyChance',val:0.002,type:'add',glow:'rgba(0,255,136,0.2)'},
+    {id:'s7',name:'Prestige Amplifier',icon:'✨',desc:'Each prestige gives +50% bonus',baseCost:200000,maxLevel:3,costMult:5.0,effect:'prestigeBonus',val:0.5,type:'add',glow:'rgba(153,69,255,0.25)'},
+    {id:'s8',name:'Auto Clicker',icon:'🤖',desc:'Auto-clicks once per second',baseCost:75000,maxLevel:5,costMult:3.5,effect:'autoClick',val:1,type:'add',glow:'rgba(0,240,255,0.15)'},
+    {id:'s9',name:'Mega Boost',icon:'☄️',desc:'Unlock MEGA BOOST mode',baseCost:500000,maxLevel:1,costMult:1,effect:'megaBoost',val:1,type:'add',glow:'rgba(255,215,0,0.25)'},
+  ]
+};
+const ALL_UPGRADES = [...UPGRADES_DATA.click,...UPGRADES_DATA.passive,...UPGRADES_DATA.special];
+
+// ── ACHIEVEMENTS ──────────────────────────────────────────
+const ACHIEVEMENTS = [
+  {id:'ach_100',name:'First Century',icon:'💯',desc:'Reach 100 coins',check:s=>s.totalCoins>=100},
+  {id:'ach_1k',name:'High Roller',icon:'💰',desc:'Reach 1,000 coins',check:s=>s.totalCoins>=1000},
+  {id:'ach_1m',name:'Millionaire',icon:'🤑',desc:'Reach 1,000,000 coins',check:s=>s.totalCoins>=1000000},
+  {id:'ach_1b',name:'Billionaire',icon:'🏦',desc:'Reach 1 billion coins',check:s=>s.totalCoins>=1000000000},
+  {id:'ach_click100',name:'Clicker',icon:'🖱️',desc:'100 total clicks',check:s=>s.totalClicks>=100},
+  {id:'ach_click1k',name:'Click Warrior',icon:'⚔️',desc:'1,000 total clicks',check:s=>s.totalClicks>=1000},
+  {id:'ach_click100k',name:'Click God',icon:'👑',desc:'100,000 total clicks',check:s=>s.totalClicks>=100000},
+  {id:'ach_crit',name:'Critter',icon:'💥',desc:'Land a critical hit',check:s=>s.bestCrit>=5},
+  {id:'ach_lucky',name:'Lucky Devil',icon:'🍀',desc:'Land a lucky 100× hit',check:s=>s.bestCrit>=100},
+  {id:'ach_prestige',name:'Prestigious',icon:'✨',desc:'Prestige for the first time',check:s=>s.prestige>=1},
+  {id:'ach_upg10',name:'Upgrader',icon:'⚡',desc:'Own 10 upgrades',check:s=>s.upgradeCount>=10},
+  {id:'ach_upg30',name:'Max Power',icon:'🔥',desc:'Own 30 upgrades',check:s=>s.upgradeCount>=30},
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let G = {
+  coins:0,totalCoins:0,cps:0,clicks:0,totalClicks:0,
+  clickPow:1,clickFlat:0,cpsMult:1,
+  critChance:0.05,combo:0,boostDur:8,boostMult:3,
+  offlinePct:0,luckyChance:0,prestigeBonus:0,autoClick:0,megaBoost:0,
+  prestige:0,prestigeMult:1,
+  upgrades:{},
+  comboVal:1,comboTimer:0,
+  boostActive:false,boostTimer:0,boostCooldown:0,
+  boostDurTotal:8,
+  sessionCoins:0,bestCrit:0,
+  achievementsUnlocked:new Set(),
+  upgradeCount:0,
+};
+let settings = { keybinds:{click:'Space',boost:'KeyB',auto:'KeyA'}, sfx:true };
+let pfSession=null, pfPlayer=null;
+let autoClickInterval=null;
+let saveInterval=null;
+let lbInterval=null;
+let guestMode=false;
+
+// ── PARTICLES ─────────────────────────────────────────────
+const pCvs = document.getElementById('particles-canvas');
+const pCtx = pCvs.getContext('2d');
+pCvs.width = pCvs.offsetWidth||600; pCvs.height = pCvs.offsetHeight||500;
+const particles=[];
+function spawnParticle(x,y,color,txt){
+  particles.push({x,y,vx:(Math.random()-0.5)*4,vy:-3-Math.random()*4,life:1,color,txt,size:16+Math.random()*8});
+}
+function drawParticles(){
+  pCtx.clearRect(0,0,pCvs.width,pCvs.height);
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.life-=0.025;
+    if(p.life<=0){particles.splice(i,1);continue;}
+    pCtx.globalAlpha=p.life;
+    pCtx.fillStyle=p.color;
+    pCtx.font=`800 ${p.size}px 'Syne',sans-serif`;
+    pCtx.textAlign='center';
+    pCtx.fillText(p.txt,p.x,p.y);
+    // Sparkle dots
+    for(let j=0;j<2;j++){
+      pCtx.beginPath();
+      pCtx.arc(p.x+(Math.random()-0.5)*20,p.y+(Math.random()-0.5)*20,1+Math.random()*2,0,Math.PI*2);
+      pCtx.fillStyle=p.color;
+      pCtx.fill();
+    }
+  }
+  pCtx.globalAlpha=1;
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+window.addEventListener('resize',()=>{
+  pCvs.width=pCvs.offsetWidth||600; pCvs.height=pCvs.offsetHeight||500;
+});
+
+// ── COMPUTE STATS ─────────────────────────────────────────
+function getClickValue(){
+  let v = G.clickPow * G.prestigeMult;
+  v += G.clickFlat;
+  return Math.floor(v);
+}
+function getCPS(){
+  return G.cps * G.cpsMult * G.prestigeMult;
+}
+function getUpgradeCost(upg){
+  const lvl = G.upgrades[upg.id]||0;
+  return Math.floor(upg.baseCost * Math.pow(upg.costMult, lvl));
+}
+
+// ── CLICK HANDLER ─────────────────────────────────────────
+function handleClick(e){
+  e.preventDefault();
+  doClick(e.clientX, e.clientY);
+}
+function handleTouch(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  doClick(t.clientX,t.clientY);
+}
+
+function doClick(cx,cy){
+  const btn=document.getElementById('click-btn');
+  btn.classList.add('pressed');
+  setTimeout(()=>btn.classList.remove('pressed'),80);
+
+  let val = getClickValue();
+  if(G.boostActive) val *= G.boostMult;
+  val = Math.floor(val * G.comboVal);
+
+  // Combo
+  G.comboTimer = 30;
+  G.comboVal = Math.min(G.comboVal + (G.combo*0.1), 1 + G.combo*5);
+
+  // Crit check
+  let isCrit=false, isLucky=false;
+  if(Math.random()<G.critChance){ val*=5; isCrit=true; }
+  if(Math.random()<G.luckyChance){ val*=100; isLucky=true; }
+
+  if(val>G.bestCrit) G.bestCrit=val;
+
+  earn(val);
+  G.clicks++; G.totalClicks++;
+
+  // Particles
+  const rect=document.getElementById('click-btn-wrap').getBoundingClientRect();
+  const rx=cx-rect.left, ry=cy-rect.top;
+  const color = isLucky?'#ffd700':isCrit?'#ff3060':G.boostActive?'#ff8800':'#00f0ff';
+  const txt = isLucky?`🍀×100!`:isCrit?`💥 CRIT!`:`+${fmtNum(val)}`;
+
+  // Floating text via DOM
+  const ft=document.createElement('div');
+  ft.className='float-text'+(isCrit||isLucky?' crit-text':'');
+  ft.style.color=color;
+  ft.style.left=cx+'px';
+  ft.style.top=cy+'px';
+  ft.textContent=txt;
+  document.getElementById('clicker-center').appendChild(ft);
+  setTimeout(()=>ft.remove(),1000);
+
+  for(let i=0;i<(isLucky?8:isCrit?5:3);i++) spawnParticle(rx+(Math.random()-0.5)*60,ry+(Math.random()-0.5)*40,color,isCrit||isLucky?'✦':'·');
+
+  if(settings.sfx){ playClick(isCrit||isLucky); }
+  updateUI();
+  checkAchievements();
+}
+
+function earn(v){
+  G.coins+=v; G.totalCoins+=v; G.sessionCoins+=v;
+}
+
+// ── PASSIVE INCOME ────────────────────────────────────────
+setInterval(()=>{
+  const cps = getCPS();
+  if(cps>0){
+    earn(cps/20);
+    updateUI();
+  }
+  if(G.comboTimer>0){ G.comboTimer--; if(G.comboTimer===0) G.comboVal=1; }
+  if(G.boostActive){
+    G.boostTimer--;
+    if(G.boostTimer<=0){ G.boostActive=false; G.boostCooldown=30*20; updateBoostUI(); }
+  }
+  if(G.boostCooldown>0){ G.boostCooldown--; updateBoostUI(); }
+},50);
+
+// ── AUTO CLICK ────────────────────────────────────────────
+setInterval(()=>{
+  if(G.autoClick>0){
+    const btn=document.getElementById('click-btn');
+    const r=btn.getBoundingClientRect();
+    doClick(r.left+r.width/2, r.top+r.height/2);
+  }
+},1000/Math.max(G.autoClick,0.01));
+
+// ── BOOST ─────────────────────────────────────────────────
+function activateBoost(){
+  if(G.boostActive||G.boostCooldown>0) return;
+  G.boostActive=true;
+  G.boostTimer=G.boostDur*20;
+  updateBoostUI();
+  if(settings.sfx) playBoost();
+}
+
+function updateBoostUI(){
+  const lbl=document.getElementById('boost-label');
+  const fill=document.getElementById('boost-bar-fill');
+  if(G.boostActive){
+    lbl.className='boost-active-label'; lbl.textContent=`🔥 BOOST ×${G.boostMult} ACTIVE!`;
+    fill.style.width=(G.boostTimer/(G.boostDur*20)*100)+'%';
+    fill.style.background='linear-gradient(90deg,#ff3060,#ff8800)';
+  } else if(G.boostCooldown>0){
+    lbl.className=''; lbl.textContent='BOOST COOLING DOWN';
+    fill.style.width=(1-G.boostCooldown/(30*20))*100+'%';
+    fill.style.background='linear-gradient(90deg,var(--muted),var(--muted))';
+  } else {
+    lbl.className=''; lbl.textContent=`BOOST READY [${formatKey(settings.keybinds?.boost||'KeyB')}]`;
+    fill.style.width='100%';
+    fill.style.background='linear-gradient(90deg,var(--p1),var(--purple))';
+  }
+}
+
+function formatKey(code){ return code.replace('Key','').replace('Arrow','').toUpperCase(); }
+
+// ── UPGRADES ──────────────────────────────────────────────
+let currentUpgTab='click';
+function switchUpgTab(tab,btn){
+  currentUpgTab=tab;
+  document.querySelectorAll('.up-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUpgrades();
+}
+
+function renderUpgrades(){
+  const list=document.getElementById('upgrades-list');
+  const upgrades=UPGRADES_DATA[currentUpgTab];
+  list.innerHTML=upgrades.map(upg=>{
+    const lvl=G.upgrades[upg.id]||0;
+    const cost=getUpgradeCost(upg);
+    const maxed=lvl>=upg.maxLevel;
+    const canAfford=G.coins>=cost;
+    const pct=(lvl/upg.maxLevel)*100;
+    return `<div class="upg-card${maxed?' maxed maxed-badge':''}${canAfford&&!maxed?' affordable':''}"
+      style="--glow:${upg.glow}"
+      onclick="${maxed?'':`buyUpgrade('${upg.id}')`}">
+      <div class="upg-top">
+        <div class="upg-icon">${upg.icon}</div>
+        <div>
+          <div class="upg-name">${upg.name}</div>
+          <div class="upg-level">Level ${lvl}/${upg.maxLevel}</div>
+        </div>
+      </div>
+      <div class="upg-desc">${upg.desc}</div>
+      <div class="upg-cost">${maxed?'MAXED':'🪙 '+fmtNum(cost)}</div>
+      <div class="upg-bar-bg"><div class="upg-bar-fill" style="width:${pct}%;background:${upg.glow.replace('rgba','rgb').replace(',0.',',' ).replace(')',')')};opacity:0.8"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function buyUpgrade(id){
+  const upg=ALL_UPGRADES.find(u=>u.id===id);
+  if(!upg) return;
+  const lvl=G.upgrades[id]||0;
+  if(lvl>=upg.maxLevel) return;
+  const cost=getUpgradeCost(upg);
+  if(G.coins<cost) return;
+  G.coins-=cost;
+  G.upgrades[id]=(lvl+1);
+  G.upgradeCount++;
+  applyUpgrade(upg,1);
+  renderUpgrades();
+  updateUI();
+  checkAchievements();
+  if(settings.sfx) playBuy();
+  // Save every few upgrades
+  scheduleSave();
+}
+
+function applyUpgrade(upg,times=1){
+  for(let i=0;i<times;i++){
+    switch(upg.effect){
+      case 'clickPow': G.clickPow*=upg.val; break;
+      case 'clickFlat': G.clickFlat+=upg.val; break;
+      case 'cps': G.cps+=upg.val; break;
+      case 'cpsMult': G.cpsMult*=upg.val; break;
+      case 'critChance': G.critChance+=upg.val; break;
+      case 'combo': G.combo+=upg.val; break;
+      case 'boostDur': G.boostDur+=upg.val; break;
+      case 'boostMult': G.boostMult*=upg.val; break;
+      case 'offlinePct': G.offlinePct+=upg.val; break;
+      case 'luckyChance': G.luckyChance+=upg.val; break;
+      case 'prestigeBonus': G.prestigeBonus+=upg.val; break;
+      case 'autoClick': G.autoClick+=upg.val; break;
+      case 'megaBoost': G.megaBoost+=upg.val; break;
+    }
+  }
+}
+
+function reapplyAllUpgrades(){
+  // Reset computed stats then replay
+  G.clickPow=1; G.clickFlat=0; G.cps=0; G.cpsMult=1;
+  G.critChance=0.05; G.combo=0; G.boostDur=8; G.boostMult=3;
+  G.offlinePct=0; G.luckyChance=0; G.prestigeBonus=0; G.autoClick=0; G.megaBoost=0;
+  Object.entries(G.upgrades).forEach(([id,lvl])=>{
+    const upg=ALL_UPGRADES.find(u=>u.id===id);
+    if(upg) applyUpgrade(upg,lvl);
+  });
+}
+
+// ── PRESTIGE ──────────────────────────────────────────────
+function checkPrestigeBtn(){
+  const btn=document.getElementById('prestige-btn');
+  btn.style.display = G.totalCoins >= 1000000 ? 'block' : 'none';
+}
+
+function doPrestige(){
+  if(!confirm('Prestige resets your coins and upgrades but gives a permanent ×2 multiplier bonus.\n\nReady to prestige?')) return;
+  G.prestige++;
+  G.prestigeMult = 1 + G.prestige * (1 + G.prestigeBonus);
+  G.coins=0; G.sessionCoins=0;
+  G.upgrades={};
+  reapplyAllUpgrades();
+  G.upgradeCount=0;
+  document.getElementById('stat-prestige').textContent=G.prestige;
+  renderUpgrades();
+  updateUI();
+  scheduleSave();
+  showAchievement({id:'prestige',name:'Prestiged!',icon:'✨'});
+}
+
+// ── ACHIEVEMENTS ──────────────────────────────────────────
+function checkAchievements(){
+  const stats={totalCoins:G.totalCoins,totalClicks:G.totalClicks,bestCrit:G.bestCrit,prestige:G.prestige,upgradeCount:G.upgradeCount};
+  ACHIEVEMENTS.forEach(a=>{
+    if(!G.achievementsUnlocked.has(a.id)&&a.check(stats)){
+      G.achievementsUnlocked.add(a.id);
+      showAchievement(a);
+    }
+  });
+  renderAchievements();
+}
+
+function showAchievement(a){
+  const root=document.getElementById('ach-root');
+  const el=document.createElement('div');
+  el.className='ach-toast';
+  el.innerHTML=`<div class="ach-icon">${a.icon}</div><div class="ach-text"><div class="ach-t">achievement unlocked</div><div class="ach-n">${a.name}</div></div>`;
+  root.appendChild(el);
+  setTimeout(()=>el.remove(),4000);
+}
+
+function renderAchievements(){
+  const list=document.getElementById('ach-list');
+  list.innerHTML=ACHIEVEMENTS.map(a=>{
+    const done=G.achievementsUnlocked.has(a.id);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:4px;background:${done?'rgba(255,215,0,0.05)':'var(--surface2)'};border:1px solid ${done?'rgba(255,215,0,0.2)':'var(--border)'};font-size:10px;opacity:${done?1:0.4}">
+      <span style="font-size:16px">${a.icon}</span>
+      <div><div style="font-weight:700;color:${done?'var(--gold)':'var(--muted)'}">${a.name}</div><div style="color:var(--muted)">${a.desc}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── UI UPDATE ─────────────────────────────────────────────
+function fmtNum(n){
+  if(n>=1e12) return (n/1e12).toFixed(1)+'T';
+  if(n>=1e9) return (n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if(n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return Math.floor(n).toString();
+}
+
+function updateUI(){
+  document.getElementById('stat-coins').textContent='🪙 '+fmtNum(G.coins);
+  document.getElementById('stat-cps').textContent=fmtNum(getCPS())+'/s';
+  document.getElementById('stat-clicks').textContent=fmtNum(G.totalClicks);
+  document.getElementById('stat-mult').textContent='×'+G.prestigeMult.toFixed(1);
+  document.getElementById('rp-session').textContent='🪙 '+fmtNum(G.sessionCoins);
+  document.getElementById('rp-power').textContent=fmtNum(getClickValue());
+  document.getElementById('rp-passive').textContent=fmtNum(getCPS())+'/s';
+  document.getElementById('rp-bestcrit').textContent=fmtNum(G.bestCrit);
+  document.getElementById('rp-upgs').textContent=G.upgradeCount;
+  document.getElementById('rp-key').textContent=formatKey(settings.keybinds?.click||'Space');
+  document.getElementById('btn-sub').textContent=`+${fmtNum(getClickValue())} per click`;
+  checkPrestigeBtn();
+}
+
+// ── SAVE / LOAD ───────────────────────────────────────────
+let saveTimeout=null;
+function scheduleSave(){ if(saveTimeout) clearTimeout(saveTimeout); saveTimeout=setTimeout(saveGame,2000); }
+
+async function saveGame(){
+  const save={
+    coins:G.coins, totalCoins:G.totalCoins, clicks:G.clicks, totalClicks:G.totalClicks,
+    upgrades:G.upgrades, prestige:G.prestige, prestigeMult:G.prestigeMult,
+    bestCrit:G.bestCrit, upgradeCount:G.upgradeCount,
+    achievementsUnlocked:[...G.achievementsUnlocked],
+    lastSave:Date.now()
+  };
+  localStorage.setItem('cf_save',JSON.stringify(save));
+
+  if(window._pfSession&&!guestMode){
+    try{
+      await pfSetPlayerData({
+        coins: String(Math.floor(G.coins)),
+        clicks: String(G.totalClicks),
+        upgrades: JSON.stringify(G.upgrades),
+        prestige: String(G.prestige),
+        last_save: String(Date.now()),
+        offline_pct: String(G.offlinePct),
+        game_save: JSON.stringify(save),
+      });
+      await pfUpdateStat('TotalCoins', Math.floor(G.totalCoins));
+      await pfUpdateStat('TotalClicks', Math.floor(G.totalClicks));
+      // Post to parent for shop sync
+      window.parent.postMessage({type:'coins_update',coins:Math.floor(G.coins)},'*');
+    }catch{}
+  }
+}
+
+function loadGame(){
+  const raw=localStorage.getItem('cf_save');
+  if(!raw) return false;
+  try{
+    const s=JSON.parse(raw);
+    G.coins=s.coins||0; G.totalCoins=s.totalCoins||0;
+    G.clicks=s.clicks||0; G.totalClicks=s.totalClicks||0;
+    G.upgrades=s.upgrades||{}; G.prestige=s.prestige||0;
+    G.prestigeMult=s.prestigeMult||1; G.bestCrit=s.bestCrit||0;
+    G.upgradeCount=s.upgradeCount||0;
+    G.achievementsUnlocked=new Set(s.achievementsUnlocked||[]);
+
+    // Offline earnings
+    if(s.lastSave){
+      const elapsed=(Date.now()-s.lastSave)/1000;
+      const offlineEarned=Math.floor(getCPS()*elapsed*G.offlinePct);
+      if(offlineEarned>100){
+        G.coins+=offlineEarned; G.totalCoins+=offlineEarned;
+        const banner=document.getElementById('offline-banner-wrap');
+        banner.innerHTML=`<div class="offline-banner">💤 <b>Offline earnings</b><br>+🪙${fmtNum(offlineEarned)} while you were away (${Math.floor(elapsed/60)}m)</div>`;
+        setTimeout(()=>banner.innerHTML='',6000);
+      }
+    }
+    reapplyAllUpgrades();
+    return true;
+  }catch{return false;}
+}
+
+// Also load from PlayFab if logged in
+async function loadFromPlayFab(){
+  if(!window._pfSession) return;
+  try{
+    const d=await pfGetPlayerData(['game_save','coins','clicks']);
+    const save=d.Data?.game_save?.Value;
+    if(save){
+      const s=JSON.parse(save);
+      // Only use PF save if it's newer
+      const local=JSON.parse(localStorage.getItem('cf_save')||'{}');
+      if(!local.lastSave||s.lastSave>local.lastSave){
+        localStorage.setItem('cf_save',save);
+        loadGame();
+        reapplyAllUpgrades();
+        renderUpgrades();
+        updateUI();
+        renderAchievements();
+      }
+    }
+  }catch{}
+}
+
+// ── MINI LEADERBOARD ─────────────────────────────────────
+async function loadMiniLb(){
+  const el=document.getElementById('mini-lb');
+  el.innerHTML='<div style="font-size:10px;color:var(--muted)">loading...</div>';
+  if(!window._pfSession){ el.innerHTML='<div style="font-size:10px;color:var(--muted)">sign in to view</div>'; return; }
+  try{
+    const data=await pfGetLeaderboard('TotalCoins',5);
+    const entries=data.Leaderboard||[];
+    const medals=['🥇','🥈','🥉'];
+    el.innerHTML=entries.map((e,i)=>{
+      const isMe=e.PlayFabId===window._pfPlayer?.id;
+      return `<div class="mini-lb-row${isMe?' mini-lb-me':''}">
+        <div class="mini-lb-rank">${i<3?medals[i]:'#'+(i+1)}</div>
+        <div class="mini-lb-name">${e.DisplayName||'Anon'}</div>
+        <div class="mini-lb-val">🪙${fmtNum(e.StatValue)}</div>
+      </div>`;
+    }).join('');
+  }catch{el.innerHTML='<div style="font-size:10px;color:var(--muted)">error loading</div>';}
+}
+
+// ── AUDIO ─────────────────────────────────────────────────
+let ac=null;
+function getAC(){ if(!ac) ac=new(window.AudioContext||window.webkitAudioContext)(); return ac; }
+function playClick(big=false){
+  try{
+    const a=getAC(); const o=a.createOscillator(); const g=a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.frequency.value=big?880:400+(Math.random()*100);
+    o.frequency.exponentialRampToValueAtTime(big?1200:600,a.currentTime+0.05);
+    g.gain.value=0.06; g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.08);
+    o.start(); o.stop(a.currentTime+0.08);
+  }catch{}
+}
+function playBuy(){
+  try{
+    const a=getAC(); const o=a.createOscillator(); const g=a.createGain();
+    o.connect(g); g.connect(a.destination); o.type='triangle';
+    o.frequency.value=523; o.frequency.setValueAtTime(660,a.currentTime+0.1);
+    o.frequency.setValueAtTime(784,a.currentTime+0.2);
+    g.gain.value=0.08; g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.35);
+    o.start(); o.stop(a.currentTime+0.35);
+  }catch{}
+}
+function playBoost(){
+  try{
+    const a=getAC(); const o=a.createOscillator(); const g=a.createGain();
+    o.connect(g); g.connect(a.destination); o.type='sawtooth';
+    o.frequency.value=200; o.frequency.exponentialRampToValueAtTime(800,a.currentTime+0.3);
+    g.gain.value=0.1; g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.4);
+    o.start(); o.stop(a.currentTime+0.4);
+  }catch{}
+}
+
+// ── KEYBINDS ──────────────────────────────────────────────
+window.addEventListener('keydown',e=>{
+  const kb=settings.keybinds||{};
+  if(e.code===kb.click||e.code==='Space'){
+    e.preventDefault();
+    const btn=document.getElementById('click-btn');
+    const r=btn.getBoundingClientRect();
+    doClick(r.left+r.width/2,r.top+r.height/2);
+  }
+  if(e.code===kb.boost||e.code==='KeyB'){ e.preventDefault(); activateBoost(); }
+});
+
+// ── MESSAGES FROM HUB ─────────────────────────────────────
+window.addEventListener('message',e=>{
+  if(e.data?.type==='auth'){
+    window._pfSession=e.data.session;
+    window._pfPlayer=e.data.player;
+    document.getElementById('login-prompt').classList.add('hidden');
+    guestMode=false;
+    loadFromPlayFab().then(()=>{ loadMiniLb(); });
+  }
+  if(e.data?.type==='settings'){
+    settings={...settings,...e.data.settings};
+    updateUI();
+  }
+  if(e.data?.type==='cosmetics'){
+    applyCosmetics(e.data.equipped);
+  }
+  if(e.data?.type==='open_auth'){
+    window.parent.postMessage({type:'open_auth'},'*');
+  }
+});
+
+// ── COSMETICS ─────────────────────────────────────────────
+function applyCosmetics(equipped){
+  if(!equipped) return;
+  // Button skin
+  const btn=document.getElementById('click-btn');
+  const btnSkins={
+    btn_default:'rgba(0,240,255,0.2)',
+    btn_neon:'rgba(0,240,255,0.35)',
+    btn_lava:'rgba(255,68,0,0.25)',
+    btn_void:'rgba(153,69,255,0.25)',
+    btn_holo:'linear-gradient(135deg,rgba(255,215,0,0.2),rgba(153,69,255,0.2))',
+  };
+  const btnColors={
+    btn_default:'#00f0ff',btn_neon:'#00f0ff',btn_lava:'#ff4400',btn_void:'#9945ff',btn_holo:'#ffd700'
+  };
+  if(equipped.button&&btnSkins[equipped.button]){
+    btn.style.background=btnSkins[equipped.button];
+    btn.style.borderColor=btnColors[equipped.button]||'#00f0ff';
+    btn.style.boxShadow=`0 0 40px ${btnColors[equipped.button]||'#00f0ff'}44,inset 0 0 40px ${btnColors[equipped.button]||'#00f0ff'}11`;
+  }
+}
+
+function playAsGuest(){
+  guestMode=true;
+  document.getElementById('login-prompt').classList.add('hidden');
+}
+
+// ── BOOT ──────────────────────────────────────────────────
+loadGame();
+reapplyAllUpgrades();
+renderUpgrades();
+updateUI();
+renderAchievements();
+updateBoostUI();
+
+// Check if session already exists
+if(window._pfSession||loadSession()){
+  document.getElementById('login-prompt').classList.add('hidden');
+  loadFromPlayFab().then(()=>{ loadMiniLb(); });
+} else {
+  setTimeout(()=>{ document.getElementById('login-prompt').classList.remove('hidden'); },1500);
+}
+
+// Auto-save every 15s
+setInterval(()=>{ saveGame(); }, 15000);
+// Refresh leaderboard every 30s
+setInterval(()=>{ if(window._pfSession) loadMiniLb(); }, 30000);
+// Render upgrades periodically (affordability)
+setInterval(()=>{ renderUpgrades(); updateBoostUI(); }, 500);
+</script>
+</body>
+</html>

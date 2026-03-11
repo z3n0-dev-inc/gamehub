@@ -734,6 +734,8 @@ async function doRegister(){
   const btn = document.getElementById('reg-btn');
   err.classList.remove('show');
   if(!uname||!email||!pw){ err.textContent='Please fill all fields'; err.classList.add('show'); return; }
+  if(uname.length < 3){ err.textContent='Username must be at least 3 characters'; err.classList.add('show'); return; }
+  if(!/^[a-zA-Z0-9_]+$/.test(uname)){ err.textContent='Username: letters, numbers, and _ only'; err.classList.add('show'); return; }
   if(pw.length<6){ err.textContent='Password must be at least 6 characters'; err.classList.add('show'); return; }
   btn.textContent='Creating...'; btn.disabled=true;
   try {
@@ -742,7 +744,11 @@ async function doRegister(){
     onLoggedIn();
     toast(`Account created! Welcome, ${uname}!`, 'success');
   } catch(e){
-    err.textContent = e.message; err.classList.add('show');
+    let msg = e.message;
+    if(msg.includes('already exists') || msg.includes('EmailAddressAlreadyUsed')) msg = 'Email already registered';
+    if(msg.includes('UsernameNotAvailable')) msg = 'Username already taken';
+    if(msg.includes('InvalidParams') || msg.includes('Username')) msg = 'Invalid username — use 3-20 letters/numbers';
+    err.textContent = msg; err.classList.add('show');
   }
   btn.textContent='Create Account'; btn.disabled=false;
 }
@@ -830,25 +836,43 @@ function loadSettings(){
 }
 
 let listeningFor = null;
+let _kbHandler = null;
+let _kbClickCancel = null;
 function listenKeybind(action, btn){
-  if(listeningFor){ document.querySelectorAll('.keybind-btn').forEach(b=>b.classList.remove('listening')); }
-  listeningFor = action; btn.classList.add('listening'); btn.textContent='...';
-  const handler = (e)=>{
-    e.preventDefault();
-    settings.keybinds[action] = e.code;
-    btn.textContent = e.code.replace('Key','').replace('Arrow','').toUpperCase();
-    btn.classList.remove('listening');
-    listeningFor = null;
-    saveSettings();
-    window.removeEventListener('keydown', handler);
-  };
-  window.addEventListener('keydown', handler, {once:false});
-  // click elsewhere = cancel
+  // Cancel any existing listener first
+  if(_kbHandler){ window.removeEventListener('keydown', _kbHandler, true); _kbHandler=null; }
+  if(_kbClickCancel){ window.removeEventListener('mousedown', _kbClickCancel, true); _kbClickCancel=null; }
+  document.querySelectorAll('.keybind-btn').forEach(b=>b.classList.remove('listening'));
+  listeningFor = action; btn.classList.add('listening'); btn.textContent='PRESS KEY...';
+
+  // Delay so the click event that triggered this doesn't also fire the keydown
   setTimeout(()=>{
-    window.addEventListener('click', ()=>{
-      if(listeningFor===action){ btn.classList.remove('listening'); listeningFor=null; loadSettings(); window.removeEventListener('keydown',handler); }
-    },{once:true});
-  },100);
+    _kbHandler = (e)=>{
+      if(['Shift','Control','Alt','Meta'].includes(e.key)) return;
+      e.preventDefault(); e.stopPropagation();
+      settings.keybinds[action] = e.code;
+      const display = e.code.replace('Key','').replace('Arrow','').replace('Digit','').toUpperCase();
+      btn.textContent = display;
+      btn.classList.remove('listening');
+      listeningFor = null;
+      window.removeEventListener('keydown', _kbHandler, true);
+      _kbHandler = null;
+      saveSettings();
+      toast('Keybind saved: ' + display, 'success');
+    };
+    window.addEventListener('keydown', _kbHandler, true);
+
+    _kbClickCancel = (e)=>{
+      if(e.target === btn) return; // ignore clicking the same button
+      if(listeningFor===action){
+        btn.classList.remove('listening');
+        listeningFor=null;
+        loadSettings();
+        if(_kbHandler){ window.removeEventListener('keydown', _kbHandler, true); _kbHandler=null; }
+      }
+    };
+    window.addEventListener('mousedown', _kbClickCancel, {capture:true});
+  }, 250);
 }
 
 function toggleSetting(key, btn){

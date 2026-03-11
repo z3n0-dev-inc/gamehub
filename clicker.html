@@ -79,21 +79,45 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
 /* MAIN BUTTON */
 #click-btn-wrap{position:relative;z-index:5;margin-top:40px;}
-#click-btn{
-  width:180px;height:180px;border-radius:50%;border:3px solid var(--p1);
-  background:radial-gradient(circle at 40% 35%,rgba(0,240,255,0.2),rgba(0,240,255,0.05));
-  cursor:pointer;transition:all 0.08s;position:relative;
-  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;
-  box-shadow:0 0 40px rgba(0,240,255,0.2),inset 0 0 40px rgba(0,240,255,0.05);
-  font-family:var(--mono);
-  user-select:none;-webkit-user-select:none;
+#click-btn-rings{position:absolute;inset:-30px;pointer-events:none;}
+.ring{
+  position:absolute;inset:0;border-radius:50%;border:1px solid rgba(0,240,255,0.15);
+  animation:ring-pulse 3s ease-out infinite;
 }
-#click-btn:hover{transform:scale(1.04);box-shadow:0 0 60px rgba(0,240,255,0.35),inset 0 0 50px rgba(0,240,255,0.1);}
-#click-btn:active{transform:scale(0.94);}
-#click-btn.pressed{transform:scale(0.92)!important;}
-.btn-icon{font-size:48px;pointer-events:none;}
-.btn-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--p1);pointer-events:none;}
-.btn-sub{font-size:9px;color:var(--muted);pointer-events:none;}
+.ring:nth-child(2){animation-delay:1s;border-color:rgba(153,69,255,0.12);}
+.ring:nth-child(3){animation-delay:2s;border-color:rgba(0,240,255,0.08);}
+@keyframes ring-pulse{
+  0%{transform:scale(0.7);opacity:0.8;}
+  100%{transform:scale(1.3);opacity:0;}
+}
+#click-btn{
+  width:190px;height:190px;border-radius:50%;border:2px solid var(--p1);
+  background:radial-gradient(circle at 40% 35%,rgba(0,240,255,0.15) 0%,rgba(0,240,255,0.03) 60%,transparent 100%);
+  cursor:pointer;transition:transform 0.08s, box-shadow 0.12s;position:relative;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;
+  box-shadow:0 0 50px rgba(0,240,255,0.25),0 0 100px rgba(0,240,255,0.08),inset 0 0 40px rgba(0,240,255,0.06);
+  font-family:var(--mono);user-select:none;-webkit-user-select:none;
+  overflow:visible;
+}
+#click-btn::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(0,240,255,0.08);
+}
+#click-btn::after{
+  content:'';position:absolute;inset:8px;border-radius:50%;
+  border:1px solid rgba(0,240,255,0.06);
+}
+#click-btn:hover{transform:scale(1.05);box-shadow:0 0 80px rgba(0,240,255,0.4),0 0 140px rgba(0,240,255,0.12),inset 0 0 60px rgba(0,240,255,0.1);}
+#click-btn:active{transform:scale(0.93);}
+#click-btn.pressed{transform:scale(0.91)!important;box-shadow:0 0 100px rgba(0,240,255,0.6),inset 0 0 80px rgba(0,240,255,0.15)!important;}
+.btn-svg-wrap{
+  width:56px;height:56px;display:flex;align-items:center;justify-content:center;
+  position:relative;pointer-events:none;
+}
+.btn-svg-wrap svg{width:44px;height:44px;fill:none;stroke:var(--p1);stroke-width:1.2;
+  stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px var(--p1));}
+.btn-label{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--p1);pointer-events:none;text-shadow:0 0 10px rgba(0,240,255,0.5);}
+.btn-sub{font-size:9px;color:var(--muted);pointer-events:none;letter-spacing:1px;}
 
 /* BOOST BAR */
 #boost-wrap{position:relative;z-index:5;margin-top:16px;text-align:center;}
@@ -102,6 +126,35 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 #boost-label{font-size:9px;color:var(--muted);letter-spacing:2px;}
 .boost-active-label{color:var(--p2)!important;animation:flicker 0.4s infinite alternate;}
 @keyframes flicker{from{opacity:1}to{opacity:0.5}}
+
+/* UPGRADE ICONS - SVG based */
+.upg-icon-wrap{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.upg-icon-wrap svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.upg-card{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:12px;cursor:pointer;transition:all 0.18s;position:relative;overflow:hidden;
+}
+.upg-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;
+  background:radial-gradient(ellipse at top left,var(--glow,rgba(0,240,255,0.1)) 0%,transparent 70%);}
+.upg-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--glow-line,rgba(0,240,255,0.3)),transparent);
+  opacity:0;transition:opacity 0.2s;}
+.upg-card:hover::before,.upg-card:hover::after{opacity:1;}
+.upg-card:hover{border-color:rgba(255,255,255,0.1);transform:translateX(3px);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.upg-card.maxed{opacity:0.45;pointer-events:none;}
+.upg-card.maxed-badge::after{content:'MAX';position:absolute;top:8px;right:8px;font-size:8px;font-weight:800;
+  letter-spacing:2px;color:var(--green);border:1px solid var(--green);padding:2px 6px;border-radius:2px;
+  background:rgba(0,255,136,0.08);height:auto;width:auto;left:auto;bottom:auto;opacity:1;}
+.upg-card.affordable{border-color:rgba(255,215,0,0.25);}
+.upg-card.affordable .upg-cost{color:var(--gold);}
+
+/* ANIMATED BG GRID */
+#grid-canvas{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0.3;}
 
 /* CLICK FLOATING TEXT */
 .float-text{
@@ -180,8 +233,19 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 }
 .lp-btn:hover{transform:scale(1.05);box-shadow:0 0 24px rgba(0,240,255,0.4);}
 
-/* ACHIEVEMENT POP */
-#ach-root{position:fixed;top:80px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+/* UPGRADE PANEL HEADER */
+.up-header-title{
+  font-family:var(--display);font-size:13px;font-weight:800;letter-spacing:3px;
+  display:flex;align-items:center;gap:8px;
+}
+.up-header-title-icon{
+  width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+}
+.up-header-title-icon svg{width:16px;height:16px;fill:none;stroke:var(--p1);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+/* UPGRADE PANEL improved scrollbar */
+#upgrades-panel{
+  background:linear-gradient(180deg,var(--surface) 0%,rgba(14,14,26,0.98) 100%);
+}{position:fixed;top:80px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
 .ach-toast{
   display:flex;align-items:center;gap:12px;
   background:var(--surface2);border:1px solid var(--gold);border-radius:8px;
@@ -203,7 +267,10 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
   <!-- UPGRADES -->
   <div id="upgrades-panel">
     <div class="up-header">
-      <div class="up-header-title">⚡ UPGRADES</div>
+      <div class="up-header-title">
+        <div class="up-header-title-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        UPGRADES
+      </div>
       <div class="up-tabs">
         <button class="up-tab active" onclick="switchUpgTab('click',this)">Click</button>
         <button class="up-tab" onclick="switchUpgTab('passive',this)">Passive</button>
@@ -215,6 +282,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
   <!-- CLICKER CENTER -->
   <div id="clicker-center">
+    <canvas id="grid-canvas"></canvas>
     <canvas id="particles-canvas"></canvas>
 
     <!-- STATS -->
@@ -236,8 +304,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
     <!-- CLICK BUTTON -->
     <div id="click-btn-wrap">
+      <div id="click-btn-rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
       <button id="click-btn" onmousedown="handleClick(event)" ontouchstart="handleTouch(event)">
-        <span class="btn-icon" id="btn-icon">🖱️</span>
+        <div class="btn-svg-wrap" id="btn-icon-wrap">
+          <svg viewBox="0 0 24 24" id="btn-svg"><path d="M12 2a7 7 0 0 0-7 7v6a7 7 0 0 0 14 0V9a7 7 0 0 0-7-7z"/><line x1="12" y1="2" x2="12" y2="9"/></svg>
+        </div>
         <span class="btn-label">CLICK</span>
         <span class="btn-sub" id="btn-sub">+1 per click</span>
       </button>
@@ -283,38 +354,68 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <script src="pf.js"></script>
 <script>
 // ── UPGRADES DATA ─────────────────────────────────────────
+// SVG icon definitions
+const SVG_ICONS = {
+  mouse: `<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7v6a7 7 0 0 0 14 0V9a7 7 0 0 0-7-7z"/><line x1="12" y1="2" x2="12" y2="9"/></svg>`,
+  keyboard: `<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="10"/><line x1="10" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="14" y2="10"/><line x1="18" y1="10" x2="18" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg>`,
+  chair: `<svg viewBox="0 0 24 24"><path d="M6 9V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/><path d="M4 9h16v2a6 6 0 0 1-6 6H10A6 6 0 0 1 4 11V9z"/><line x1="8" y1="17" x2="8" y2="21"/><line x1="16" y1="17" x2="16" y2="21"/></svg>`,
+  rgb: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>`,
+  hands: `<svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34L4 19c-.93-.93-.26-2.52 1-2.52h.92l2.1-2.1A4.49 4.49 0 0 1 10 13v-2.5a2 2 0 0 1 2-2 2 2 0 0 1 2 2V12"/></svg>`,
+  glove: `<svg viewBox="0 0 24 24"><path d="M7 11v-4a2 2 0 0 1 4 0v4"/><path d="M11 7V5a2 2 0 0 1 4 0v4"/><path d="M15 9V7a2 2 0 0 1 4 0v8a6 6 0 0 1-6 6H9a6 6 0 0 1-6-6V11a2 2 0 0 1 2-2h2v-4a2 2 0 0 1 4 0v4"/></svg>`,
+  brain: `<svg viewBox="0 0 24 24"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24A2.5 2.5 0 0 0 14.5 2Z"/></svg>`,
+  atom: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"/><path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"/></svg>`,
+  star: `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  coffee: `<svg viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>`,
+  bot: `<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>`,
+  server: `<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`,
+  chip: `<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M16 2v3M20 7h-1M21 12h-1M20 17h-1M16 22v-3M12 22v-3M8 22v-3M4 17h1M3 12h1M4 7h1M8 2v3M12 2v3"/></svg>`,
+  cloud: `<svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>`,
+  laptop: `<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  globe: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  clock: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  crosshair: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>`,
+  flame: `<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>`,
+  zap: `<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  rocket: `<svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>`,
+  moon: `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+  clover: `<svg viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 1 4 4 4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4-4z"/><line x1="12" y1="14" x2="12" y2="22"/></svg>`,
+  gem: `<svg viewBox="0 0 24 24"><polygon points="6 3 18 3 22 9 12 22 2 9"/><polyline points="2 9 12 14 22 9"/><line x1="12" y1="3" x2="12" y2="14"/></svg>`,
+  autobot: `<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><circle cx="9" cy="14" r="2"/><circle cx="15" cy="14" r="2"/><path d="M8 8V5c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v3"/><line x1="12" y1="2" x2="12" y2="5"/></svg>`,
+  comet: `<svg viewBox="0 0 24 24"><path d="M17.5 3A3.5 3.5 0 0 1 21 6.5c0 .5 0 1.5-1 2.5l-9 9C9.56 19.44 7 20 5 20c-1.5 0-3-.5-4-1.5-2-2 0-6 2-8l9-9c1-1 2-1 2.5-1A3.5 3.5 0 0 1 17.5 3z"/><polyline points="7 21 9 15 15 9 21 7"/></svg>`,
+};
+
 const UPGRADES_DATA = {
   click:[
-    {id:'c1',name:'Better Mouse',icon:'🖱️',desc:'Double your click power',baseCost:50,maxLevel:10,costMult:2.2,effect:'clickPow',val:2,type:'mult',glow:'rgba(0,240,255,0.15)'},
-    {id:'c2',name:'Mechanical Keyboard',icon:'⌨️',desc:'+5 bonus per click',baseCost:200,maxLevel:15,costMult:2.0,effect:'clickFlat',val:5,type:'flat',glow:'rgba(0,240,255,0.1)'},
-    {id:'c3',name:'Ergonomic Setup',icon:'🪑',desc:'Triple click power',baseCost:800,maxLevel:8,costMult:2.8,effect:'clickPow',val:3,type:'mult',glow:'rgba(153,69,255,0.15)'},
-    {id:'c4',name:'RGB Everything',icon:'🌈',desc:'+25 per click (obviously)',baseCost:2000,maxLevel:10,costMult:2.5,effect:'clickFlat',val:25,type:'flat',glow:'rgba(255,0,200,0.1)'},
-    {id:'c5',name:'10-Finger Technique',icon:'🤲',desc:'×5 click power',baseCost:10000,maxLevel:5,costMult:3.5,effect:'clickPow',val:5,type:'mult',glow:'rgba(0,240,255,0.2)'},
-    {id:'c6',name:'Wrist Warmers',icon:'🧤',desc:'+100 per click',baseCost:25000,maxLevel:8,costMult:3.0,effect:'clickFlat',val:100,type:'flat',glow:'rgba(255,136,0,0.1)'},
-    {id:'c7',name:'Neural Interface',icon:'🧠',desc:'×10 click power. Big brain.',baseCost:100000,maxLevel:5,costMult:4.0,effect:'clickPow',val:10,type:'mult',glow:'rgba(153,69,255,0.2)'},
-    {id:'c8',name:'Quantum Clicking',icon:'⚛️',desc:'+1000 per click',baseCost:500000,maxLevel:5,costMult:4.5,effect:'clickFlat',val:1000,type:'flat',glow:'rgba(0,240,255,0.25)'},
-    {id:'c9',name:'God Mode Cursor',icon:'✨',desc:'×50 all click power',baseCost:5000000,maxLevel:3,costMult:6.0,effect:'clickPow',val:50,type:'mult',glow:'rgba(255,215,0,0.2)'},
+    {id:'c1',name:'Better Mouse',svgIcon:'mouse',iconColor:'#00f0ff',desc:'Double your click power',baseCost:50,maxLevel:10,costMult:2.2,effect:'clickPow',val:2,type:'mult',glow:'rgba(0,240,255,0.15)',glowLine:'rgba(0,240,255,0.4)'},
+    {id:'c2',name:'Mech Keyboard',svgIcon:'keyboard',iconColor:'#7ec8ff',desc:'+5 bonus per click',baseCost:200,maxLevel:15,costMult:2.0,effect:'clickFlat',val:5,type:'flat',glow:'rgba(0,180,255,0.12)',glowLine:'rgba(0,180,255,0.4)'},
+    {id:'c3',name:'Ergo Setup',svgIcon:'chair',iconColor:'#9945ff',desc:'Triple click power',baseCost:800,maxLevel:8,costMult:2.8,effect:'clickPow',val:3,type:'mult',glow:'rgba(153,69,255,0.15)',glowLine:'rgba(153,69,255,0.4)'},
+    {id:'c4',name:'RGB Everything',svgIcon:'rgb',iconColor:'#ff00cc',desc:'+25 per click (obviously)',baseCost:2000,maxLevel:10,costMult:2.5,effect:'clickFlat',val:25,type:'flat',glow:'rgba(255,0,200,0.12)',glowLine:'rgba(255,0,200,0.4)'},
+    {id:'c5',name:'10-Finger Tech',svgIcon:'hands',iconColor:'#00f0ff',desc:'×5 click power',baseCost:10000,maxLevel:5,costMult:3.5,effect:'clickPow',val:5,type:'mult',glow:'rgba(0,240,255,0.2)',glowLine:'rgba(0,240,255,0.5)'},
+    {id:'c6',name:'Wrist Warmers',svgIcon:'glove',iconColor:'#ff8800',desc:'+100 per click',baseCost:25000,maxLevel:8,costMult:3.0,effect:'clickFlat',val:100,type:'flat',glow:'rgba(255,136,0,0.12)',glowLine:'rgba(255,136,0,0.4)'},
+    {id:'c7',name:'Neural Interface',svgIcon:'brain',iconColor:'#c77dff',desc:'×10 click power',baseCost:100000,maxLevel:5,costMult:4.0,effect:'clickPow',val:10,type:'mult',glow:'rgba(153,69,255,0.2)',glowLine:'rgba(199,125,255,0.5)'},
+    {id:'c8',name:'Quantum Clicking',svgIcon:'atom',iconColor:'#00f0ff',desc:'+1000 per click',baseCost:500000,maxLevel:5,costMult:4.5,effect:'clickFlat',val:1000,type:'flat',glow:'rgba(0,240,255,0.25)',glowLine:'rgba(0,240,255,0.6)'},
+    {id:'c9',name:'God Mode Cursor',svgIcon:'star',iconColor:'#ffd700',desc:'×50 all click power',baseCost:5000000,maxLevel:3,costMult:6.0,effect:'clickPow',val:50,type:'mult',glow:'rgba(255,215,0,0.2)',glowLine:'rgba(255,215,0,0.5)'},
   ],
   passive:[
-    {id:'p1',name:'Coffee Machine',icon:'☕',desc:'Automatically earns coins while you sleep',baseCost:100,maxLevel:20,costMult:1.8,effect:'cps',val:1,type:'flat',glow:'rgba(139,69,19,0.15)'},
-    {id:'p2',name:'Mining Bot',icon:'🤖',desc:'Bot clicks for you (+3/sec)',baseCost:500,maxLevel:15,costMult:2.0,effect:'cps',val:3,type:'flat',glow:'rgba(0,240,255,0.1)'},
-    {id:'p3',name:'Server Farm',icon:'🖥️',desc:'Each server earns +10/sec',baseCost:2000,maxLevel:12,costMult:2.3,effect:'cps',val:10,type:'flat',glow:'rgba(0,255,136,0.1)'},
-    {id:'p4',name:'AI Assistant',icon:'🤖',desc:'Passive ×2 multiplier on all CPS',baseCost:8000,maxLevel:8,costMult:2.8,effect:'cpsMult',val:2,type:'mult',glow:'rgba(153,69,255,0.15)'},
-    {id:'p5',name:'Cloud Cluster',icon:'☁️',desc:'+50 coins/sec from the cloud',baseCost:30000,maxLevel:10,costMult:3.0,effect:'cps',val:50,type:'flat',glow:'rgba(100,200,255,0.1)'},
-    {id:'p6',name:'Quantum Computer',icon:'💻',desc:'×3 all passive income',baseCost:150000,maxLevel:6,costMult:3.5,effect:'cpsMult',val:3,type:'mult',glow:'rgba(0,240,255,0.2)'},
-    {id:'p7',name:'Hyperscaler',icon:'🌍',desc:'+500 coins/sec globally',baseCost:1000000,maxLevel:5,costMult:4.0,effect:'cps',val:500,type:'flat',glow:'rgba(0,255,136,0.2)'},
-    {id:'p8',name:'Time Machine',icon:'⏰',desc:'×10 passive income (time hacking)',baseCost:10000000,maxLevel:3,costMult:5.0,effect:'cpsMult',val:10,type:'mult',glow:'rgba(255,215,0,0.2)'},
+    {id:'p1',name:'Coffee Machine',svgIcon:'coffee',iconColor:'#c8832a',desc:'Earns coins passively',baseCost:100,maxLevel:20,costMult:1.8,effect:'cps',val:1,type:'flat',glow:'rgba(139,69,19,0.15)',glowLine:'rgba(200,131,42,0.4)'},
+    {id:'p2',name:'Mining Bot',svgIcon:'bot',iconColor:'#00f0ff',desc:'Bot clicks for you (+3/sec)',baseCost:500,maxLevel:15,costMult:2.0,effect:'cps',val:3,type:'flat',glow:'rgba(0,240,255,0.1)',glowLine:'rgba(0,240,255,0.35)'},
+    {id:'p3',name:'Server Farm',svgIcon:'server',iconColor:'#00ff88',desc:'Each server earns +10/sec',baseCost:2000,maxLevel:12,costMult:2.3,effect:'cps',val:10,type:'flat',glow:'rgba(0,255,136,0.1)',glowLine:'rgba(0,255,136,0.35)'},
+    {id:'p4',name:'AI Assistant',svgIcon:'chip',iconColor:'#9945ff',desc:'Passive ×2 multiplier',baseCost:8000,maxLevel:8,costMult:2.8,effect:'cpsMult',val:2,type:'mult',glow:'rgba(153,69,255,0.15)',glowLine:'rgba(153,69,255,0.4)'},
+    {id:'p5',name:'Cloud Cluster',svgIcon:'cloud',iconColor:'#64c8ff',desc:'+50 coins/sec',baseCost:30000,maxLevel:10,costMult:3.0,effect:'cps',val:50,type:'flat',glow:'rgba(100,200,255,0.1)',glowLine:'rgba(100,200,255,0.35)'},
+    {id:'p6',name:'Quantum Computer',svgIcon:'laptop',iconColor:'#00f0ff',desc:'×3 all passive income',baseCost:150000,maxLevel:6,costMult:3.5,effect:'cpsMult',val:3,type:'mult',glow:'rgba(0,240,255,0.2)',glowLine:'rgba(0,240,255,0.5)'},
+    {id:'p7',name:'Hyperscaler',svgIcon:'globe',iconColor:'#00ff88',desc:'+500 coins/sec globally',baseCost:1000000,maxLevel:5,costMult:4.0,effect:'cps',val:500,type:'flat',glow:'rgba(0,255,136,0.2)',glowLine:'rgba(0,255,136,0.5)'},
+    {id:'p8',name:'Time Machine',svgIcon:'clock',iconColor:'#ffd700',desc:'×10 passive (time hacking)',baseCost:10000000,maxLevel:3,costMult:5.0,effect:'cpsMult',val:10,type:'mult',glow:'rgba(255,215,0,0.2)',glowLine:'rgba(255,215,0,0.5)'},
   ],
   special:[
-    {id:'s1',name:'Crit Chance',icon:'💥',desc:'10% chance for 5× click crit',baseCost:1000,maxLevel:10,costMult:2.5,effect:'critChance',val:0.05,type:'add',glow:'rgba(255,48,96,0.15)'},
-    {id:'s2',name:'Combo Multiplier',icon:'🔥',desc:'Rapid clicks build a combo',baseCost:3000,maxLevel:8,costMult:2.8,effect:'combo',val:0.1,type:'add',glow:'rgba(255,136,0,0.15)'},
-    {id:'s3',name:'Boost Duration',icon:'⚡',desc:'+2s to boost duration',baseCost:5000,maxLevel:10,costMult:2.5,effect:'boostDur',val:2,type:'add',glow:'rgba(255,215,0,0.15)'},
-    {id:'s4',name:'Boost Power',icon:'🚀',desc:'Boost multiplier ×1.5',baseCost:12000,maxLevel:6,costMult:3.0,effect:'boostMult',val:1.5,type:'mult',glow:'rgba(255,48,96,0.2)'},
-    {id:'s5',name:'Offline Progress',icon:'💤',desc:'Earn 50% CPS while offline',baseCost:25000,maxLevel:5,costMult:3.5,effect:'offlinePct',val:0.1,type:'add',glow:'rgba(153,69,255,0.15)'},
-    {id:'s6',name:'Lucky Click',icon:'🍀',desc:'1% chance for 100× click',baseCost:50000,maxLevel:5,costMult:4.0,effect:'luckyChance',val:0.002,type:'add',glow:'rgba(0,255,136,0.2)'},
-    {id:'s7',name:'Prestige Amplifier',icon:'✨',desc:'Each prestige gives +50% bonus',baseCost:200000,maxLevel:3,costMult:5.0,effect:'prestigeBonus',val:0.5,type:'add',glow:'rgba(153,69,255,0.25)'},
-    {id:'s8',name:'Auto Clicker',icon:'🤖',desc:'Auto-clicks once per second',baseCost:75000,maxLevel:5,costMult:3.5,effect:'autoClick',val:1,type:'add',glow:'rgba(0,240,255,0.15)'},
-    {id:'s9',name:'Mega Boost',icon:'☄️',desc:'Unlock MEGA BOOST mode',baseCost:500000,maxLevel:1,costMult:1,effect:'megaBoost',val:1,type:'add',glow:'rgba(255,215,0,0.25)'},
+    {id:'s1',name:'Crit Chance',svgIcon:'crosshair',iconColor:'#ff3060',desc:'5× crit chance per level',baseCost:1000,maxLevel:10,costMult:2.5,effect:'critChance',val:0.05,type:'add',glow:'rgba(255,48,96,0.15)',glowLine:'rgba(255,48,96,0.4)'},
+    {id:'s2',name:'Combo Multiplier',svgIcon:'flame',iconColor:'#ff6600',desc:'Rapid clicks build a combo',baseCost:3000,maxLevel:8,costMult:2.8,effect:'combo',val:0.1,type:'add',glow:'rgba(255,136,0,0.15)',glowLine:'rgba(255,102,0,0.4)'},
+    {id:'s3',name:'Boost Duration',svgIcon:'zap',iconColor:'#ffd700',desc:'+2s to boost duration',baseCost:5000,maxLevel:10,costMult:2.5,effect:'boostDur',val:2,type:'add',glow:'rgba(255,215,0,0.15)',glowLine:'rgba(255,215,0,0.4)'},
+    {id:'s4',name:'Boost Power',svgIcon:'rocket',iconColor:'#ff3060',desc:'Boost multiplier ×1.5',baseCost:12000,maxLevel:6,costMult:3.0,effect:'boostMult',val:1.5,type:'mult',glow:'rgba(255,48,96,0.2)',glowLine:'rgba(255,48,96,0.5)'},
+    {id:'s5',name:'Offline Progress',svgIcon:'moon',iconColor:'#9945ff',desc:'Earn 50% CPS while offline',baseCost:25000,maxLevel:5,costMult:3.5,effect:'offlinePct',val:0.1,type:'add',glow:'rgba(153,69,255,0.15)',glowLine:'rgba(153,69,255,0.4)'},
+    {id:'s6',name:'Lucky Click',svgIcon:'clover',iconColor:'#00ff88',desc:'1% chance for 100× click',baseCost:50000,maxLevel:5,costMult:4.0,effect:'luckyChance',val:0.002,type:'add',glow:'rgba(0,255,136,0.2)',glowLine:'rgba(0,255,136,0.5)'},
+    {id:'s7',name:'Prestige Amp',svgIcon:'gem',iconColor:'#9945ff',desc:'+50% prestige bonus/level',baseCost:200000,maxLevel:3,costMult:5.0,effect:'prestigeBonus',val:0.5,type:'add',glow:'rgba(153,69,255,0.25)',glowLine:'rgba(153,69,255,0.6)'},
+    {id:'s8',name:'Auto Clicker',svgIcon:'autobot',iconColor:'#00f0ff',desc:'Auto-clicks once per second',baseCost:75000,maxLevel:5,costMult:3.5,effect:'autoClick',val:1,type:'add',glow:'rgba(0,240,255,0.15)',glowLine:'rgba(0,240,255,0.4)'},
+    {id:'s9',name:'Mega Boost',svgIcon:'comet',iconColor:'#ffd700',desc:'Unlock MEGA BOOST mode',baseCost:500000,maxLevel:1,costMult:1,effect:'megaBoost',val:1,type:'add',glow:'rgba(255,215,0,0.25)',glowLine:'rgba(255,215,0,0.6)'},
   ]
 };
 const ALL_UPGRADES = [...UPGRADES_DATA.click,...UPGRADES_DATA.passive,...UPGRADES_DATA.special];
@@ -390,7 +491,37 @@ function drawParticles(){
 drawParticles();
 window.addEventListener('resize',()=>{
   pCvs.width=pCvs.offsetWidth||600; pCvs.height=pCvs.offsetHeight||500;
+  if(gCvs){ gCvs.width=gCvs.offsetWidth||600; gCvs.height=gCvs.offsetHeight||500; }
 });
+
+// ── GRID BACKGROUND ───────────────────────────────────────
+const gCvs = document.getElementById('grid-canvas');
+const gCtx = gCvs ? gCvs.getContext('2d') : null;
+if(gCvs){ gCvs.width=gCvs.offsetWidth||600; gCvs.height=gCvs.offsetHeight||500; }
+let gridPulse=0;
+function drawGrid(){
+  if(!gCtx) return;
+  gCtx.clearRect(0,0,gCvs.width,gCvs.height);
+  gridPulse+=0.01;
+  const sz=40;
+  const pulse=Math.sin(gridPulse)*0.5+0.5;
+  gCtx.strokeStyle=`rgba(0,240,255,${0.04+pulse*0.02})`;
+  gCtx.lineWidth=0.5;
+  for(let x=0;x<gCvs.width;x+=sz){
+    gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,gCvs.height); gCtx.stroke();
+  }
+  for(let y=0;y<gCvs.height;y+=sz){
+    gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(gCvs.width,y); gCtx.stroke();
+  }
+  // Diagonal accent lines
+  gCtx.strokeStyle=`rgba(153,69,255,${0.03+pulse*0.015})`;
+  const diag=gCvs.width+gCvs.height;
+  for(let i=-diag;i<diag;i+=160){
+    gCtx.beginPath(); gCtx.moveTo(i,0); gCtx.lineTo(i+gCvs.height,gCvs.height); gCtx.stroke();
+  }
+  requestAnimationFrame(drawGrid);
+}
+if(gCtx) drawGrid();
 
 // ── COMPUTE STATS ─────────────────────────────────────────
 function getClickValue(){
@@ -538,19 +669,23 @@ function renderUpgrades(){
     const maxed=lvl>=upg.maxLevel;
     const canAfford=G.coins>=cost;
     const pct=(lvl/upg.maxLevel)*100;
+    const iconSvg = SVG_ICONS[upg.svgIcon] || SVG_ICONS.star;
+    const iconBg = upg.iconColor ? upg.iconColor+'22' : 'rgba(0,240,255,0.1)';
+    const iconBorder = upg.iconColor ? upg.iconColor+'44' : 'rgba(0,240,255,0.2)';
+    const barColor = upg.iconColor || '#00f0ff';
     return `<div class="upg-card${maxed?' maxed maxed-badge':''}${canAfford&&!maxed?' affordable':''}"
-      style="--glow:${upg.glow}"
+      style="--glow:${upg.glow};--glow-line:${upg.glowLine||'rgba(0,240,255,0.3)'}"
       onclick="${maxed?'':`buyUpgrade('${upg.id}')`}">
       <div class="upg-top">
-        <div class="upg-icon">${upg.icon}</div>
-        <div>
+        <div class="upg-icon-wrap" style="background:${iconBg};border:1px solid ${iconBorder};color:${upg.iconColor||'#00f0ff'}">${iconSvg}</div>
+        <div style="flex:1;min-width:0">
           <div class="upg-name">${upg.name}</div>
-          <div class="upg-level">Level ${lvl}/${upg.maxLevel}</div>
+          <div class="upg-level">Lv ${lvl}/${upg.maxLevel}</div>
         </div>
       </div>
       <div class="upg-desc">${upg.desc}</div>
-      <div class="upg-cost">${maxed?'MAXED':'🪙 '+fmtNum(cost)}</div>
-      <div class="upg-bar-bg"><div class="upg-bar-fill" style="width:${pct}%;background:${upg.glow.replace('rgba','rgb').replace(',0.',',' ).replace(')',')')};opacity:0.8"></div></div>
+      <div class="upg-cost">${maxed?'<span style="color:var(--green);font-size:9px;letter-spacing:2px">✓ MAXED</span>':'🪙 '+fmtNum(cost)}</div>
+      <div class="upg-bar-bg"><div class="upg-bar-fill" style="width:${pct}%;background:${barColor};box-shadow:0 0 6px ${barColor}66"></div></div>
     </div>`;
   }).join('');
 }

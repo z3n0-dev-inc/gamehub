@@ -242,6 +242,33 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 #prestige-btn:hover{background:var(--purple);color:#07070e;box-shadow:0 0 20px rgba(153,69,255,.4);}
 #key-hint{position:absolute;bottom:50px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--muted);letter-spacing:2px;z-index:5;}
 
+/* ── STAFF AC TAB ── */
+#staff-ac-tab{
+  position:absolute;bottom:90px;right:16px;z-index:12;
+  display:none; /* shown only when staffMode=true */
+  flex-direction:column;align-items:flex-end;gap:6px;
+}
+#staff-ac-btn{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:2px;
+  padding:8px 14px;border-radius:6px;cursor:pointer;
+  border:1px solid rgba(255,215,0,0.45);
+  background:rgba(255,215,0,0.07);color:var(--gold);
+  transition:all .15s;white-space:nowrap;
+  box-shadow:0 0 12px rgba(255,215,0,.08);
+}
+#staff-ac-btn:hover{background:rgba(255,215,0,0.18);box-shadow:0 0 20px rgba(255,215,0,.25);}
+#staff-ac-btn.ac-on{
+  border-color:rgba(0,255,136,0.6);background:rgba(0,255,136,0.1);color:var(--green);
+  box-shadow:0 0 18px rgba(0,255,136,.25);animation:acpulse 1.4s ease infinite;
+}
+#staff-ac-btn.ac-on:hover{background:rgba(0,255,136,0.22);}
+@keyframes acpulse{0%,100%{box-shadow:0 0 10px rgba(0,255,136,.2)}50%{box-shadow:0 0 28px rgba(0,255,136,.5)}}
+#staff-ac-info{
+  font-size:8px;letter-spacing:1px;color:var(--muted);text-align:right;
+  background:rgba(7,7,14,.8);border:1px solid var(--border);border-radius:4px;
+  padding:4px 8px;line-height:1.6;display:none;
+}
+
 /* ── LOGIN PROMPT ── */
 #login-prompt{position:absolute;inset:0;background:rgba(7,7,14,.9);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:11px;backdrop-filter:blur(6px);}
 #login-prompt.hidden{display:none!important;}
@@ -409,6 +436,12 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
   <div id="key-hint"></div>
   <button id="prestige-btn" onclick="openPrestigeScreen()">✦ PRESTIGE — reset for permanent bonus</button>
+
+  <!-- STAFF AUTO CLICKER TAB -->
+  <div id="staff-ac-tab">
+    <div id="staff-ac-info"></div>
+    <button id="staff-ac-btn" onclick="toggleStaffACTab()">⚡ STAFF AC</button>
+  </div>
 </div>
 
 <!-- RIGHT PANEL -->
@@ -521,45 +554,45 @@ const IC = {
 // ── UPGRADES ────────────────────────────────────────────
 const UPGRADES = {
   click:[
-    {id:'c1',name:'Better Mouse',     ic:'mouse',    c:'#00f0ff',desc:'×2 click power',              cost:50,      max:10,cm:2.2, fx:'clickPow',  v:2  },
-    {id:'c2',name:'Mech Keyboard',    ic:'keyboard', c:'#7ec8ff',desc:'+5 per click',                cost:200,     max:15,cm:2.0, fx:'clickFlat', v:5  },
-    {id:'c3',name:'Ergo Setup',       ic:'shield',   c:'#9945ff',desc:'×3 click power',              cost:800,     max:8, cm:2.8, fx:'clickPow',  v:3  },
-    {id:'c4',name:'RGB Everything',   ic:'zap',      c:'#ff00cc',desc:'+25 per click',               cost:2000,    max:10,cm:2.5, fx:'clickFlat', v:25 },
-    {id:'c5',name:'10-Finger Tech',   ic:'pointer',  c:'#00f0ff',desc:'×5 click power',              cost:10000,   max:5, cm:3.5, fx:'clickPow',  v:5  },
-    {id:'c6',name:'Wrist Warmers',    ic:'flame',    c:'#ff8800',desc:'+100 per click',              cost:25000,   max:8, cm:3.0, fx:'clickFlat', v:100},
-    {id:'c7',name:'Neural Interface', ic:'brain',    c:'#c77dff',desc:'×10 click power',             cost:100000,  max:5, cm:4.0, fx:'clickPow',  v:10 },
-    {id:'c8',name:'Quantum Clicking', ic:'atom',     c:'#00f0ff',desc:'+1000 per click',             cost:500000,  max:5, cm:4.5, fx:'clickFlat', v:1000},
-    {id:'c9',name:'God Mode Cursor',  ic:'star',     c:'#ffd700',desc:'×50 all click power',         cost:5000000, max:3, cm:6.0, fx:'clickPow',  v:50 },
-    {id:'c10',name:'Chain Reaction',  ic:'chain',    c:'#00ffcc',desc:'Each click spawns 3 ghost clicks (25% power)',cost:15000,max:8,cm:3.2,fx:'chainClick',v:3},
+    {id:'c1',name:'Better Mouse',     ic:'mouse',    c:'#00f0ff',desc:'×2 click power',              cost:200,      max:10,cm:2.8, fx:'clickPow',  v:2  },
+    {id:'c2',name:'Mech Keyboard',    ic:'keyboard', c:'#7ec8ff',desc:'+5 per click',                cost:900,      max:15,cm:2.5, fx:'clickFlat', v:5  },
+    {id:'c3',name:'Ergo Setup',       ic:'shield',   c:'#9945ff',desc:'×3 click power',              cost:4000,     max:8, cm:3.5, fx:'clickPow',  v:3  },
+    {id:'c4',name:'RGB Everything',   ic:'zap',      c:'#ff00cc',desc:'+25 per click',               cost:12000,    max:10,cm:3.2, fx:'clickFlat', v:25 },
+    {id:'c5',name:'10-Finger Tech',   ic:'pointer',  c:'#00f0ff',desc:'×5 click power',              cost:60000,    max:5, cm:4.5, fx:'clickPow',  v:5  },
+    {id:'c6',name:'Wrist Warmers',    ic:'flame',    c:'#ff8800',desc:'+100 per click',              cost:180000,   max:8, cm:3.8, fx:'clickFlat', v:100},
+    {id:'c7',name:'Neural Interface', ic:'brain',    c:'#c77dff',desc:'×10 click power',             cost:750000,   max:5, cm:5.0, fx:'clickPow',  v:10 },
+    {id:'c8',name:'Quantum Clicking', ic:'atom',     c:'#00f0ff',desc:'+1000 per click',             cost:4000000,  max:5, cm:5.5, fx:'clickFlat', v:1000},
+    {id:'c9',name:'God Mode Cursor',  ic:'star',     c:'#ffd700',desc:'×50 all click power',         cost:40000000, max:3, cm:7.0, fx:'clickPow',  v:50 },
+    {id:'c10',name:'Chain Reaction',  ic:'chain',    c:'#00ffcc',desc:'Each click spawns 3 ghost clicks (25% power)',cost:90000,max:8,cm:4.0,fx:'chainClick',v:3},
   ],
   passive:[
-    {id:'p1',name:'Coffee Machine',   ic:'coffee',c:'#c8832a',desc:'+1 coin/sec',                   cost:100,     max:20,cm:1.8, fx:'cps',      v:1  },
-    {id:'p2',name:'Mining Bot',       ic:'bot',   c:'#00f0ff',desc:'+3 coins/sec',                  cost:500,     max:15,cm:2.0, fx:'cps',      v:3  },
-    {id:'p3',name:'Server Farm',      ic:'server',c:'#00ff88',desc:'+10 coins/sec',                 cost:2000,    max:12,cm:2.3, fx:'cps',      v:10 },
-    {id:'p4',name:'AI Assistant',     ic:'cpu',   c:'#9945ff',desc:'×2 all passive income',         cost:8000,    max:8, cm:2.8, fx:'cpsMult',  v:2  },
-    {id:'p5',name:'Cloud Cluster',    ic:'cloud', c:'#64c8ff',desc:'+50 coins/sec',                 cost:30000,   max:10,cm:3.0, fx:'cps',      v:50 },
-    {id:'p6',name:'Quantum Computer', ic:'laptop',c:'#00f0ff',desc:'×3 all passive',                cost:150000,  max:6, cm:3.5, fx:'cpsMult',  v:3  },
-    {id:'p7',name:'Hyperscaler',      ic:'globe', c:'#00ff88',desc:'+500 coins/sec',                cost:1000000, max:5, cm:4.0, fx:'cps',      v:500},
-    {id:'p8',name:'Time Machine',     ic:'clock', c:'#ffd700',desc:'×10 passive income',            cost:10000000,max:3, cm:5.0, fx:'cpsMult',  v:10 },
-    {id:'p9',name:'Coin Magnet',      ic:'magnet',c:'#ff8800',desc:'Doubles offline rate, +2/s',    cost:5000,    max:10,cm:2.5, fx:'coinMagnet',v:1  },
+    {id:'p1',name:'Coffee Machine',   ic:'coffee',c:'#c8832a',desc:'+1 coin/sec',                   cost:500,      max:20,cm:2.4, fx:'cps',      v:1  },
+    {id:'p2',name:'Mining Bot',       ic:'bot',   c:'#00f0ff',desc:'+3 coins/sec',                  cost:2500,     max:15,cm:2.7, fx:'cps',      v:3  },
+    {id:'p3',name:'Server Farm',      ic:'server',c:'#00ff88',desc:'+10 coins/sec',                 cost:12000,    max:12,cm:3.0, fx:'cps',      v:10 },
+    {id:'p4',name:'AI Assistant',     ic:'cpu',   c:'#9945ff',desc:'×2 all passive income',         cost:55000,    max:8, cm:3.8, fx:'cpsMult',  v:2  },
+    {id:'p5',name:'Cloud Cluster',    ic:'cloud', c:'#64c8ff',desc:'+50 coins/sec',                 cost:220000,   max:10,cm:4.0, fx:'cps',      v:50 },
+    {id:'p6',name:'Quantum Computer', ic:'laptop',c:'#00f0ff',desc:'×3 all passive',                cost:1200000,  max:6, cm:4.5, fx:'cpsMult',  v:3  },
+    {id:'p7',name:'Hyperscaler',      ic:'globe', c:'#00ff88',desc:'+500 coins/sec',                cost:9000000,  max:5, cm:5.0, fx:'cps',      v:500},
+    {id:'p8',name:'Time Machine',     ic:'clock', c:'#ffd700',desc:'×10 passive income',            cost:90000000, max:3, cm:6.0, fx:'cpsMult',  v:10 },
+    {id:'p9',name:'Coin Magnet',      ic:'magnet',c:'#ff8800',desc:'Doubles offline rate, +2/s',    cost:30000,    max:10,cm:3.5, fx:'coinMagnet',v:1  },
   ],
   special:[
-    {id:'s1',name:'Crit Chance',      ic:'crosshair',c:'#ff3060',desc:'+5% crit per level',         cost:1000,   max:10,cm:2.5, fx:'critChance',  v:0.05},
-    {id:'s2',name:'Combo Multiplier', ic:'flame',    c:'#ff6600',desc:'Build click combos faster',  cost:3000,   max:8, cm:2.8, fx:'combo',        v:0.1 },
-    {id:'s3',name:'Boost Duration',   ic:'zap',      c:'#ffd700',desc:'+2s boost time',             cost:5000,   max:10,cm:2.5, fx:'boostDur',     v:2   },
-    {id:'s4',name:'Boost Power',      ic:'rocket',   c:'#ff3060',desc:'Boost mult ×1.5',            cost:12000,  max:6, cm:3.0, fx:'boostMult',    v:1.5 },
-    {id:'s5',name:'Offline Progress', ic:'moon',     c:'#9945ff',desc:'Earn while offline',         cost:25000,  max:5, cm:3.5, fx:'offlinePct',   v:0.1 },
-    {id:'s6',name:'Lucky Click',      ic:'leaf',     c:'#00ff88',desc:'Chance of ×100 hit',         cost:50000,  max:5, cm:4.0, fx:'luckyChance',  v:0.002},
-    {id:'s7',name:'Prestige Amp',     ic:'gem',      c:'#9945ff',desc:'+50% prestige bonus',        cost:200000, max:3, cm:5.0, fx:'prestigeBonus',v:0.5 },
-    {id:'s8',name:'Auto Clicker',     ic:'bot',      c:'#00f0ff',desc:'Clicks automatically',       cost:75000,  max:5, cm:3.5, fx:'autoClick',    v:1   },
-    {id:'s9',name:'Mega Boost',       ic:'comet',    c:'#ffd700',desc:'Unlock MEGA BOOST',          cost:500000, max:1, cm:1,   fx:'megaBoost',    v:1   },
-    {id:'s10',name:'Click Storm',     ic:'storm',    c:'#00d4ff',desc:'20% chance to double-click', cost:40000,  max:8, cm:3.2, fx:'stormChance',  v:0.025},
-    {id:'s11',name:'Golden Touch',    ic:'dice',     c:'#ffd700',desc:'Golden clicks appear more often',cost:20000,max:5,cm:3.0,fx:'goldenFreq',  v:0.15},
-    {id:'s12',name:'Frenzy Amp',      ic:'zap',      c:'#ff3060',desc:'Frenzy gives +50% more mult', cost:60000, max:5, cm:3.5, fx:'frenzyAmp',   v:0.5 },
-    {id:'s13',name:'Jackpot Magnet',  ic:'magnet',   c:'#ffd700',desc:'Jackpots appear 30% more often',cost:35000,max:5, cm:3.2, fx:'jackpotFreq', v:0.3 },
-    {id:'s14',name:'Rush Master',     ic:'rocket',   c:'#00f0ff',desc:'+20% Click Rush reward',       cost:45000, max:5, cm:3.4, fx:'rushBonus',   v:0.2 },
-    {id:'s15',name:'Coin Rain',       ic:'cloud',    c:'#00ff88',desc:'Falling coins worth 3× more',  cost:30000, max:6, cm:3.0, fx:'coinRainMult',v:1.0 },
-    {id:'s16',name:'Crit Overload',   ic:'target',   c:'#ff3060',desc:'Crits do ×8 instead of ×5',   cost:80000, max:1, cm:1,   fx:'critMult',    v:3.0 },
+    {id:'s1',name:'Crit Chance',      ic:'crosshair',c:'#ff3060',desc:'+5% crit per level',         cost:5000,    max:10,cm:3.2, fx:'critChance',  v:0.05},
+    {id:'s2',name:'Combo Multiplier', ic:'flame',    c:'#ff6600',desc:'Build click combos faster',  cost:15000,   max:8, cm:3.5, fx:'combo',        v:0.1 },
+    {id:'s3',name:'Boost Duration',   ic:'zap',      c:'#ffd700',desc:'+2s boost time',             cost:22000,   max:10,cm:3.2, fx:'boostDur',     v:2   },
+    {id:'s4',name:'Boost Power',      ic:'rocket',   c:'#ff3060',desc:'Boost mult ×1.5',            cost:70000,   max:6, cm:3.8, fx:'boostMult',    v:1.5 },
+    {id:'s5',name:'Offline Progress', ic:'moon',     c:'#9945ff',desc:'Earn while offline',         cost:150000,  max:5, cm:4.5, fx:'offlinePct',   v:0.1 },
+    {id:'s6',name:'Lucky Click',      ic:'leaf',     c:'#00ff88',desc:'Chance of ×100 hit',         cost:350000,  max:5, cm:5.0, fx:'luckyChance',  v:0.002},
+    {id:'s7',name:'Prestige Amp',     ic:'gem',      c:'#9945ff',desc:'+50% prestige bonus',        cost:1500000, max:3, cm:6.0, fx:'prestigeBonus',v:0.5 },
+    {id:'s8',name:'Auto Clicker',     ic:'bot',      c:'#00f0ff',desc:'+1 auto click/sec per level',cost:500000,  max:5, cm:4.5, fx:'autoClick',    v:1   },
+    {id:'s9',name:'Mega Boost',       ic:'comet',    c:'#ffd700',desc:'Unlock MEGA BOOST',          cost:4000000, max:1, cm:1,   fx:'megaBoost',    v:1   },
+    {id:'s10',name:'Click Storm',     ic:'storm',    c:'#00d4ff',desc:'20% chance to double-click', cost:250000,  max:8, cm:4.0, fx:'stormChance',  v:0.025},
+    {id:'s11',name:'Golden Touch',    ic:'dice',     c:'#ffd700',desc:'Golden clicks appear more often',cost:130000,max:5,cm:3.8,fx:'goldenFreq',  v:0.15},
+    {id:'s12',name:'Frenzy Amp',      ic:'zap',      c:'#ff3060',desc:'Frenzy gives +50% more mult', cost:400000, max:5, cm:4.5, fx:'frenzyAmp',   v:0.5 },
+    {id:'s13',name:'Jackpot Magnet',  ic:'magnet',   c:'#ffd700',desc:'Jackpots appear 30% more often',cost:220000,max:5, cm:4.0, fx:'jackpotFreq', v:0.3 },
+    {id:'s14',name:'Rush Master',     ic:'rocket',   c:'#00f0ff',desc:'+20% Click Rush reward',       cost:280000, max:5, cm:4.2, fx:'rushBonus',   v:0.2 },
+    {id:'s15',name:'Coin Rain',       ic:'cloud',    c:'#00ff88',desc:'Falling coins worth 3× more',  cost:180000, max:6, cm:3.8, fx:'coinRainMult',v:1.0 },
+    {id:'s16',name:'Crit Overload',   ic:'target',   c:'#ff3060',desc:'Crits do ×8 instead of ×5',   cost:600000, max:1, cm:1,   fx:'critMult',    v:3.0 },
   ]
 };
 const ALL_UPG = [...UPGRADES.click,...UPGRADES.passive,...UPGRADES.special];
@@ -598,7 +631,7 @@ let G={
   chainClick:0,stormChance:0,goldenFreq:1.0,frenzyAmp:0,coinMagnet:0,
   jackpotFreq:1.0,rushBonus:0,coinRainMult:1.0,critMult:1.0,
   prestige:0,prestigeMult:1,
-  upgrades:{},comboVal:1,comboTimer:0,comboMax:30,
+  upgrades:{},comboVal:1,comboTimer:0,comboMax:18, // harder: combo expires faster
   boostActive:false,boostTimer:0,boostCooldown:0,
   sessionCoins:0,bestCrit:0,
   achievementsUnlocked:new Set(),upgradeCount:0,
@@ -788,7 +821,7 @@ function doClick(cx,cy,isGhost=false){
     if(G.comboVal>G.bestCombo) G.bestCombo=G.comboVal;
     // Build frenzy meter
     const cps_est=G.clickWindow.length/2;
-    const frenzyGain=Math.min(cps_est*2,8);
+    const frenzyGain=Math.min(cps_est*0.8,4);  // harder: slower frenzy build
     if(!G.frenzyActive) G.frenzyMeter=Math.min(100,G.frenzyMeter+frenzyGain);
     if(G.frenzyMeter>=100&&!G.frenzyActive) enterFrenzy();
   }
@@ -976,14 +1009,14 @@ setInterval(()=>{
   }
   if(G.boostActive){
     G.boostTimer--;
-    if(G.boostTimer<=0){G.boostActive=false;G.boostCooldown=600;updateBoostUI();}
+    if(G.boostTimer<=0){G.boostActive=false;G.boostCooldown=900;updateBoostUI();}  // harder: 45s cooldown
   }
   if(G.boostCooldown>0){G.boostCooldown--;updateBoostUI();}
 
   // Frenzy meter decay when not clicking
   if(!G.frenzyActive){
     const now=Date.now();
-    if(now-G.lastClickTime>500) G.frenzyMeter=Math.max(0,G.frenzyMeter-0.8);
+    if(now-G.lastClickTime>400) G.frenzyMeter=Math.max(0,G.frenzyMeter-1.8);  // harder: faster decay
   }
   // Frenzy countdown
   if(G.frenzyActive){
@@ -1014,12 +1047,29 @@ setInterval(()=>{
   updateFrenzyBar();
 },50);
 
-setInterval(()=>{
-  if(G.autoClick>0){
-    const btn=document.getElementById('click-btn'),r=btn.getBoundingClientRect();
-    doClick(r.left+r.width/2,r.top+r.height/2);
-  }
-},1000);
+// ── IN-GAME AUTO CLICKER (upgrade s8) ────────────────────
+// Fires at G.autoClick clicks/sec using a self-scheduling timeout.
+// G.autoClick is set by applyUpg — each level adds +1 CPS.
+let _autoClickHandle = null;
+function scheduleAutoClick(){
+  if(_autoClickHandle) clearTimeout(_autoClickHandle);
+  if(G.autoClick <= 0){ _autoClickHandle = null; return; }
+  const delay = Math.max(50, Math.round(1000 / G.autoClick));
+  _autoClickHandle = setTimeout(()=>{
+    if(G.autoClick > 0){
+      const btn = document.getElementById('click-btn');
+      const r = btn.getBoundingClientRect();
+      doClick(r.left + r.width/2, r.top + r.height/2, true); // ghost=true: no visual spam
+    }
+    scheduleAutoClick();
+  }, delay);
+}
+// Kick off whenever autoClick changes — patch applyUpg to restart the loop
+const _origApplyUpg = applyUpg;
+applyUpg = function(u, n=1){
+  _origApplyUpg(u, n);
+  if(u.fx === 'autoClick') scheduleAutoClick();
+};
 
 function updateFrenzyBar(){
   const fill=document.getElementById('frenzy-bar-fill');
@@ -1128,8 +1178,9 @@ function reapplyAll(){
   G.chainClick=0;G.stormChance=0;G.goldenFreq=1.0;G.frenzyAmp=0;G.coinMagnet=0;
   G.jackpotFreq=1.0;G.rushBonus=0;G.coinRainMult=1.0;G.critMult=1.0;
   Object.entries(G.upgrades).forEach(([id,lvl])=>{
-    const u=ALL_UPG.find(x=>x.id===id);if(u)applyUpg(u,lvl);
+    const u=ALL_UPG.find(x=>x.id===id);if(u)_origApplyUpg(u,lvl); // use _orig to avoid re-scheduling mid-loop
   });
+  scheduleAutoClick(); // restart auto clicker after full state rebuild
 }
 
 // ── PRESTIGE SCREEN ───────────────────────────────────────
@@ -1151,7 +1202,7 @@ function confirmPrestige(){
   showAch({id:'_p',name:'Prestiged!',ic:'award'});
 }
 function checkPrestigeBtn(){
-  document.getElementById('prestige-btn').style.display=G.totalCoins>=1000000?'block':'none';
+  document.getElementById('prestige-btn').style.display=G.totalCoins>=10000000?'block':'none';  // harder: 10M threshold
 }
 
 // ── ACHIEVEMENTS ──────────────────────────────────────────
@@ -1422,12 +1473,8 @@ window.addEventListener('message',function(e){
     document.getElementById('login-prompt').classList.add('hidden');
     guestMode=false;
     loadFromPF().then(()=>loadMiniLb());
-    // Check staff status
-    if(typeof isStaff === 'function'){
-      isStaff().then(s=>{
-        if(s){ staffMode=true; showStaffBadge(); loadStaffSettings(); logEvent('⚡ Staff perks unlocked','var(--gold)'); }
-      }).catch(()=>{});
-    }
+    // Check staff status — retry up to 3 times if pf.js not ready yet
+    checkStaffStatus();
   }
   if(d.type==='staff_autoclicker'){
     // Pushed live from the Staff Dashboard
@@ -1798,15 +1845,20 @@ let _acSessionClicks = 0;
 let _acSessionCoins = 0;
 let _acActiveSince = null;
 
-// Staff badge in stats bar
+// Staff badge in stats bar + reveal the AC tab
 function showStaffBadge(){
-  if(document.getElementById('staff-badge-stat')) return;
-  const bar = document.getElementById('stats-bar');
-  const div = document.createElement('div');
-  div.className='stat-item';
-  div.id='staff-badge-stat';
-  div.innerHTML=`<div class="stat-lbl">role</div><div class="stat-val" style="color:var(--gold);font-size:12px;letter-spacing:2px">⚡STAFF</div>`;
-  bar.appendChild(div);
+  if(!document.getElementById('staff-badge-stat')){
+    const bar = document.getElementById('stats-bar');
+    const div = document.createElement('div');
+    div.className='stat-item';
+    div.id='staff-badge-stat';
+    div.innerHTML=`<div class="stat-lbl">role</div><div class="stat-val" style="color:var(--gold);font-size:12px;letter-spacing:2px">⚡STAFF</div>`;
+    bar.appendChild(div);
+  }
+  // Reveal the floating staff AC tab
+  const tab = document.getElementById('staff-ac-tab');
+  if(tab) tab.style.display = 'flex';
+  updateStaffACTab();
 }
 
 // Load staff settings from PlayFab TitleData
@@ -1836,6 +1888,7 @@ function applyStaffACConfig(cfg){
   if(cfg && cfg.enabled){
     startStaffAC(cfg);
   }
+  updateStaffACTab();
 }
 
 function startStaffAC(cfg){
@@ -1843,6 +1896,7 @@ function startStaffAC(cfg){
   if(!cfg || !cfg.enabled) return;
   const intervalMs = Math.max(50, Math.round(1000 / Math.min(50, cfg.cps || 5)));
   _acActiveSince = new Date().toLocaleTimeString();
+  let _lastStatPost = 0;
   staffACInterval = setInterval(()=>{
     if(!cfg.enabled){ stopStaffAC(); return; }
     // Determine click position
@@ -1861,20 +1915,64 @@ function startStaffAC(cfg){
     // Auto-boost
     if(cfg.boost === 'on' && !G.boostActive && G.boostCooldown === 0) activateBoost();
     const beforeCoins = G.coins;
-    doClick(cx, cy);
+    // Use ghost=true above 5 CPS to avoid visual spam
+    const useGhost = (cfg.cps || 5) > 5;
+    doClick(cx, cy, useGhost);
     _acSessionClicks++;
     _acSessionCoins += Math.max(0, G.coins - beforeCoins);
-    // Report back to parent dashboard
-    window.parent.postMessage({
-      type: 'staff_ac_stats',
-      stats: { clicks: _acSessionClicks, coins: Math.floor(_acSessionCoins), since: _acActiveSince }
-    }, '*');
+    // Throttle stats postMessage to max once per second
+    const now = Date.now();
+    if(now - _lastStatPost >= 1000){
+      _lastStatPost = now;
+      window.parent.postMessage({
+        type: 'staff_ac_stats',
+        stats: { clicks: _acSessionClicks, coins: Math.floor(_acSessionCoins), since: _acActiveSince }
+      }, '*');
+    }
   }, intervalMs);
   logEvent(`⚙️ Staff AC started (${cfg.cps} CPS, ${cfg.mode})`, 'var(--gold)');
 }
 
 function stopStaffAC(){
   if(staffACInterval){ clearInterval(staffACInterval); staffACInterval = null; }
+  updateStaffACTab();
+}
+
+// ── STAFF AC TAB (floating toggle button) ────────────────
+function toggleStaffACTab(){
+  if(!staffMode || !staffACConfig) return;
+  // Toggle enabled state and restart/stop accordingly
+  staffACConfig.enabled = !staffACConfig.enabled;
+  if(staffACConfig.enabled){
+    startStaffAC(staffACConfig);
+    logEvent('⚡ Staff AC toggled ON', 'var(--gold)');
+  } else {
+    stopStaffAC();
+    logEvent('⚡ Staff AC toggled OFF', 'var(--muted)');
+  }
+  updateStaffACTab();
+}
+
+function updateStaffACTab(){
+  const btn  = document.getElementById('staff-ac-btn');
+  const info = document.getElementById('staff-ac-info');
+  if(!btn) return;
+  const on = staffACInterval !== null;
+  if(on){
+    btn.className  = 'ac-on';
+    btn.textContent = '⚡ STAFF AC — ON';
+  } else {
+    btn.className  = '';
+    btn.textContent = '⚡ STAFF AC';
+  }
+  // Show config summary in info chip
+  if(staffACConfig){
+    const modeLabel = {normal:'Normal',center:'Center',random:'Random',golden:'Golden Only'}[staffACConfig.mode||'normal']||'Normal';
+    info.style.display = 'block';
+    info.innerHTML = `${staffACConfig.cps||5} CPS · ${modeLabel}${staffACConfig.boost==='on'?' · Auto-Boost':''}`;
+  } else {
+    info.style.display = 'none';
+  }
 }
 
 // ── BOOT ────────────────────────────────────────────────
@@ -1896,16 +1994,36 @@ setInterval(()=>{renderUpgrades();},500);
 window.focus();
 document.addEventListener('click',()=>window.focus());
 
+// ── ROBUST STAFF CHECK ────────────────────────────────────
+// Retries up to 5 times with backoff — handles pf.js load race conditions
+async function checkStaffStatus(attempt=0){
+  if(staffMode) return; // already confirmed
+  if(!window._pfSession){ 
+    if(attempt<5) setTimeout(()=>checkStaffStatus(attempt+1), 800+attempt*400);
+    return;
+  }
+  if(typeof isStaff !== 'function'){
+    if(attempt<5) setTimeout(()=>checkStaffStatus(attempt+1), 600+attempt*400);
+    return;
+  }
+  try{
+    const s = await isStaff();
+    if(s){
+      staffMode=true;
+      showStaffBadge();
+      loadStaffSettings();
+      logEvent('⚡ Staff perks unlocked','var(--gold)');
+    }
+  } catch(err){
+    if(attempt<4) setTimeout(()=>checkStaffStatus(attempt+1), 1000+attempt*500);
+  }
+}
+
 // Restore session - guard against loadSession not defined (e.g. pf.js failed to load)
 if(typeof loadSession === 'function' && (window._pfSession || loadSession())){
   document.getElementById('login-prompt').classList.add('hidden');
   loadFromPF().then(()=>loadMiniLb());
-  // Check staff status on existing session
-  if(typeof isStaff === 'function'){
-    isStaff().then(s=>{
-      if(s){ staffMode=true; showStaffBadge(); loadStaffSettings(); }
-    }).catch(()=>{});
-  }
+  checkStaffStatus();
 }else{
   setTimeout(()=>document.getElementById('login-prompt').classList.remove('hidden'),1500);
 }

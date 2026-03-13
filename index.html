@@ -2192,7 +2192,7 @@ async function _staffACSaveConfig(cfg) {
     toast('Auto Clicker ' + (cfg.enabled ? 'ENABLED' : 'saved'), cfg.enabled ? 'success' : 'info');
     staffLogAction(cfg.enabled ? 'good' : 'warn-log', `Auto Clicker ${cfg.enabled ? 'enabled' : 'updated'} — ${cfg.cps} CPS, mode: ${cfg.mode}`);
     // Push to clicker iframe immediately
-    const frame = document.getElementById('game-clicker');
+    const frame = document.getElementById('clicker-frame');
     if (frame) frame.contentWindow.postMessage({ type: 'staff_autoclicker', config: cfg }, '*');
   } catch (e) {
     sRes('ac-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`);
@@ -2229,7 +2229,7 @@ async function staffSaveKeybind2() {
     // Save to TitleData so clicker can pick it up
     await pfSetTitleData('staff_click2', { code, display, updated: Date.now() });
     // Also update local settings and push to clicker iframe
-    const frame = document.getElementById('game-clicker');
+    const frame = document.getElementById('clicker-frame');
     if (frame) frame.contentWindow.postMessage({ type: 'staff_click2', code }, '*');
     document.getElementById('sk-click2-display').textContent = display;
     sRes('sk-result', `<span style="color:var(--green)">✓ Click Key 2 set to ${display}</span>`);

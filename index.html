@@ -650,104 +650,13 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
         <!-- Sub-tab navigation -->
         <div class="staff-nav">
-          <button class="staff-nav-btn active" onclick="staffTab('overview')" id="stab-overview">📊 Overview</button>
-          <button class="staff-nav-btn" onclick="staffTab('players')" id="stab-players">👥 Players</button>
-          <button class="staff-nav-btn" onclick="staffTab('moderation')" id="stab-moderation">🔨 Moderation</button>
-          <button class="staff-nav-btn" onclick="staffTab('leaderboard')" id="stab-leaderboard">🏆 Leaderboard</button>
-          <button class="staff-nav-btn" onclick="staffTab('broadcast')" id="stab-broadcast">📢 Broadcast</button>
-          <button class="staff-nav-btn" onclick="staffTab('roles')" id="stab-roles">👮 Roles</button>
-          <button class="staff-nav-btn" onclick="staffTab('danger')" id="stab-danger">⚠️ Danger Zone</button>
+          <button class="staff-nav-btn active" onclick="staffTab('moderation')" id="stab-moderation">🔨 Moderation</button>
           <button class="staff-nav-btn" onclick="staffTab('autoclicker')" id="stab-autoclicker">🤖 Auto Clicker</button>
         </div>
 
         <!-- ── OVERVIEW ── -->
-        <div class="staff-panel active" id="spanel-overview">
-          <div class="staff-grid">
-            <div class="staff-card">
-              <div class="staff-card-title">📊 Live Stats</div>
-              <div class="staff-stat"><span class="sk">Title ID</span><span class="sv">1BD7E7</span></div>
-              <div class="staff-stat"><span class="sk">Status</span><span class="sv" style="color:var(--green)">● ONLINE</span></div>
-              <div class="staff-stat"><span class="sk">Tracked Players</span><span class="sv" id="ss-players">–</span></div>
-              <div class="staff-stat"><span class="sk">Top Coin Score</span><span class="sv" id="ss-topscore">–</span></div>
-              <div class="staff-stat"><span class="sk">Top Click Score</span><span class="sv" id="ss-topclicks">–</span></div>
-              <div class="staff-stat"><span class="sk">Active Bans</span><span class="sv" id="ss-bans" style="color:var(--p2)">–</span></div>
-              <button class="staff-btn info" onclick="refreshStaffStats()" style="margin-top:14px">↺ REFRESH STATS</button>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🔍 Quick Player Lookup</div>
-              <input class="staff-input" id="lookup-id" placeholder="PlayFab ID">
-              <button class="staff-btn info" onclick="staffLookupPlayer()">LOOKUP</button>
-              <div id="lookup-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card full">
-              <div class="staff-card-title">📋 Action Log <span style="font-size:10px;color:var(--muted);font-weight:400">(this session)</span></div>
-              <div id="staff-log"><div style="color:var(--muted);font-size:11px">No actions yet this session.</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── PLAYERS ── -->
-        <div class="staff-panel" id="spanel-players">
-          <div class="staff-grid">
-            <div class="staff-card full">
-              <div class="staff-card-title">👥 Player Browser</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
-                <select class="staff-select" id="pb-stat" style="width:auto;flex:1;min-width:160px">
-                  <option value="TotalCoins">Sort: Total Coins</option>
-                  <option value="TotalClicks">Sort: Total Clicks</option>
-                </select>
-                <select class="staff-select" id="pb-count" style="width:auto;flex:0 0 100px">
-                  <option value="10">Top 10</option>
-                  <option value="25">Top 25</option>
-                  <option value="50">Top 50</option>
-                </select>
-                <button class="staff-btn info" onclick="staffLoadTopPlayers()" style="margin:0">LOAD</button>
-              </div>
-              <div id="staff-users-list"><div style="color:var(--muted);font-size:11px">Click LOAD to fetch players.</div></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🪙 Manage Coins</div>
-              <input class="staff-input" id="coins-pid" placeholder="PlayFab ID">
-              <input class="staff-input" id="coins-amount" type="number" placeholder="Amount (negative to remove)">
-              <button class="staff-btn good" onclick="staffGiveCoins()">GRANT / REMOVE COINS</button>
-              <div id="coins-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🏅 Grant Badge</div>
-              <input class="staff-input" id="badge-pid" placeholder="PlayFab ID">
-              <select class="staff-select" id="badge-id">
-                <option value="badge_og">OG Badge 🥇</option>
-                <option value="badge_staff">Staff Badge ⚡</option>
-                <option value="badge_whale">Whale Badge 🐋</option>
-                <option value="badge_clickgod">Click God 🖱️</option>
-              </select>
-              <button class="staff-btn gold" onclick="staffGrantBadge()">GRANT BADGE</button>
-              <button class="staff-btn danger" onclick="staffRevokeBadge()">REVOKE BADGE</button>
-              <div id="badge-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">✏️ Rename Player</div>
-              <input class="staff-input" id="rename-pid" placeholder="PlayFab ID">
-              <input class="staff-input" id="rename-new" placeholder="New display name">
-              <button class="staff-btn warn" onclick="staffRenamePlayer()">FORCE RENAME</button>
-              <div id="rename-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🔁 Reset Player Stats</div>
-              <input class="staff-input" id="resetstats-pid" placeholder="PlayFab ID">
-              <select class="staff-select" id="resetstats-type">
-                <option value="both">Reset ALL Stats</option>
-                <option value="TotalCoins">Reset Coins Only</option>
-                <option value="TotalClicks">Reset Clicks Only</option>
-              </select>
-              <button class="staff-btn danger" onclick="staffResetPlayerStats()">RESET STATS</button>
-              <div id="resetstats-result" class="staff-result"></div>
-            </div>
-          </div>
-        </div>
-
         <!-- ── MODERATION ── -->
-        <div class="staff-panel" id="spanel-moderation">
+        <div class="staff-panel active" id="spanel-moderation">
           <div class="staff-grid">
             <div class="staff-card">
               <div class="staff-card-title">🔨 Ban Player</div>
@@ -804,130 +713,8 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
           </div>
         </div>
 
-        <!-- ── LEADERBOARD ── -->
-        <div class="staff-panel" id="spanel-leaderboard">
-          <div class="staff-grid">
-            <div class="staff-card full">
-              <div class="staff-card-title" style="display:flex;justify-content:space-between;align-items:center">
-                <span>🏆 Leaderboard Audit</span>
-                <div style="display:flex;gap:6px">
-                  <select class="staff-select" id="lba-stat" style="width:auto;margin:0">
-                    <option value="TotalCoins">Coins</option>
-                    <option value="TotalClicks">Clicks</option>
-                  </select>
-                  <button class="staff-btn info" onclick="staffLoadLeaderboardAudit()" style="margin:0">LOAD</button>
-                </div>
-              </div>
-              <p style="font-size:11px;color:var(--muted);margin:8px 0 14px">⚑ Flagged = top 1% score, 10× the #2 score, or score changed > 500k in one session.</p>
-              <div id="lb-audit-list"><div style="color:var(--muted);font-size:11px">Click LOAD to fetch leaderboard.</div></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🔧 Override Player Score</div>
-              <input class="staff-input" id="score-pid" placeholder="PlayFab ID">
-              <select class="staff-select" id="score-stat">
-                <option value="TotalCoins">Coins</option>
-                <option value="TotalClicks">Clicks</option>
-              </select>
-              <input class="staff-input" id="score-val" type="number" placeholder="New value">
-              <button class="staff-btn warn" onclick="staffOverrideScore()">SET SCORE</button>
-              <div id="score-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🏅 Leaderboard Snapshot</div>
-              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Save current top-10 to TitleData for archiving.</p>
-              <button class="staff-btn gold" onclick="staffSnapshotLeaderboard()">📸 SNAPSHOT NOW</button>
-              <div id="snapshot-result" class="staff-result"></div>
-            </div>
-          </div>
-        </div>
 
-        <!-- ── BROADCAST ── -->
-        <div class="staff-panel" id="spanel-broadcast">
-          <div class="staff-grid">
-            <div class="staff-card">
-              <div class="staff-card-title">📢 Message of the Day</div>
-              <textarea class="staff-input" id="motd-text" rows="4" placeholder="Message shown to all players on next login..." style="resize:vertical"></textarea>
-              <select class="staff-select" id="motd-type">
-                <option value="info">ℹ️ Info</option>
-                <option value="warn">⚠️ Warning</option>
-                <option value="hype">🎉 Event / Hype</option>
-                <option value="maintenance">🔧 Maintenance</option>
-              </select>
-              <button class="staff-btn info" onclick="staffSetMOTD()">📡 PUBLISH MOTD</button>
-              <button class="staff-btn danger" onclick="staffClearMOTD()">✖ CLEAR MOTD</button>
-              <div id="motd-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">📜 MOTD History <span style="font-size:10px;color:var(--muted)">(this session)</span></div>
-              <div id="motd-history"><div style="color:var(--muted);font-size:11px">No MOTDs published yet.</div></div>
-            </div>
-            <div class="staff-card full">
-              <div class="staff-card-title">🎁 Double Coins Event</div>
-              <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Sets a TitleData flag <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">event_double_coins</code> that your game client can read and apply a 2× multiplier. Enforce coin multiplier server-side for full protection.</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="staff-btn gold" onclick="staffStartEvent('double_coins')">🪙 START 2× COINS EVENT</button>
-                <button class="staff-btn good" onclick="staffStartEvent('xp_boost')">⚡ START XP BOOST EVENT</button>
-                <button class="staff-btn danger" onclick="staffEndAllEvents()">✖ END ALL EVENTS</button>
-              </div>
-              <div id="event-result" class="staff-result"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── ROLES ── -->
-        <div class="staff-panel" id="spanel-roles">
-          <div class="staff-grid">
-            <div class="staff-card">
-              <div class="staff-card-title">👮 Grant Staff Role</div>
-              <input class="staff-input" id="grant-pid" placeholder="PlayFab ID">
-              <button class="staff-btn warn" onclick="staffGrantRole()">✅ GRANT STAFF</button>
-              <button class="staff-btn danger" onclick="staffRevokeRole()">✖ REVOKE STAFF</button>
-              <div id="grant-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">👑 Grant Moderator Role</div>
-              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Sets <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">is_mod</code> flag. Mods can warn + mute but cannot ban or access danger zone.</p>
-              <input class="staff-input" id="mod-pid" placeholder="PlayFab ID">
-              <button class="staff-btn info" onclick="staffGrantMod()">✅ GRANT MOD</button>
-              <button class="staff-btn danger" onclick="staffRevokeMod()">✖ REVOKE MOD</button>
-              <div id="mod-result" class="staff-result"></div>
-            </div>
-            <div class="staff-card">
-              <div class="staff-card-title">🔍 Check Player Role</div>
-              <input class="staff-input" id="rolecheck-pid" placeholder="PlayFab ID">
-              <button class="staff-btn info" onclick="staffCheckRole()">CHECK ROLE</button>
-              <div id="rolecheck-result" class="staff-result"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── DANGER ZONE ── -->
-        <div class="staff-panel" id="spanel-danger">
-          <div class="staff-card" style="border-color:rgba(255,48,96,0.35);margin-bottom:18px">
-            <div class="staff-card-title" style="color:var(--p2)">⚠️ Danger Zone — Irreversible Actions</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:18px">These actions permanently alter game data. A confirmation prompt will appear. There is no undo.</p>
-            <div style="display:flex;flex-wrap:wrap;gap:6px">
-              <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalCoins')">💀 WIPE COIN LEADERBOARD</button>
-              <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalClicks')">💀 WIPE CLICK LEADERBOARD</button>
-              <button class="staff-btn warn" onclick="staffClearTitleData()">🗑️ CLEAR TITLE DATA</button>
-              <button class="staff-btn warn" onclick="staffTab('danger');document.getElementById('nuke-pid').focus()">☢️ WIPE PLAYER DATA (BY ID)</button>
-            </div>
-            <div id="danger-result" class="staff-result" style="margin-top:14px"></div>
-          </div>
-          <div class="staff-card">
-            <div class="staff-card-title">☢️ Wipe Specific Player Data</div>
-            <input class="staff-input" id="nuke-pid" placeholder="PlayFab ID">
-            <select class="staff-select" id="nuke-type">
-              <option value="coins">Coins Only</option>
-              <option value="cosmetics">Owned Cosmetics</option>
-              <option value="all">All Player Data</option>
-            </select>
-            <button class="staff-btn danger" onclick="staffNukePlayerData()">☢️ WIPE DATA</button>
-            <div id="nuke-result" class="staff-result"></div>
-          </div>
-        </div>
-
-        <!-- ── AUTO CLICKER ── -->
+                <!-- ── AUTO CLICKER ── -->
         <div class="staff-panel" id="spanel-autoclicker">
           <div class="staff-grid">
             <div class="staff-card">
@@ -1380,7 +1167,7 @@ function showPage(id){
   if(id==='shop') loadShop();
   if(id==='hub') loadHubPreview();
   if(id==='settings') loadSettings();
-  if(id==='staff'){ const el=document.getElementById('staff-session-id'); if(el) el.textContent=window._pfPlayer?.id||'–'; }
+  if(id==='staff'){ staffACLoad(); staffACLoadKeybind2(); }
   // Focus iframes so they receive keyboard events
   if(id==='clicker') setTimeout(()=>{ try{ document.getElementById('clicker-frame').contentWindow.focus(); }catch{} }, 100);
   if(id==='puck')    setTimeout(()=>{ try{ document.getElementById('puck-frame').contentWindow.focus(); }catch{} }, 100);
@@ -1641,6 +1428,12 @@ async function loadLeaderboard(){
   const list = document.getElementById('lb-list');
   list.innerHTML = '<div class="lb-loading">// fetching leaderboard...</div>';
   if(!window._pfSession){ list.innerHTML='<div class="lb-loading">// sign in to view leaderboard</div>'; return; }
+  // Check if current user is a mod or staff — they get to see PlayFab IDs
+  let isMod = false;
+  try {
+    const d = await pfGetPlayerData(['is_staff','is_mod']);
+    isMod = d?.Data?.is_staff?.Value === 'true' || d?.Data?.is_mod?.Value === 'true';
+  } catch {}
   try {
     const data = await pfGetLeaderboard(currentLbStat, 50);
     const entries = data.Leaderboard || [];
@@ -1653,12 +1446,14 @@ async function loadLeaderboard(){
       const isMe = e.PlayFabId === window._pfPlayer?.id;
       const cls = isMe?'me':i===0?'top1':i===1?'top2':i===2?'top3':'';
       const val = currentLbStat==='TotalCoins' ? `🪙 ${e.StatValue.toLocaleString()}` : `🖱️ ${e.StatValue.toLocaleString()}`;
+      // Mods/staff see PlayFab ID as a small copyable chip under the name
+      const modInfo = isMod ? `<div style="font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:2px;cursor:pointer;user-select:all" title="Click to copy" onclick="navigator.clipboard.writeText('${e.PlayFabId}');toast('ID copied','info')">${e.PlayFabId}</div>` : '';
       return `<div class="lb-row ${cls}">
         <div class="lb-bar" style="width:${pct}%"></div>
         <div class="lb-content">
           <div class="lb-rank">${rankDisplay}</div>
           <div class="lb-avatar" style="background:${stringToColor(e.DisplayName||'?')}">${(e.DisplayName||'?')[0].toUpperCase()}</div>
-          <div class="lb-name">${e.DisplayName||'Anonymous'}${isMe?' <span style="color:var(--p1);font-size:9px">(you)</span>':''}</div>
+          <div class="lb-name">${e.DisplayName||'Anonymous'}${isMe?' <span style="color:var(--p1);font-size:9px">(you)</span>':''}${modInfo}</div>
           <div class="lb-val">${val}</div>
         </div>
       </div>`;
@@ -1823,7 +1618,6 @@ function staffTab(name) {
   document.getElementById('spanel-' + name).classList.add('active');
   document.getElementById('stab-' + name).classList.add('active');
   if (name === 'autoclicker') { staffACLoad(); staffACLoadKeybind2(); }
-  if (name === 'staff') { const el = document.getElementById('staff-session-id'); if (el) el.textContent = window._pfPlayer?.id || '–'; }
 }
 
 // Action log

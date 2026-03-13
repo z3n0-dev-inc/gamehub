@@ -38,8 +38,8 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
 /* ── UPGRADE CARD ── */
 .upg-card{
-  background:var(--surface2);border:1px solid var(--border);border-radius:7px;
-  padding:10px;cursor:pointer;transition:border-color 0.15s,transform 0.1s,box-shadow 0.15s;
+  background:var(--surface2);border:1px solid var(--border);border-radius:3px;
+  padding:9px;cursor:pointer;transition:border-color 0.15s,transform 0.1s;
   position:relative;overflow:hidden;
 }
 .upg-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.18s;pointer-events:none;background:radial-gradient(ellipse at 0% 0%,var(--gc,rgba(0,240,255,0.12)) 0%,transparent 60%);}
@@ -50,7 +50,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 @keyframes affordpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0)}50%{box-shadow:0 0 12px 2px rgba(255,215,0,.12)}}
 .upg-card.maxed{opacity:0.38;pointer-events:none;}
 .upg-row1{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
-.upg-icon{width:34px;height:34px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--gi,rgba(0,240,255,0.08));border:1px solid var(--gib,rgba(0,240,255,0.18));position:relative;overflow:hidden;}
+.upg-icon{width:32px;height:32px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--gi,rgba(0,240,255,0.08));border:1px solid var(--gib,rgba(0,240,255,0.18));position:relative;overflow:hidden;}
 .upg-icon::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,0.07),transparent 70%);}
 .upg-icon svg{width:17px;height:17px;stroke:var(--gc2,#00f0ff);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px var(--gc2,#00f0ff));position:relative;z-index:1;}
 .upg-meta{flex:1;min-width:0;}
@@ -127,7 +127,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 }
 
 /* ── DPS SPARKLINE ── */
-#sparkline-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:11px;}
+#sparkline-box{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:9px;}
 #sparkline-canvas{width:100%;height:44px;display:block;border-radius:3px;}
 
 /* ── STATS BAR ── */
@@ -173,12 +173,12 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 @keyframes pring{0%{opacity:.8;transform:scale(.82);}100%{opacity:0;transform:scale(1.12);}}
 
 #click-btn{
-  width:188px;height:188px;border-radius:50%;
-  border:2px solid var(--btn-color,var(--p1));
-  background:radial-gradient(circle at 38% 32%,rgba(0,240,255,0.17) 0%,rgba(0,240,255,0.03) 55%,transparent 100%);
+  width:180px;height:180px;border-radius:50%;
+  border:1px solid var(--btn-color,var(--p1));
+  background:transparent;
   cursor:pointer;position:relative;
   display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;
-  box-shadow:0 0 55px var(--btn-glow,rgba(0,240,255,.22)),0 0 110px var(--btn-glow,rgba(0,240,255,.07)),inset 0 0 50px rgba(0,240,255,0.06);
+  box-shadow:0 0 40px var(--btn-glow,rgba(0,240,255,.15)),inset 0 0 30px rgba(0,240,255,0.04);
   font-family:var(--mono);user-select:none;-webkit-user-select:none;
   transition:transform .07s,box-shadow .1s,border-color .2s;overflow:visible;
 }
@@ -274,8 +274,8 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 #login-prompt.hidden{display:none!important;}
 .lp-t{font-family:var(--display);font-size:22px;font-weight:800;color:var(--p1);}
 .lp-s{font-size:11px;color:var(--muted);text-align:center;line-height:1.9;}
-.lp-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:3px;padding:12px 30px;background:linear-gradient(135deg,var(--p1),var(--purple));color:#07070e;border:none;border-radius:4px;cursor:pointer;transition:all .18s;}
-.lp-btn:hover{transform:scale(1.05);box-shadow:0 0 24px rgba(0,240,255,.4);}
+.lp-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:3px;padding:11px 28px;background:var(--p1);color:#07070e;border:none;border-radius:2px;cursor:pointer;transition:opacity .15s;}
+.lp-btn:hover{opacity:0.82;}
 .lp-ghost{font-family:var(--mono);font-size:10px;background:transparent;border:1px solid var(--muted);color:var(--muted);padding:6px 16px;border-radius:3px;cursor:pointer;transition:all .15s;}
 .lp-ghost:hover{border-color:var(--text);color:var(--text);}
 
@@ -283,7 +283,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 #right-panel{width:248px;flex-shrink:0;height:100%;overflow-y:auto;background:linear-gradient(180deg,#0b0b17 0%,var(--surface) 100%);border-left:1px solid var(--border);display:flex;flex-direction:column;padding:10px;gap:10px;}
 #right-panel::-webkit-scrollbar{width:3px;}
 #right-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.rp-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:11px;}
+.rp-box{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:10px;}
 .rp-title{font-size:8px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:5px;}
 .rp-title svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .rp-stat{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:10px;}
@@ -311,7 +311,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
 /* ── ACHIEVEMENT ── */
 #ach-root{position:fixed;top:10px;right:10px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
-.ach-toast{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--gold);border-radius:8px;padding:9px 13px;min-width:195px;animation:achpop .3s ease,achfade .4s 3.6s forwards;box-shadow:0 0 20px rgba(255,215,0,.2);}
+.ach-toast{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--gold);border-radius:3px;padding:8px 12px;min-width:190px;animation:achpop .3s ease,achfade .4s 3.6s forwards;}
 @keyframes achpop{from{opacity:0;transform:scale(.8) translateX(20px)}to{opacity:1;transform:scale(1) translateX(0)}}
 @keyframes achfade{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
 .ach-icon{width:26px;height:26px;border-radius:5px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -333,8 +333,8 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .ps-title{font-family:var(--display);font-size:48px;font-weight:800;color:var(--purple);text-shadow:0 0 40px var(--purple);letter-spacing:-2px;}
 .ps-sub{font-size:12px;letter-spacing:4px;color:var(--muted);}
 .ps-bonus{font-family:var(--display);font-size:24px;font-weight:800;color:var(--gold);}
-.ps-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:3px;padding:14px 36px;background:linear-gradient(135deg,var(--purple),var(--p2));color:#fff;border:none;border-radius:5px;cursor:pointer;transition:all .18s;margin-top:8px;}
-.ps-btn:hover{transform:scale(1.05);box-shadow:0 0 30px rgba(153,69,255,.5);}
+.ps-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:3px;padding:13px 32px;background:var(--purple);color:#fff;border:none;border-radius:2px;cursor:pointer;transition:opacity .15s;margin-top:8px;}
+.ps-btn:hover{opacity:0.82;}
 .ps-cancel{font-family:var(--mono);font-size:10px;background:transparent;border:1px solid var(--border2);color:var(--muted);padding:8px 20px;border-radius:4px;cursor:pointer;transition:all .15s;}
 .ps-cancel:hover{border-color:var(--text);color:var(--text);}
 </style>
@@ -554,45 +554,45 @@ const IC = {
 // ── UPGRADES ────────────────────────────────────────────
 const UPGRADES = {
   click:[
-    {id:'c1',name:'Better Mouse',     ic:'mouse',    c:'#00f0ff',desc:'×2 click power',              cost:200,      max:10,cm:2.8, fx:'clickPow',  v:2  },
-    {id:'c2',name:'Mech Keyboard',    ic:'keyboard', c:'#7ec8ff',desc:'+5 per click',                cost:900,      max:15,cm:2.5, fx:'clickFlat', v:5  },
-    {id:'c3',name:'Ergo Setup',       ic:'shield',   c:'#9945ff',desc:'×3 click power',              cost:4000,     max:8, cm:3.5, fx:'clickPow',  v:3  },
-    {id:'c4',name:'RGB Everything',   ic:'zap',      c:'#ff00cc',desc:'+25 per click',               cost:12000,    max:10,cm:3.2, fx:'clickFlat', v:25 },
-    {id:'c5',name:'10-Finger Tech',   ic:'pointer',  c:'#00f0ff',desc:'×5 click power',              cost:80000,    max:5, cm:4.5, fx:'clickPow',  v:5  },
-    {id:'c6',name:'Wrist Warmers',    ic:'flame',    c:'#ff8800',desc:'+100 per click',              cost:180000,   max:8, cm:3.8, fx:'clickFlat', v:100},
-    {id:'c7',name:'Neural Interface', ic:'brain',    c:'#c77dff',desc:'×10 click power',             cost:1000000,   max:5, cm:5.0, fx:'clickPow',  v:10 },
-    {id:'c8',name:'Quantum Clicking', ic:'atom',     c:'#00f0ff',desc:'+1000 per click',             cost:4000000,  max:5, cm:5.5, fx:'clickFlat', v:1000},
-    {id:'c9',name:'God Mode Cursor',  ic:'star',     c:'#ffd700',desc:'×50 all click power',         cost:40000000, max:3, cm:7.0, fx:'clickPow',  v:50 },
-    {id:'c10',name:'Chain Reaction',  ic:'chain',    c:'#00ffcc',desc:'Each click spawns 3 ghost clicks (25% power)',cost:90000,max:8,cm:4.0,fx:'chainClick',v:3},
+    {id:'c1',name:'Better Mouse',     ic:'mouse',    c:'#00f0ff',desc:'×2 click power',              cost:500,       max:10,cm:3.2, fx:'clickPow',  v:2  },
+    {id:'c2',name:'Mech Keyboard',    ic:'keyboard', c:'#7ec8ff',desc:'+5 per click',                cost:2500,      max:15,cm:3.0, fx:'clickFlat', v:5  },
+    {id:'c3',name:'Ergo Setup',       ic:'shield',   c:'#9945ff',desc:'×3 click power',              cost:14000,     max:8, cm:4.0, fx:'clickPow',  v:3  },
+    {id:'c4',name:'RGB Everything',   ic:'zap',      c:'#ff00cc',desc:'+25 per click',               cost:40000,     max:10,cm:3.8, fx:'clickFlat', v:25 },
+    {id:'c5',name:'10-Finger Tech',   ic:'pointer',  c:'#00f0ff',desc:'×5 click power',              cost:220000,    max:5, cm:5.0, fx:'clickPow',  v:5  },
+    {id:'c6',name:'Wrist Warmers',    ic:'flame',    c:'#ff8800',desc:'+100 per click',              cost:600000,    max:8, cm:4.2, fx:'clickFlat', v:100},
+    {id:'c7',name:'Neural Interface', ic:'brain',    c:'#c77dff',desc:'×10 click power',             cost:2500000,   max:5, cm:5.5, fx:'clickPow',  v:10 },
+    {id:'c8',name:'Quantum Clicking', ic:'atom',     c:'#00f0ff',desc:'+1000 per click',             cost:12000000,  max:5, cm:6.0, fx:'clickFlat', v:1000},
+    {id:'c9',name:'God Mode Cursor',  ic:'star',     c:'#ffd700',desc:'×50 all click power',         cost:100000000, max:3, cm:8.0, fx:'clickPow',  v:50 },
+    {id:'c10',name:'Chain Reaction',  ic:'chain',    c:'#00ffcc',desc:'Each click spawns 3 ghost clicks (25% power)',cost:280000,max:8,cm:4.5,fx:'chainClick',v:3},
   ],
   passive:[
-    {id:'p1',name:'Coffee Machine',   ic:'coffee',c:'#c8832a',desc:'+1 coin/sec',                   cost:500,      max:20,cm:2.4, fx:'cps',      v:1  },
-    {id:'p2',name:'Mining Bot',       ic:'bot',   c:'#00f0ff',desc:'+3 coins/sec',                  cost:2500,     max:15,cm:2.7, fx:'cps',      v:3  },
-    {id:'p3',name:'Server Farm',      ic:'server',c:'#00ff88',desc:'+10 coins/sec',                 cost:12000,    max:12,cm:3.0, fx:'cps',      v:10 },
-    {id:'p4',name:'AI Assistant',     ic:'cpu',   c:'#9945ff',desc:'×2 all passive income',         cost:55000,    max:8, cm:3.8, fx:'cpsMult',  v:2  },
-    {id:'p5',name:'Cloud Cluster',    ic:'cloud', c:'#64c8ff',desc:'+50 coins/sec',                 cost:220000,   max:10,cm:4.0, fx:'cps',      v:50 },
-    {id:'p6',name:'Quantum Computer', ic:'laptop',c:'#00f0ff',desc:'×3 all passive',                cost:1200000,  max:6, cm:4.5, fx:'cpsMult',  v:3  },
-    {id:'p7',name:'Hyperscaler',      ic:'globe', c:'#00ff88',desc:'+500 coins/sec',                cost:9000000,  max:5, cm:5.0, fx:'cps',      v:500},
-    {id:'p8',name:'Time Machine',     ic:'clock', c:'#ffd700',desc:'×10 passive income',            cost:90000000, max:3, cm:6.0, fx:'cpsMult',  v:10 },
-    {id:'p9',name:'Coin Magnet',      ic:'magnet',c:'#ff8800',desc:'Doubles offline rate, +2/s',    cost:30000,    max:10,cm:3.5, fx:'coinMagnet',v:1  },
+    {id:'p1',name:'Coffee Machine',   ic:'coffee',c:'#c8832a',desc:'+1 coin/sec',                   cost:2000,      max:20,cm:3.0, fx:'cps',      v:1  },
+    {id:'p2',name:'Mining Bot',       ic:'bot',   c:'#00f0ff',desc:'+3 coins/sec',                  cost:9000,      max:15,cm:3.2, fx:'cps',      v:3  },
+    {id:'p3',name:'Server Farm',      ic:'server',c:'#00ff88',desc:'+10 coins/sec',                 cost:40000,     max:12,cm:3.6, fx:'cps',      v:10 },
+    {id:'p4',name:'AI Assistant',     ic:'cpu',   c:'#9945ff',desc:'×2 all passive income',         cost:180000,    max:8, cm:4.2, fx:'cpsMult',  v:2  },
+    {id:'p5',name:'Cloud Cluster',    ic:'cloud', c:'#64c8ff',desc:'+50 coins/sec',                 cost:750000,    max:10,cm:4.5, fx:'cps',      v:50 },
+    {id:'p6',name:'Quantum Computer', ic:'laptop',c:'#00f0ff',desc:'×3 all passive',                cost:4000000,   max:6, cm:5.0, fx:'cpsMult',  v:3  },
+    {id:'p7',name:'Hyperscaler',      ic:'globe', c:'#00ff88',desc:'+500 coins/sec',                cost:28000000,  max:5, cm:5.5, fx:'cps',      v:500},
+    {id:'p8',name:'Time Machine',     ic:'clock', c:'#ffd700',desc:'×10 passive income',            cost:250000000, max:3, cm:7.0, fx:'cpsMult',  v:10 },
+    {id:'p9',name:'Coin Magnet',      ic:'magnet',c:'#ff8800',desc:'+passive/sec, boosts offline',  cost:100000,    max:10,cm:4.0, fx:'coinMagnet',v:1  },
   ],
   special:[
-    {id:'s1',name:'Crit Chance',      ic:'crosshair',c:'#ff3060',desc:'+5% crit per level',         cost:5000,    max:10,cm:3.2, fx:'critChance',  v:0.05},
-    {id:'s2',name:'Combo Multiplier', ic:'flame',    c:'#ff6600',desc:'Build click combos faster',  cost:15000,   max:8, cm:3.5, fx:'combo',        v:0.1 },
-    {id:'s3',name:'Boost Duration',   ic:'zap',      c:'#ffd700',desc:'+2s boost time',             cost:22000,   max:10,cm:3.2, fx:'boostDur',     v:2   },
-    {id:'s4',name:'Boost Power',      ic:'rocket',   c:'#ff3060',desc:'Boost mult ×1.5',            cost:70000,   max:6, cm:3.8, fx:'boostMult',    v:1.5 },
-    {id:'s5',name:'Offline Progress', ic:'moon',     c:'#9945ff',desc:'Earn while offline',         cost:150000,  max:5, cm:4.5, fx:'offlinePct',   v:0.1 },
-    {id:'s6',name:'Lucky Click',      ic:'leaf',     c:'#00ff88',desc:'Chance of ×100 hit',         cost:350000,  max:5, cm:5.0, fx:'luckyChance',  v:0.002},
-    {id:'s7',name:'Prestige Amp',     ic:'gem',      c:'#9945ff',desc:'+50% prestige bonus',        cost:1500000, max:3, cm:6.0, fx:'prestigeBonus',v:0.5 },
-    {id:'s8',name:'Auto Clicker',     ic:'bot',      c:'#00f0ff',desc:'+1 auto click/sec per level',cost:500000,  max:5, cm:4.5, fx:'autoClick',    v:1   },
-    {id:'s9',name:'Mega Boost',       ic:'comet',    c:'#ffd700',desc:'Unlock MEGA BOOST',          cost:6000000, max:1, cm:1,   fx:'megaBoost',    v:1   },
-    {id:'s10',name:'Click Storm',     ic:'storm',    c:'#00d4ff',desc:'20% chance to double-click', cost:250000,  max:8, cm:4.0, fx:'stormChance',  v:0.025},
-    {id:'s11',name:'Golden Touch',    ic:'dice',     c:'#ffd700',desc:'Golden clicks appear more often',cost:130000,max:5,cm:3.8,fx:'goldenFreq',  v:0.15},
-    {id:'s12',name:'Frenzy Amp',      ic:'zap',      c:'#ff3060',desc:'Frenzy gives +50% more mult', cost:400000, max:5, cm:4.5, fx:'frenzyAmp',   v:0.5 },
-    {id:'s13',name:'Jackpot Magnet',  ic:'magnet',   c:'#ffd700',desc:'Jackpots appear 30% more often',cost:220000,max:5, cm:4.0, fx:'jackpotFreq', v:0.3 },
-    {id:'s14',name:'Rush Master',     ic:'rocket',   c:'#00f0ff',desc:'+20% Click Rush reward',       cost:280000, max:5, cm:4.2, fx:'rushBonus',   v:0.2 },
-    {id:'s15',name:'Coin Rain',       ic:'cloud',    c:'#00ff88',desc:'Falling coins worth 3× more',  cost:180000, max:6, cm:3.8, fx:'coinRainMult',v:1.0 },
-    {id:'s16',name:'Crit Overload',   ic:'target',   c:'#ff3060',desc:'Crits do ×8 instead of ×5',   cost:600000, max:1, cm:1,   fx:'critMult',    v:3.0 },
+    {id:'s1',name:'Crit Chance',      ic:'crosshair',c:'#ff3060',desc:'+4% crit per level',         cost:18000,   max:10,cm:3.6, fx:'critChance',  v:0.04},
+    {id:'s2',name:'Combo Multiplier', ic:'flame',    c:'#ff6600',desc:'Build click combos faster',  cost:55000,   max:8, cm:4.0, fx:'combo',        v:0.1 },
+    {id:'s3',name:'Boost Duration',   ic:'zap',      c:'#ffd700',desc:'+2s boost time',             cost:80000,   max:10,cm:3.8, fx:'boostDur',     v:2   },
+    {id:'s4',name:'Boost Power',      ic:'rocket',   c:'#ff3060',desc:'Boost mult ×1.5',            cost:250000,  max:6, cm:4.2, fx:'boostMult',    v:1.5 },
+    {id:'s5',name:'Offline Progress', ic:'moon',     c:'#9945ff',desc:'Earn while offline',         cost:500000,  max:5, cm:5.0, fx:'offlinePct',   v:0.1 },
+    {id:'s6',name:'Lucky Click',      ic:'leaf',     c:'#00ff88',desc:'Chance of ×100 hit',         cost:1200000, max:5, cm:5.5, fx:'luckyChance',  v:0.002},
+    {id:'s7',name:'Prestige Amp',     ic:'gem',      c:'#9945ff',desc:'+50% prestige bonus',        cost:5000000, max:3, cm:6.5, fx:'prestigeBonus',v:0.5 },
+    {id:'s8',name:'Auto Clicker',     ic:'bot',      c:'#00f0ff',desc:'+1 auto click/sec per level',cost:1800000, max:5, cm:5.0, fx:'autoClick',    v:1   },
+    {id:'s9',name:'Mega Boost',       ic:'comet',    c:'#ffd700',desc:'Unlock MEGA BOOST',          cost:12000000,max:1, cm:1,   fx:'megaBoost',    v:1   },
+    {id:'s10',name:'Click Storm',     ic:'storm',    c:'#00d4ff',desc:'20% chance to double-click', cost:900000,  max:8, cm:4.5, fx:'stormChance',  v:0.025},
+    {id:'s11',name:'Golden Touch',    ic:'dice',     c:'#ffd700',desc:'Golden clicks appear more often',cost:450000,max:5,cm:4.2,fx:'goldenFreq',  v:0.15},
+    {id:'s12',name:'Frenzy Amp',      ic:'zap',      c:'#ff3060',desc:'Frenzy gives +50% more mult', cost:1500000,max:5, cm:5.0, fx:'frenzyAmp',   v:0.5 },
+    {id:'s13',name:'Jackpot Magnet',  ic:'magnet',   c:'#ffd700',desc:'Jackpots appear 30% more often',cost:800000,max:5, cm:4.5, fx:'jackpotFreq', v:0.3 },
+    {id:'s14',name:'Rush Master',     ic:'rocket',   c:'#00f0ff',desc:'+20% Click Rush reward',       cost:1000000,max:5, cm:4.8, fx:'rushBonus',   v:0.2 },
+    {id:'s15',name:'Coin Rain',       ic:'cloud',    c:'#00ff88',desc:'Falling coins worth 3× more',  cost:650000, max:6, cm:4.2, fx:'coinRainMult',v:1.0 },
+    {id:'s16',name:'Crit Overload',   ic:'target',   c:'#ff3060',desc:'Crits do ×8 instead of ×5',   cost:2500000,max:1, cm:1,   fx:'critMult',    v:3.0 },
   ]
 };
 const ALL_UPG = [...UPGRADES.click,...UPGRADES.passive,...UPGRADES.special];
@@ -626,12 +626,12 @@ const ACHS = [
 let G={
   coins:0,totalCoins:0,cps:0,clicks:0,totalClicks:0,
   clickPow:1,clickFlat:0,cpsMult:1,
-  critChance:.05,combo:0,boostDur:8,boostMult:3,
+  critChance:.02,combo:0,boostDur:6,boostMult:2.5,
   offlinePct:0,luckyChance:0,prestigeBonus:0,autoClick:0,megaBoost:0,
   chainClick:0,stormChance:0,goldenFreq:1.0,frenzyAmp:0,coinMagnet:0,
   jackpotFreq:1.0,rushBonus:0,coinRainMult:1.0,critMult:1.0,
   prestige:0,prestigeMult:1,
-  upgrades:{},comboVal:1,comboTimer:0,comboMax:18, // harder: combo expires faster
+  upgrades:{},comboVal:1,comboTimer:0,comboMax:12, // 0.6s window — keep rhythm or lose combo
   boostActive:false,boostTimer:0,boostCooldown:0,
   sessionCoins:0,bestCrit:0,
   achievementsUnlocked:new Set(),upgradeCount:0,
@@ -675,6 +675,29 @@ let settings={keybinds:{click:'Space',boost:'KeyB',auto:'KeyA'},sfx:true};
   }catch(e){}
 })();
 let guestMode=false;
+
+// ── CACHED DOM REFS (never call getElementById in hot paths) ─────────────
+const DOM = {};
+function cacheDOM() {
+  const ids = [
+    's-coins','s-cps','s-clicks','s-mult','s-prestige',
+    'rp-session','rp-power','rp-cps','rp-crit','rp-upgs','rp-key',
+    'btn-sub','key-hint','prestige-btn',
+    'boost-lbl','boost-bar-fill',
+    'frenzy-bar-fill','frenzy-val','frenzy-banner',
+    'combo-ring','streak-display','combo-display','combo-num','combo-sub','combo-timer-bar',
+    'event-banner','rush-ring-fill','rush-target',
+    'flash','upgrades-list','mini-lb','ach-list','ach-root',
+    'offline-wrap','events-log','spark-peak','milestone-pop',
+    'login-prompt','click-btn','btn-lbl-txt','btn-main-svg','boost-wrap',
+    'staff-ac-tab','staff-ac-btn','staff-ac-info','staff-badge-stat',
+    'ac-status-badge','ac-cps-display','ac-mode-display',
+    'ac-stat-clicks','ac-stat-coins','ac-stat-since',
+    'speed-bar-fill'
+  ];
+  ids.forEach(id => { const el = document.getElementById(id); if(el) DOM[id] = el; });
+}
+
 
 // ── BACKGROUND CANVAS ────────────────────────────────────
 const bgC=document.getElementById('bg-cvs');
@@ -789,7 +812,7 @@ function strColor(s){let h=0;for(let i=0;i<s.length;i++)h=s.charCodeAt(i)+((h<<5
 
 // ── SCREEN FLASH ──────────────────────────────────────────
 function screenFlash(color,duration=120){
-  const el=document.getElementById('flash');
+  const el=DOM['flash'];
   el.style.background=color;
   el.style.opacity='1';
   setTimeout(()=>{el.style.opacity='0';},duration);
@@ -817,11 +840,11 @@ function doClick(cx,cy,isGhost=false){
     G.clickWindow.push(now);
     G.lastClickTime=now;
     G.comboTimer=G.comboMax;
-    G.comboVal=Math.min(G.comboVal+(G.combo*.1),1+G.combo*5);
+    G.comboVal=Math.min(G.comboVal+(G.combo*.07),1+G.combo*4);
     if(G.comboVal>G.bestCombo) G.bestCombo=G.comboVal;
     // Build frenzy meter
     const cps_est=G.clickWindow.length/2;
-    const frenzyGain=Math.min(cps_est*0.6,3.5);  // harder: even slower frenzy build
+    const frenzyGain=Math.min(cps_est*0.4,2.8);  // needs ~8 CPS sustained to fill meter
     if(!G.frenzyActive) G.frenzyMeter=Math.min(100,G.frenzyMeter+frenzyGain);
     if(G.frenzyMeter>=100&&!G.frenzyActive) enterFrenzy();
   }
@@ -895,9 +918,9 @@ function earn(v){G.coins+=v;G.totalCoins+=v;G.sessionCoins+=v;}
 // ── FRENZY MODE ───────────────────────────────────────────
 function enterFrenzy(){
   G.frenzyActive=true;
-  G.frenzyTimer=200; // 10 seconds at 50ms tick
+  G.frenzyTimer=140; // 7 seconds at 50ms tick
   G.frenzyCount++;
-  document.getElementById('frenzy-banner').style.display='block';
+  DOM['frenzy-banner'].style.display='block';
   document.getElementById('click-btn').classList.add('frenzy-active');
   screenFlash('rgba(255,48,96,.3)',400);
   if(settings.sfx) playFrenzy();
@@ -907,7 +930,7 @@ function exitFrenzy(){
   G.frenzyActive=false;
   G.frenzyMeter=0;
   G.frenzyTimer=0;
-  document.getElementById('frenzy-banner').style.display='none';
+  DOM['frenzy-banner'].style.display='none';
   document.getElementById('click-btn').classList.remove('frenzy-active');
 }
 
@@ -915,7 +938,7 @@ function exitFrenzy(){
 let goldenTO=null;
 function scheduleGoldenEvent(){
   // Base interval 30–60s, reduced by goldenFreq upgrades
-  const base=45000+(Math.random()*45000); // harder: less frequent golden clicks
+  const base=60000+(Math.random()*60000); // 1–2 min between golden clicks
   const interval=base/G.goldenFreq;
   goldenTO=setTimeout(()=>{
     if(!G.goldenActive) triggerGoldenClick();
@@ -923,10 +946,10 @@ function scheduleGoldenEvent(){
 }
 function triggerGoldenClick(){
   G.goldenActive=true;
-  G.goldenTimer=60; // 3 seconds at 50ms — harder
+  G.goldenTimer=40; // 2 seconds at 50ms — snap decision
   const btn=document.getElementById('click-btn');
   btn.classList.add('golden');
-  document.getElementById('btn-lbl-txt').textContent='GOLDEN!';
+  DOM['btn-lbl-txt'].textContent='GOLDEN!';
   if(settings.sfx) playGoldenAlert();
   screenFlash('rgba(255,215,0,.15)',300);
   // Spawn gold particles around button
@@ -943,7 +966,7 @@ function endGoldenClick(){
   G.goldenTimer=0;
   const btn=document.getElementById('click-btn');
   btn.classList.remove('golden');
-  document.getElementById('btn-lbl-txt').textContent='CLICK';
+  DOM['btn-lbl-txt'].textContent='CLICK';
   scheduleGoldenEvent();
 }
 
@@ -954,8 +977,8 @@ function activateBoost(){
   updateBoostUI();if(settings.sfx) playBoost();
 }
 function updateBoostUI(){
-  const lbl=document.getElementById('boost-lbl');
-  const fill=document.getElementById('boost-bar-fill');
+  const lbl=DOM['boost-lbl'];
+  const fill=DOM['boost-bar-fill'];
   const bk=fmtKey(settings.keybinds?.boost||'KeyB');
   if(G.boostActive){
     lbl.className='boost-on';lbl.textContent=`BOOST ×${G.boostMult.toFixed(1)} ACTIVE!`;
@@ -974,12 +997,12 @@ function updateBoostUI(){
 
 // ── COMBO RING ────────────────────────────────────────────
 function updateComboRing(){
-  const ring=document.getElementById('combo-ring');
-  const streak=document.getElementById('streak-display');
+  const ring=DOM['combo-ring'];
+  const streak=DOM['streak-display'];
   if(G.comboVal<=1.05){
     ring.style.borderColor='transparent';
     streak.style.opacity='0';
-    document.getElementById('combo-display').style.display='none';
+    DOM['combo-display'].style.display='none';
     return;
   }
   const pct=(G.comboVal-1)/Math.max(1,G.combo*5);
@@ -990,18 +1013,18 @@ function updateComboRing(){
   streak.style.opacity='1';
   streak.style.color=col;
   streak.textContent=`×${G.comboVal.toFixed(1)} COMBO`;
-  const cd=document.getElementById('combo-display');
+  const cd=DOM['combo-display'];
   cd.style.display='block';
-  document.getElementById('combo-num').textContent=`×${G.comboVal.toFixed(1)}`;
-  document.getElementById('combo-sub').textContent=`COMBO MULTIPLIER`;
+  DOM['combo-num'].textContent=`×${G.comboVal.toFixed(1)}`;
+  DOM['combo-sub'].textContent=`COMBO MULTIPLIER`;
   const timerPct=(G.comboTimer/G.comboMax)*100;
-  document.getElementById('combo-timer-bar').style.width=timerPct+'%';
+  DOM['combo-timer-bar'].style.width=timerPct+'%';
 }
 
 // ── TIMERS ────────────────────────────────────────────────
 setInterval(()=>{
   const cps=getCPS();
-  if(cps>0){earn(cps/20);updateUI();}
+  if(cps>0){earn(cps/20);} // updateUI called below if dirty
 
   if(G.comboTimer>0){
     G.comboTimer--;
@@ -1009,14 +1032,14 @@ setInterval(()=>{
   }
   if(G.boostActive){
     G.boostTimer--;
-    if(G.boostTimer<=0){G.boostActive=false;G.boostCooldown=900;updateBoostUI();}  // harder: 45s cooldown
+    if(G.boostTimer<=0){G.boostActive=false;G.boostCooldown=1200;updateBoostUI();}  // 60s cooldown
   }
   if(G.boostCooldown>0){G.boostCooldown--;updateBoostUI();}
 
   // Frenzy meter decay when not clicking
   if(!G.frenzyActive){
     const now=Date.now();
-    if(now-G.lastClickTime>350) G.frenzyMeter=Math.max(0,G.frenzyMeter-2.5);  // harder: faster decay
+    if(now-G.lastClickTime>300) G.frenzyMeter=Math.max(0,G.frenzyMeter-3.5);  // idle drains meter fast
   }
   // Frenzy countdown
   if(G.frenzyActive){
@@ -1039,12 +1062,13 @@ setInterval(()=>{
     if(G.rushTimer<=0) endRush();
     else {
       const pct=(G.rushTimer/160)*100;
-      document.getElementById('rush-ring-fill').style.strokeDashoffset=(628*(1-pct/100)).toString();
+      DOM['rush-ring-fill'].style.strokeDashoffset=(628*(1-pct/100)).toString();
     }
   }
 
   updateComboRing();
   updateFrenzyBar();
+  if(_uiDirty){updateUI();_uiDirty=false;}
 },50);
 
 // ── IN-GAME AUTO CLICKER (upgrade s8) ────────────────────
@@ -1072,8 +1096,8 @@ applyUpg = function(u, n=1){
 };
 
 function updateFrenzyBar(){
-  const fill=document.getElementById('frenzy-bar-fill');
-  const val=document.getElementById('frenzy-val');
+  const fill=DOM['frenzy-bar-fill'];
+  const val=DOM['frenzy-val'];
   if(G.frenzyActive){
     const pct=(G.frenzyTimer/200)*100;
     fill.style.width=pct+'%';
@@ -1162,7 +1186,7 @@ function applyUpg(u,n=1){
       case 'stormChance':G.stormChance+=u.v;break;
       case 'goldenFreq': G.goldenFreq+=u.v;break;
       case 'frenzyAmp':  G.frenzyAmp+=u.v;break;
-      case 'coinMagnet': G.coinMagnet+=u.v;G.cps+=u.v*1.5;break; // harder: less passive bonus
+      case 'coinMagnet': G.coinMagnet+=u.v;G.cps+=u.v;break; // 1:1 ratio
       case 'jackpotFreq':G.jackpotFreq+=u.v;break;
       case 'rushBonus':  G.rushBonus+=u.v;break;
       case 'coinRainMult':G.coinRainMult+=u.v;break;
@@ -1202,7 +1226,7 @@ function confirmPrestige(){
   showAch({id:'_p',name:'Prestiged!',ic:'award'});
 }
 function checkPrestigeBtn(){
-  document.getElementById('prestige-btn').style.display=G.totalCoins>=10000000?'block':'none';  // harder: 10M threshold
+  DOM['prestige-btn'].style.display=G.totalCoins>=25000000?'block':'none';  // 25M threshold
 }
 
 // ── ACHIEVEMENTS ──────────────────────────────────────────
@@ -1237,19 +1261,19 @@ function renderAchs(){
 
 // ── UI ────────────────────────────────────────────────────
 function updateUI(){
-  document.getElementById('s-coins').textContent='🪙'+fmtN(G.coins);
-  document.getElementById('s-cps').textContent=fmtN(getCPS())+'/s';
-  document.getElementById('s-clicks').textContent=fmtN(G.totalClicks);
-  document.getElementById('s-mult').textContent='×'+G.prestigeMult.toFixed(1);
-  document.getElementById('s-prestige').textContent=G.prestige;
-  document.getElementById('rp-session').textContent='🪙'+fmtN(G.sessionCoins);
-  document.getElementById('rp-power').textContent=fmtN(getCV());
-  document.getElementById('rp-cps').textContent=fmtN(getCPS())+'/s';
-  document.getElementById('rp-crit').textContent=fmtN(G.bestCrit);
-  document.getElementById('rp-upgs').textContent=G.upgradeCount;
-  document.getElementById('rp-key').textContent=fmtKey(settings.keybinds?.click||'Space');
-  document.getElementById('btn-sub').textContent=`+${fmtN(getCV())} per click`;
-  document.getElementById('key-hint').textContent=`[ ${fmtKey(settings.keybinds?.click||'Space')} ] click  ·  [ ${fmtKey(settings.keybinds?.boost||'KeyB')} ] boost`;
+  DOM['s-coins'].textContent='🪙'+fmtN(G.coins);
+  DOM['s-cps'].textContent=fmtN(getCPS())+'/s';
+  DOM['s-clicks'].textContent=fmtN(G.totalClicks);
+  DOM['s-mult'].textContent='×'+G.prestigeMult.toFixed(1);
+  DOM['s-prestige'].textContent=G.prestige;
+  DOM['rp-session'].textContent='🪙'+fmtN(G.sessionCoins);
+  DOM['rp-power'].textContent=fmtN(getCV());
+  DOM['rp-cps'].textContent=fmtN(getCPS())+'/s';
+  DOM['rp-crit'].textContent=fmtN(G.bestCrit);
+  DOM['rp-upgs'].textContent=G.upgradeCount;
+  DOM['rp-key'].textContent=fmtKey(settings.keybinds?.click||'Space');
+  DOM['btn-sub'].textContent=`+${fmtN(getCV())} per click`;
+  DOM['key-hint'].textContent=`[ ${fmtKey(settings.keybinds?.click||'Space')} ] click  ·  [ ${fmtKey(settings.keybinds?.boost||'KeyB')} ] boost`;
   checkPrestigeBtn();
 }
 
@@ -1512,7 +1536,7 @@ function applyCosmetics(equipped){
     btn.style.borderColor=s.br;
     btn.style.boxShadow=`0 0 55px ${s.glow},0 0 110px ${s.glow}55,inset 0 0 50px ${s.glow}40`;
   }
-  const svg=document.getElementById('btn-main-svg');
+  const svg=DOM['btn-main-svg'];
   if(svg) svg.style.stroke=s.br;
   document.querySelectorAll('.pring').forEach(r=>r.style.borderColor=s.br+'44');
 }
@@ -1707,15 +1731,15 @@ function showMilestonePop(n){
 // ── JACKPOT EVENT ─────────────────────────────────────────
 let jackpotTO=null;
 function scheduleJackpot(){
-  const base=45000+Math.random()*45000;
+  const base=60000+Math.random()*60000;
   jackpotTO=setTimeout(()=>{
     if(!G.jackpotActive&&!G.rushActive) triggerJackpot();
   },base/G.jackpotFreq);
 }
 function triggerJackpot(){
   G.jackpotActive=true;
-  G.jackpotTimer=40; // 2s at 50ms — harder
-  const eb=document.getElementById('event-banner');
+  G.jackpotTimer=30; // 1.5s — blink and you miss it
+  const eb=DOM['event-banner'];
   eb.className='jackpot';eb.textContent='💰 JACKPOT — ×200 FOR 3 SECONDS! 💰';eb.style.display='block';
   screenFlash('rgba(255,215,0,.25)',400);
   if(settings.sfx) playJackpotAlert();
@@ -1726,9 +1750,9 @@ function triggerJackpot(){
 function endJackpot(){
   G.jackpotActive=false;
   G.jackpotTimer=0;
-  const eb=document.getElementById('event-banner');
+  const eb=DOM['event-banner'];
   eb.style.display='none';
-  G.jackpotCooldown=1200; // 60s cooldown
+  G.jackpotCooldown=1800; // 90s cooldown
   scheduleJackpot();
 }
 
@@ -1744,19 +1768,19 @@ function triggerRush(){
   G.rushActive=true;
   G.rushTimer=160; // 8s at 50ms
   G.rushClicksEarned=0;
-  const eb=document.getElementById('event-banner');
+  const eb=DOM['event-banner'];
   eb.className='rush';eb.textContent='⚡ CLICK RUSH — CLICK AS FAST AS YOU CAN! ⚡';eb.style.display='block';
   document.getElementById('rush-ring-svg').style.display='block';
-  document.getElementById('rush-target').style.display='block';
+  DOM['rush-target'].style.display='block';
   screenFlash('rgba(0,240,255,.2)',400);
   if(settings.sfx) playRushAlert();
   logEvent('⚡ CLICK RUSH started!','var(--p1)');
 }
 function endRush(){
   G.rushActive=false;G.rushTimer=0;
-  const eb=document.getElementById('event-banner');eb.style.display='none';
+  const eb=DOM['event-banner'];eb.style.display='none';
   document.getElementById('rush-ring-svg').style.display='none';
-  document.getElementById('rush-target').style.display='none';
+  DOM['rush-target'].style.display='none';
   // Jackpot reward
   const base=G.rushClicksEarned;
   const bonus=Math.floor(base*(1+G.rushBonus));
@@ -1770,7 +1794,7 @@ function endRush(){
   document.body.appendChild(ft);setTimeout(()=>ft.remove(),920);
   screenFlash('rgba(0,240,255,.3)',500);
   if(settings.sfx) playMilestone();
-  G.rushCooldown=3600; // 180s — harder
+  G.rushCooldown=4800; // 240s cooldown
   checkAchs();updateUI();
   scheduleRush();
 }
@@ -1784,9 +1808,9 @@ doClick=function(cx,cy,isGhost=false){
   if(!isGhost&&G.rushActive){
     G.rushClicksEarned+=getCV();
     const pct=(1-G.rushTimer/160)*100;
-    const fill=document.getElementById('rush-ring-fill');
+    const fill=DOM['rush-ring-fill'];
     fill.style.strokeDashoffset=(628*(1-pct/100)).toString();
-    document.getElementById('rush-target').textContent=`${fmtN(G.rushClicksEarned)} earned`;
+    DOM['rush-target'].textContent=`${fmtN(G.rushClicksEarned)} earned`;
   }
 };
 
@@ -2017,6 +2041,7 @@ function updateStaffACTab(){
 }
 
 // ── BOOT ────────────────────────────────────────────────
+cacheDOM();
 loadGame();
 reapplyAll();
 renderUpgrades();
@@ -2030,7 +2055,7 @@ logEvent('// game loaded','var(--border2)');
 
 setInterval(()=>saveGame(),15000);
 setInterval(()=>{if(window._pfSession)loadMiniLb();},30000);
-setInterval(()=>{renderUpgrades();},500);
+// upgrade render is called explicitly after purchases and on tab switch
 
 window.focus();
 document.addEventListener('click',()=>window.focus());

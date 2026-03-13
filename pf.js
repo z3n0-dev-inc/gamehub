@@ -1,4 +1,4 @@
-// ── DEVHUB · PlayFab Client ──────────────────────────────
+// ── DEVHUB · PlayFab Client · v8 ─────────────────────────
 //
 // ⚠️  SECURITY — READ BEFORE DEPLOYING PUBLICLY
 // ─────────────────────────────────────────────
@@ -83,22 +83,19 @@ async function pfRegister(username, email, password) {
 }
 
 async function pfLogin(email, password) {
-  // Keep InfoRequestParameters minimal — only request what PlayFab
-  // guarantees exists. Requesting UserDataKeys for keys that don't
-  // exist yet on a new account triggers "Invalid input parameters".
   const data = await pfCall("/Client/LoginWithEmailAddress", {
-    TitleId: PF_TITLE, Email: email, Password: password,
-    InfoRequestParameters: {
-      GetUserAccountInfo: true
-    }
+    TitleId: PF_TITLE, Email: email, Password: password
   });
   window._pfSession = data.SessionTicket;
-  const info = data.CombinedInfo?.AccountInfo;
-  window._pfPlayer = {
-    id: data.PlayFabId,
-    username: info?.TitleInfo?.DisplayName || info?.Username || "Player",
-    email
-  };
+  // Fetch display name separately — more reliable than CombinedInfo
+  let username = email.split('@')[0];
+  try {
+    const profile = await pfCall("/Client/GetPlayerProfile", {
+      ProfileConstraints: { ShowDisplayName: true }
+    });
+    username = profile.PlayerProfile?.DisplayName || username;
+  } catch {}
+  window._pfPlayer = { id: data.PlayFabId, username, email };
   saveSession();
   return data;
 }

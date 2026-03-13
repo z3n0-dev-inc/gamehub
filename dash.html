@@ -102,10 +102,11 @@ canvas{display:block;position:fixed;inset:0}
 const CV = document.getElementById('c');
 const CX = CV.getContext('2d');
 let W = 0, H = 0;
+let bgDirty = true; // declared early — resize() sets this flag
 function resize(){
   W = CV.width = innerWidth;
   H = CV.height = innerHeight;
-  bgDirty = true; // force bg redraw on resize
+  bgDirty = true;
 }
 resize(); addEventListener('resize', resize);
 
@@ -485,7 +486,7 @@ let portalFlash = 0;  // brief flash when entering portal
 
 // ── OFFSCREEN BG CANVAS ───────────────────────
 // Star layer cached on offscreen canvas — only redrawn when dirty
-let bgCanvas = null, bgCtx = null, bgDirty = true;
+let bgCanvas = null, bgCtx = null;
 let stars = [];
 
 function mkStars(){

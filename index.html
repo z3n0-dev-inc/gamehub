@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>DEVHUB</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Syne:wght@700;800&display=swap');
@@ -1100,7 +1103,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
   </div>
 </div>
 
-<script src="pf.js"></script>
+<script src="pf.js?v=8"></script>
 <script>
 // ── BACKGROUND PARTICLES ──────────────────────────────────
 const bgC = document.getElementById('bg-canvas');
@@ -2268,19 +2271,19 @@ document.getElementById('reg-pw').addEventListener('keydown', e=>{ if(e.key==='E
 let _pfOnline = true;
 async function checkPfHealth() {
   try {
-    // GetTitleData is the safest unauthenticated ping.
-    // Pass empty Keys array — returns whatever public title data exists.
-    // We catch errors but only flag offline if it's a network failure,
-    // not a PlayFab API error (which means the server IS reachable).
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000); // 8s timeout
     const res = await fetch(`${PF_BASE}/Client/GetTitleData`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ TitleId: PF_TITLE })
+      body: JSON.stringify({ TitleId: PF_TITLE }),
+      signal: ctrl.signal
     });
-    // Any HTTP response (even 4xx) means the server is up
+    clearTimeout(timer);
+    // Got any HTTP response = server is reachable
     _pfOnline = true;
     document.getElementById('offline-banner').classList.remove('show');
-    // Also parse MOTD while we have the response
+    // Parse MOTD while we have the response
     try {
       const json = await res.json();
       const motd = json.data?.Data?.MOTD;
@@ -2289,8 +2292,13 @@ async function checkPfHealth() {
         if (m.message) setTimeout(() => toast('📢 ' + m.message, 'info'), 800);
       }
     } catch {}
-  } catch {
-    // Only a network/fetch error means truly offline
+  } catch (err) {
+    // Only show banner if it's truly a network failure (not AbortError from timeout)
+    if (err.name === 'AbortError') {
+      // Timed out — still might be reachable, don't flag offline yet
+      console.warn('[DevHub] PlayFab health check timed out');
+      return;
+    }
     _pfOnline = false;
     document.getElementById('offline-banner').classList.add('show');
   }

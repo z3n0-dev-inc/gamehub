@@ -68,6 +68,47 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;}
 .page.hidden{display:none!important;}
 
+/* ══════════════════ MOBILE NAV ══════════════════ */
+@media (max-width: 768px) {
+  #nav { padding: 0 12px; height: 50px; }
+  .logo { font-size: 14px; letter-spacing: 3px; }
+  .nav-tabs { gap: 1px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .ntab { font-size: 9px; padding: 5px 10px; letter-spacing: 1px; white-space: nowrap; }
+  #user-chip span { display: none; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .staff-grid, .staff-grid-3 { grid-template-columns: 1fr; }
+  .game-grid { grid-template-columns: 1fr; }
+  #page-hub { padding: 24px 16px; }
+  #page-leaderboard, #page-shop, #page-settings, #page-staff { padding: 16px; }
+  .lb-val { font-size: 14px; }
+  .lb-name { font-size: 11px; }
+}
+@media (max-width: 480px) {
+  .ntab { font-size: 8px; padding: 5px 8px; }
+  .modal { min-width: unset; width: 95vw; padding: 24px 18px; }
+}
+
+/* ══════════════════ OFFLINE BANNER ══════════════════ */
+#offline-banner {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(255,136,0,0.95); color: #07070e; text-align: center;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 8px;
+  backdrop-filter: blur(4px);
+}
+#offline-banner.show { display: block; }
+
+/* ══════════════════ RANK CHIP ══════════════════ */
+#hub-rank-chip {
+  display: none; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 20px;
+  background: var(--surface); border: 1px solid rgba(255,215,0,0.3);
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  cursor: pointer; transition: all 0.18s; margin-top: 12px;
+}
+#hub-rank-chip:hover { border-color: var(--gold); }
+#hub-rank-chip.visible { display: inline-flex; }
+
 /* ══════════════════ HUB PAGE ══════════════════ */
 #page-hub{padding:40px 32px;display:flex;flex-direction:column;align-items:center;gap:40px;}
 .hub-hero{text-align:center;}
@@ -383,6 +424,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <body>
 <canvas id="bg-canvas"></canvas>
 <div id="toast-root"></div>
+<div id="offline-banner">⚠ &nbsp; PlayFab is unreachable — some features may not work. Check your connection.</div>
 
 <div id="app">
   <!-- NAV -->
@@ -414,6 +456,9 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
       <div class="hub-hero">
         <h1>DEVHUB</h1>
         <p>// your terminal gaming portal</p>
+        <div id="hub-rank-chip" onclick="showPage('leaderboard')">
+          🏆 <span id="hub-rank-text">Your rank: —</span>
+        </div>
       </div>
       <div class="game-grid">
         <div class="game-card" style="--glow:rgba(0,240,255,0.15);--glow-border:var(--p1)" onclick="showPage('clicker')">
@@ -434,7 +479,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
           <div class="gc-tag">precision · rhythm · platformer</div>
           <span class="gc-icon">⚡</span>
           <div class="gc-title">NEON DASH</div>
-          <div class="gc-desc">Geometry Dash-style auto-runner. Jump, fly, flip and wave through 3 hand-crafted levels. Cube, Ship, Wave, Ball, and UFO modes.</div>
+          <div class="gc-desc">Geometry Dash-style auto-runner. Jump, fly, flip and wave through 3 hand-crafted levels. Cube, Ship, Wave, Ball, and UFO modes. Press <strong style="color:#b44fff">P</strong> in-game to toggle Practice Mode — saves checkpoints so you can learn sections without restarting.</div>
           <div class="gc-badge" style="color:#b44fff;border-color:rgba(180,79,255,0.4)">▶ PLAY NOW</div>
         </div>
       </div>
@@ -1234,14 +1279,18 @@ function openProfileModal(){
 async function checkStaffTab(){
   try {
     const staff = await isStaff();
-    if(staff && !document.querySelector('.ntab.staff')){
-      const t = document.createElement('button');
-      t.className='ntab staff'; t.dataset.page='staff';
-      t.textContent='⚡ Staff';
-      t.addEventListener('click',()=>showPage('staff'));
-      document.getElementById('nav-tabs').appendChild(t);
+    if(staff){
+      if(!document.querySelector('.ntab.staff')){
+        const t = document.createElement('button');
+        t.className='ntab staff'; t.dataset.page='staff';
+        t.textContent='⚡ Staff';
+        t.addEventListener('click',()=>showPage('staff'));
+        document.getElementById('nav-tabs').appendChild(t);
+      }
     }
-  } catch{}
+  } catch(e){
+    console.warn('Staff check failed:', e);
+  }
 }
 
 function stringToColor(str){
@@ -1396,22 +1445,34 @@ async function loadHubPreview(){
     return;
   }
   try {
-    const data = await pfGetLeaderboard('TotalCoins', 3);
-    const entries = data.Leaderboard||[];
+    // Batch: fetch top 3 + player's own rank simultaneously
+    const [topData, aroundData] = await pfBatch([
+      pfGetLeaderboard('TotalCoins', 3),
+      pfGetLeaderboardAround('TotalCoins', 1)
+    ]);
+    const entries = topData.Leaderboard||[];
     if(!entries.length){
       wrap.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:11px;letter-spacing:2px">// no players yet — be the first!</div>`;
-      return;
+    } else {
+      wrap.innerHTML = entries.map((e,i)=>{
+        const medals=['🥇','🥈','🥉'];
+        return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:24px">${medals[i]}</div>
+          <div>
+            <div style="font-size:12px;font-weight:700">${e.DisplayName||'Anonymous'}</div>
+            <div style="font-size:11px;color:var(--gold)">🪙 ${e.StatValue.toLocaleString()}</div>
+          </div>
+        </div>`;
+      }).join('');
     }
-    wrap.innerHTML = entries.map((e,i)=>{
-      const medals=['🥇','🥈','🥉'];
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px">
-        <div style="font-size:24px">${medals[i]}</div>
-        <div>
-          <div style="font-size:12px;font-weight:700">${e.DisplayName||'Anonymous'}</div>
-          <div style="font-size:11px;color:var(--gold)">🪙 ${e.StatValue.toLocaleString()}</div>
-        </div>
-      </div>`;
-    }).join('');
+    // Update rank chip
+    const myEntry = aroundData?.Leaderboard?.find(e=>e.PlayFabId===window._pfPlayer?.id);
+    const chip = document.getElementById('hub-rank-chip');
+    const rankText = document.getElementById('hub-rank-text');
+    if(myEntry && chip && rankText){
+      rankText.textContent = `Your rank: #${myEntry.Position+1} · 🪙 ${myEntry.StatValue.toLocaleString()}`;
+      chip.classList.add('visible');
+    }
   } catch{}
 }
 
@@ -1422,7 +1483,7 @@ let playerEquipped = {};
 let playerCoins = 0;
 
 async function loadShop(){
-  if(!window._pfSession){ toast('Sign in to access the shop','warn'); return; }
+  if(!window._pfSession){ toast('Sign in to access the shop','warn'); openAuthModal(); return; }
   document.getElementById('shop-coins').textContent = '...';
   try {
     const [inv, pdata] = await Promise.all([
@@ -1433,7 +1494,19 @@ async function loadShop(){
     playerOwned = JSON.parse(pdata.Data?.owned_cosmetics?.Value||'[]');
     playerEquipped = JSON.parse(pdata.Data?.equipped?.Value||'{}');
     document.getElementById('shop-coins').textContent = playerCoins.toLocaleString();
-  } catch(e){ toast('Failed to load shop: '+e.message,'error'); return; }
+  } catch(e){
+    // Session expired or invalid — clear it and force re-login
+    const isAuthErr = e.message && (e.message.toLowerCase().includes('not authenticated') || e.message.toLowerCase().includes('sessionticket') || e.message.includes('1089') || e.message.includes('expired'));
+    if(isAuthErr || !window._pfSession){
+      clearSession();
+      toast('Session expired — please sign in again','warn');
+      showPage('hub');
+      setTimeout(()=>openAuthModal(), 400);
+    } else {
+      toast('Failed to load shop: '+e.message,'error');
+    }
+    return;
+  }
 
   // Build category tabs
   const cats = [...new Set(COSMETICS_CATALOG.map(c=>c.type))];
@@ -1484,21 +1557,24 @@ async function handleCosmClick(id){
     renderShopGrid();
     broadcastCosmetics();
   } else {
-    // Buy
+    // Buy — validate against server balance, not local state
     if(playerCoins < item.price){ toast('Not enough coins!','error'); return; }
-    playerCoins -= item.price;
-    playerOwned.push(id);
-    playerEquipped[item.type] = id;
-    await pfSetPlayerData({
-      coins: String(playerCoins),
-      owned_cosmetics: JSON.stringify(playerOwned),
-      equipped: JSON.stringify(playerEquipped)
-    });
-    await pfUpdateStat('TotalCoins', playerCoins);
-    document.getElementById('shop-coins').textContent = playerCoins.toLocaleString();
-    toast(`Bought & equipped ${item.name}!`,'success');
-    renderShopGrid();
-    broadcastCosmetics();
+    try {
+      const result = await pfPurchaseCosmetic(id);
+      playerCoins = result.newCoins;
+      playerOwned = result.newOwned;
+      playerEquipped[item.type] = id;
+      // Sync equipped after purchase
+      await pfSetPlayerData({ equipped: JSON.stringify(playerEquipped) });
+      document.getElementById('shop-coins').textContent = playerCoins.toLocaleString();
+      toast(`Bought & equipped ${item.name}!`,'success');
+      renderShopGrid();
+      broadcastCosmetics();
+    } catch(e) {
+      toast(e.message || 'Purchase failed','error');
+      // Re-fetch to re-sync local state with server
+      loadShop();
+    }
   }
 }
 
@@ -1541,20 +1617,18 @@ function sRes(id, html) {
 
 async function refreshStaffStats() {
   try {
-    const [lb1, lb2] = await Promise.all([
+    // All three fetches fire in parallel — no sequential stalling
+    const [lb1, lb2, td] = await Promise.all([
       pfGetLeaderboard('TotalCoins', 100),
-      pfGetLeaderboard('TotalClicks', 100)
+      pfGetLeaderboard('TotalClicks', 100),
+      pfGetTitleData(['ban_count']).catch(()=>({Data:{}}))
     ]);
-    const coins = lb1.Leaderboard || [];
+    const coins  = lb1.Leaderboard || [];
     const clicks = lb2.Leaderboard || [];
-    document.getElementById('ss-players').textContent = coins.length;
-    document.getElementById('ss-topscore').textContent = coins[0]?.StatValue?.toLocaleString() || '0';
+    document.getElementById('ss-players').textContent   = coins.length;
+    document.getElementById('ss-topscore').textContent  = coins[0]?.StatValue?.toLocaleString()  || '0';
     document.getElementById('ss-topclicks').textContent = clicks[0]?.StatValue?.toLocaleString() || '0';
-    // Count bans via title data (we store ban count there)
-    try {
-      const td = await pfGetTitleData(['ban_count']);
-      document.getElementById('ss-bans').textContent = td.Data?.ban_count || '0';
-    } catch { document.getElementById('ss-bans').textContent = 'N/A'; }
+    document.getElementById('ss-bans').textContent      = td.Data?.ban_count || '0';
     toast('Stats refreshed', 'success');
     staffLogAction('info', 'Refreshed live stats');
   } catch (e) { toast('Error: ' + e.message, 'error'); }
@@ -2185,10 +2259,51 @@ document.addEventListener('keydown', e=>{
 document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 document.getElementById('reg-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doRegister(); });
 
-// Restore session
-if(loadSession()){
-  onLoggedIn();
+// ── PLAYFAB OFFLINE DETECTION ─────────────────────────────
+let _pfOnline = true;
+async function checkPfHealth() {
+  try {
+    // GetTitleData works unauthenticated — cheap health check
+    await pfGetTitleData(['MOTD']);
+    if (!_pfOnline) {
+      _pfOnline = true;
+      document.getElementById('offline-banner').classList.remove('show');
+    }
+  } catch {
+    _pfOnline = false;
+    document.getElementById('offline-banner').classList.add('show');
+  }
 }
+
+// Restore session — if login cached data exists, restore instantly.
+// Otherwise do a lightweight ping to validate the stored ticket.
+async function restoreSession() {
+  if (!loadSession()) return;
+
+  // If we have cached player data from last login, trust it immediately
+  // and show the UI without waiting for a network round-trip.
+  if (window._pfPlayer?._cachedData) {
+    onLoggedIn();
+    // Quietly validate in the background — clear if expired
+    pfGetPlayerData(['coins']).catch(() => {
+      clearSession();
+      onLoggedOut();
+      toast('Session expired — please sign in again', 'warn');
+      setTimeout(() => openAuthModal(), 400);
+    });
+    return;
+  }
+
+  // No cached data — validate synchronously (first-time after old session format)
+  try {
+    await pfGetPlayerData(['coins']);
+    onLoggedIn();
+  } catch {
+    clearSession();
+  }
+}
+restoreSession();
+checkPfHealth();
 
 // Always check MOTD (works for guests too via public title data)
 pfGetTitleData(['MOTD']).then(d=>{

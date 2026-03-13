@@ -1152,16 +1152,22 @@ async function pfCall(endpoint, body={}, useSecret=false) {
 async function pfBatch(promises) { return Promise.all(promises); }
 
 // ── AUTH ─────────────────────────────────────────────────
-async function pfRegister(username, email, password) {
+async function pfRegister(displayName, email, password) {
+  // PlayFab Username must be letters/numbers only (it's an internal ID).
+  // We auto-generate one from the email so the user can type anything as their display name.
+  const internalUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').slice(0, 20) + Math.floor(Math.random() * 9000 + 1000);
   const data = await pfCall("/Client/RegisterPlayFabUser", {
-    TitleId: PF_TITLE, Username: username,
-    Email: email, Password: password,
+    TitleId: PF_TITLE,
+    Username: internalUsername,
+    Email: email,
+    Password: password,
     RequireBothUsernameAndEmail: true
   });
   window._pfSession = data.SessionTicket;
-  window._pfPlayer = { id: data.PlayFabId, username, email };
+  window._pfPlayer = { id: data.PlayFabId, username: displayName, email };
   saveSession();
-  await pfCall("/Client/UpdateUserTitleDisplayName", { DisplayName: username });
+  // Display name is what the user actually typed — can contain any characters
+  await pfCall("/Client/UpdateUserTitleDisplayName", { DisplayName: displayName.slice(0, 25) });
   await initPlayerData();
   return data;
 }
@@ -1423,7 +1429,8 @@ async function doRegister(){
   err.classList.remove('show');
   if(!uname||!email||!pw){ err.textContent='Please fill all fields'; err.classList.add('show'); return; }
   if(uname.length < 3){ err.textContent='Username must be at least 3 characters'; err.classList.add('show'); return; }
-  if(!/^[a-zA-Z0-9_]+$/.test(uname)){ err.textContent='Username: letters, numbers, and _ only'; err.classList.add('show'); return; }
+  if(uname.length > 25){ err.textContent='Username must be 25 characters or less'; err.classList.add('show'); return; }
+  if(/\p{Emoji}/u.test(uname)){ err.textContent='Emojis are not allowed in usernames'; err.classList.add('show'); return; }
   if(pw.length<6){ err.textContent='Password must be at least 6 characters'; err.classList.add('show'); return; }
   btn.textContent='Creating...'; btn.disabled=true;
   try {

@@ -98,6 +98,13 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
   display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:2px;
   padding:5px 12px;border-radius:3px;border:1px solid;
 }
+.ext-card{border-style:dashed;}
+.ext-card:hover{border-style:solid;}
+.ext-card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.22s;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,0.015) 3px,rgba(255,255,255,0.015) 4px);
+}
+.ext-card:hover::after{opacity:1;}
 
 /* ══════════════════ MODAL SYSTEM ══════════════════ */
 #modal-overlay{
@@ -167,7 +174,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 @keyframes toastout{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(20px)}}
 
 /* ══════════════════ IFRAME GAMES ══════════════════ */
-#page-puck,#page-clicker{padding:0;}
+#page-puck,#page-clicker,#page-dash{padding:0;}
 #puck-frame,#clicker-frame{width:100%;height:100%;border:none;}
 
 /* ══════════════════ SETTINGS PAGE ══════════════════ */
@@ -271,11 +278,24 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 
 /* ══════════════════ STAFF PAGE ══════════════════ */
 #page-staff{padding:32px;}
-.staff-wrap{max-width:1000px;margin:0 auto;}
+.staff-wrap{max-width:1100px;margin:0 auto;}
 .staff-title{font-family:var(--display);font-size:28px;font-weight:800;color:var(--gold);margin-bottom:4px;}
-.staff-sub{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:28px;}
+.staff-sub{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:20px;}
+/* Staff sub-tab nav */
+.staff-nav{display:flex;gap:6px;margin-bottom:26px;flex-wrap:wrap;}
+.staff-nav-btn{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 16px;
+  border-radius:4px;background:transparent;cursor:pointer;transition:all 0.15s;
+  text-transform:uppercase;border:1px solid var(--border2);color:var(--muted);
+}
+.staff-nav-btn:hover{border-color:var(--gold);color:var(--gold);}
+.staff-nav-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.07);}
+.staff-panel{display:none;}
+.staff-panel.active{display:block;}
 .staff-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.staff-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
 .staff-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:22px;}
+.staff-card.full{grid-column:1/-1;}
 .staff-card-title{font-size:13px;font-weight:700;letter-spacing:1px;margin-bottom:16px;color:var(--gold);}
 .staff-btn{
   font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:2px;
@@ -290,27 +310,74 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .staff-btn.good:hover{background:var(--green);color:#07070e;}
 .staff-btn.info{border:1px solid var(--p1);color:var(--p1);}
 .staff-btn.info:hover{background:var(--p1);color:#07070e;}
+.staff-btn.gold{border:1px solid var(--gold);color:var(--gold);}
+.staff-btn.gold:hover{background:var(--gold);color:#07070e;}
 .staff-input{
   width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border2);
   border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;margin-bottom:8px;
-  outline:none;transition:border-color 0.15s;
+  outline:none;transition:border-color 0.15s;box-sizing:border-box;
 }
 .staff-input:focus{border-color:var(--gold);}
+.staff-input.capturing{border-color:var(--p1)!important;color:var(--p1)!important;animation:capturepulse .6s infinite alternate;}
+@keyframes capturepulse{from{box-shadow:0 0 0 0 rgba(0,240,255,0)}to{box-shadow:0 0 0 3px rgba(0,240,255,.3)}}
+.staff-select{
+  width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border2);
+  border-radius:4px;color:var(--text);font-family:var(--mono);font-size:12px;margin-bottom:8px;
+  outline:none;transition:border-color 0.15s;box-sizing:border-box;cursor:pointer;
+}
+.staff-select:focus{border-color:var(--gold);}
 .staff-stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
 .staff-stat:last-child{border-bottom:none;}
 .staff-stat .sk{color:var(--muted);}
 .staff-stat .sv{font-weight:700;color:var(--gold);}
-#staff-users-list{max-height:300px;overflow-y:auto;margin-top:8px;}
+.staff-result{margin-top:10px;font-size:11px;color:var(--muted);min-height:16px;}
+/* Activity log */
+#staff-log{max-height:260px;overflow-y:auto;font-size:11px;font-family:var(--mono);}
+.log-entry{padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;}
+.log-entry:last-child{border-bottom:none;}
+.log-time{color:var(--muted);white-space:nowrap;flex-shrink:0;}
+.log-action{flex:1;}
+.log-action.ban{color:var(--p2);}
+.log-action.warn-log{color:var(--orange);}
+.log-action.good{color:var(--green);}
+.log-action.info{color:var(--p1);}
+.log-action.gold{color:var(--gold);}
+/* Player list */
+#staff-users-list{max-height:360px;overflow-y:auto;margin-top:8px;}
 .staff-user-row{
   display:flex;align-items:center;gap:10px;padding:10px 12px;
   background:var(--surface2);border-radius:6px;margin-bottom:6px;font-size:11px;
 }
 .suf-name{font-weight:700;flex:1;}
-.suf-actions{display:flex;gap:4px;}
+.suf-actions{display:flex;gap:4px;flex-wrap:wrap;}
 .suf-btn{
   font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;
-  padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid;transition:all 0.15s;
+  padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid;transition:all 0.15s;background:transparent;
 }
+/* Leaderboard audit */
+#lb-audit-list{max-height:340px;overflow-y:auto;}
+.lba-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--surface2);border-radius:6px;margin-bottom:5px;font-size:11px;}
+.lba-rank{color:var(--muted);width:22px;text-align:right;flex-shrink:0;}
+.lba-name{font-weight:700;flex:1;}
+.lba-score{color:var(--gold);}
+.lba-flag{font-size:10px;color:var(--p2);margin-left:4px;}
+/* Mini stat pills */
+.stat-pill{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:1px;}
+.pill-ban{background:rgba(255,48,96,0.15);color:var(--p2);border:1px solid rgba(255,48,96,0.3);}
+.pill-ok{background:rgba(0,255,136,0.1);color:var(--green);border:1px solid rgba(0,255,136,0.25);}
+.pill-staff{background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.3);}
+/* Tempmute / warn list */
+#warn-list{max-height:200px;overflow-y:auto;margin-top:10px;}
+.warn-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--surface2);border-radius:5px;margin-bottom:5px;font-size:11px;}
+/* Quick-action badge panel */
+.badge-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.badge-chip{padding:5px 12px;border-radius:4px;font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:1px;cursor:pointer;border:1px solid;transition:all 0.15s;background:transparent;}
+/* Color swatch for name colour preview */
+.swatch{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px;}
+/* Announcement history */
+#motd-history{max-height:140px;overflow-y:auto;margin-top:10px;}
+.motd-hist-row{padding:6px 10px;background:var(--surface2);border-radius:5px;margin-bottom:5px;font-size:11px;}
+.motd-hist-time{color:var(--muted);font-size:10px;}
 </style>
 </head>
 <body>
@@ -325,6 +392,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
       <button class="ntab active" data-page="hub">🏠 Hub</button>
       <button class="ntab" data-page="clicker">🖱️ Clicker</button>
       <button class="ntab" data-page="puck">🏒 Puck</button>
+      <button class="ntab" data-page="dash">⚡ Neon Dash</button>
       <button class="ntab" data-page="leaderboard">🏆 Leaderboard</button>
       <button class="ntab" data-page="shop">🛒 Shop</button>
       <button class="ntab" data-page="settings">⚙️ Settings</button>
@@ -362,6 +430,47 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
           <div class="gc-desc">2-player air hockey on the same keyboard. Real physics. Paddle velocity transfers. First to 7 wins. No mercy.</div>
           <div class="gc-badge" style="color:var(--p2);border-color:rgba(255,48,96,0.4)">▶ PLAY NOW</div>
         </div>
+        <div class="game-card" style="--glow:rgba(180,79,255,0.15);--glow-border:#b44fff" onclick="showPage('dash')">
+          <div class="gc-tag">precision · rhythm · platformer</div>
+          <span class="gc-icon">⚡</span>
+          <div class="gc-title">NEON DASH</div>
+          <div class="gc-desc">Geometry Dash-style auto-runner. Jump, fly, flip and wave through 3 hand-crafted levels. Cube, Ship, Wave, Ball, and UFO modes.</div>
+          <div class="gc-badge" style="color:#b44fff;border-color:rgba(180,79,255,0.4)">▶ PLAY NOW</div>
+        </div>
+      </div>
+
+      <!-- External Games -->
+      <div style="width:100%;max-width:900px">
+        <div style="font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:14px">// external · hosted games</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+
+          <!-- SNAKE GAME 2.0 -->
+          <div class="game-card ext-card" style="--glow:rgba(0,255,136,0.15);--glow-border:var(--green)" onclick="window.open('https://z3n0-dev-inc.github.io/SNAKE-GAME-2.0-offical-/','_blank')">
+            <div style="position:absolute;top:14px;right:14px;font-size:8px;letter-spacing:2px;color:var(--green);opacity:0.6;font-family:var(--mono)">↗ EXTERNAL</div>
+            <div class="gc-tag">arcade · survival · classic</div>
+            <span class="gc-icon" style="--glow-border:var(--green)">🐍</span>
+            <div class="gc-title">SNAKE 2.0</div>
+            <div class="gc-desc">The classic arcade game, rebuilt and upgraded. Eat, grow, survive. How long can you last before you run out of room?</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+              <div class="gc-badge" style="color:var(--green);border-color:rgba(0,255,136,0.4)">▶ PLAY NOW</div>
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted)">opens new tab</div>
+            </div>
+          </div>
+
+          <!-- TOWER DEFENSE -->
+          <div class="game-card ext-card" style="--glow:rgba(255,136,0,0.15);--glow-border:var(--orange)" onclick="window.open('https://z3n0-dev-inc.github.io/tower-def/','_blank')">
+            <div style="position:absolute;top:14px;right:14px;font-size:8px;letter-spacing:2px;color:var(--orange);opacity:0.6;font-family:var(--mono)">↗ EXTERNAL</div>
+            <div class="gc-tag">strategy · tower defense · waves</div>
+            <span class="gc-icon" style="--glow-border:var(--orange)">🗼</span>
+            <div class="gc-title">TOWER DEF</div>
+            <div class="gc-desc">Place your towers. Hold the line. Waves of enemies push harder every round — build smart or get overrun. No second chances.</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+              <div class="gc-badge" style="color:var(--orange);border-color:rgba(255,136,0,0.4)">▶ PLAY NOW</div>
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted)">opens new tab</div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       <!-- Quick leaderboard preview -->
@@ -381,6 +490,11 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
     <!-- PUCK PAGE (iframe) -->
     <div class="page hidden" id="page-puck">
       <iframe id="puck-frame" src="puck.html"></iframe>
+    </div>
+
+    <!-- NEON DASH PAGE (iframe) -->
+    <div class="page hidden" id="page-dash">
+      <iframe id="dash-frame" src="dash.html" style="width:100%;height:100%;border:none;display:block;"></iframe>
     </div>
 
     <!-- LEADERBOARD PAGE -->
@@ -510,82 +624,388 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
     <div class="page hidden" id="page-staff">
       <div class="staff-wrap">
         <div class="staff-title">⚡ Staff Dashboard</div>
-        <div class="staff-sub">// authorized personnel only · actions are logged</div>
-        <div class="staff-grid">
-
-          <!-- Server stats -->
-          <div class="staff-card">
-            <div class="staff-card-title">📊 Live Stats</div>
-            <div id="staff-stats">
-              <div class="staff-stat"><span class="sk">Total Players</span><span class="sv" id="ss-players">–</span></div>
-              <div class="staff-stat"><span class="sk">Top Score</span><span class="sv" id="ss-topscore">–</span></div>
-              <div class="staff-stat"><span class="sk">Title Version</span><span class="sv">1BD7E7</span></div>
-              <div class="staff-stat"><span class="sk">Status</span><span class="sv" style="color:var(--green)">● ONLINE</span></div>
-            </div>
-            <button class="staff-btn info" onclick="refreshStaffStats()" style="margin-top:14px">↺ REFRESH</button>
-          </div>
-
-          <!-- Player lookup -->
-          <div class="staff-card">
-            <div class="staff-card-title">🔍 Player Lookup</div>
-            <input class="staff-input" id="lookup-id" placeholder="PlayFab ID or display name">
-            <button class="staff-btn info" onclick="staffLookupPlayer()">LOOKUP</button>
-            <div id="lookup-result" style="margin-top:12px;font-size:11px;color:var(--muted)"></div>
-          </div>
-
-          <!-- Give / remove coins -->
-          <div class="staff-card">
-            <div class="staff-card-title">🪙 Manage Coins</div>
-            <input class="staff-input" id="coins-pid" placeholder="PlayFab ID">
-            <input class="staff-input" id="coins-amount" type="number" placeholder="Amount (negative to remove)">
-            <button class="staff-btn good" onclick="staffGiveCoins()">GRANT COINS</button>
-            <div id="coins-result" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
-          </div>
-
-          <!-- Grant staff -->
-          <div class="staff-card">
-            <div class="staff-card-title">👮 Grant Staff Role</div>
-            <input class="staff-input" id="grant-pid" placeholder="PlayFab ID">
-            <button class="staff-btn warn" onclick="staffGrantRole()">GRANT STAFF</button>
-            <button class="staff-btn danger" onclick="staffRevokeRole()">REVOKE STAFF</button>
-            <div id="grant-result" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
-          </div>
-
-          <!-- Ban player -->
-          <div class="staff-card">
-            <div class="staff-card-title">🔨 Ban / Unban</div>
-            <input class="staff-input" id="ban-pid" placeholder="PlayFab ID">
-            <input class="staff-input" id="ban-reason" placeholder="Reason">
-            <button class="staff-btn danger" onclick="staffBan()">BAN PLAYER</button>
-            <button class="staff-btn good" onclick="staffUnban()">UNBAN</button>
-            <div id="ban-result" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
-          </div>
-
-          <!-- Title announcements -->
-          <div class="staff-card">
-            <div class="staff-card-title">📢 MOTD / Announcement</div>
-            <textarea class="staff-input" id="motd-text" rows="3" placeholder="Message of the day shown to all players..." style="resize:vertical"></textarea>
-            <button class="staff-btn info" onclick="staffSetMOTD()">PUBLISH MOTD</button>
-            <div id="motd-result" style="margin-top:8px;font-size:11px;color:var(--muted)"></div>
-          </div>
-
-          <!-- Reset leaderboard -->
-          <div class="staff-card">
-            <div class="staff-card-title">🗑️ Danger Zone</div>
-            <p style="font-size:11px;color:var(--muted);margin-bottom:14px">These actions are irreversible.</p>
-            <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalCoins')">RESET COIN LB</button>
-            <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalClicks')">RESET CLICK LB</button>
-            <button class="staff-btn warn" onclick="staffClearTitleData()">CLEAR TITLE DATA</button>
-          </div>
-
-          <!-- Recent activity -->
-          <div class="staff-card">
-            <div class="staff-card-title">📋 Top Players List</div>
-            <div id="staff-users-list"><div style="color:var(--muted);font-size:11px">Click refresh to load</div></div>
-            <button class="staff-btn info" onclick="staffLoadTopPlayers()" style="margin-top:10px">LOAD TOP 10</button>
-          </div>
-
+        <div class="staff-sub">// authorized personnel only · all actions are logged · session: <span id="staff-session-id" style="color:var(--gold)">–</span></div>
+        <div style="background:rgba(255,136,0,0.08);border:1px solid rgba(255,136,0,0.3);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:10px;color:var(--orange);letter-spacing:1px">
+          ⚠️ <strong>Dev build:</strong> Admin secret key is exposed client-side. Before going to production, move all <code style="background:rgba(255,136,0,0.1);padding:1px 5px;border-radius:3px">/Admin/*</code> calls to a backend proxy and remove <code style="background:rgba(255,136,0,0.1);padding:1px 5px;border-radius:3px">PF_SECRET</code> from pf.js.
         </div>
+
+        <!-- Sub-tab navigation -->
+        <div class="staff-nav">
+          <button class="staff-nav-btn active" onclick="staffTab('overview')" id="stab-overview">📊 Overview</button>
+          <button class="staff-nav-btn" onclick="staffTab('players')" id="stab-players">👥 Players</button>
+          <button class="staff-nav-btn" onclick="staffTab('moderation')" id="stab-moderation">🔨 Moderation</button>
+          <button class="staff-nav-btn" onclick="staffTab('leaderboard')" id="stab-leaderboard">🏆 Leaderboard</button>
+          <button class="staff-nav-btn" onclick="staffTab('broadcast')" id="stab-broadcast">📢 Broadcast</button>
+          <button class="staff-nav-btn" onclick="staffTab('roles')" id="stab-roles">👮 Roles</button>
+          <button class="staff-nav-btn" onclick="staffTab('danger')" id="stab-danger">⚠️ Danger Zone</button>
+          <button class="staff-nav-btn" onclick="staffTab('autoclicker')" id="stab-autoclicker">🤖 Auto Clicker</button>
+        </div>
+
+        <!-- ── OVERVIEW ── -->
+        <div class="staff-panel active" id="spanel-overview">
+          <div class="staff-grid">
+            <div class="staff-card">
+              <div class="staff-card-title">📊 Live Stats</div>
+              <div class="staff-stat"><span class="sk">Title ID</span><span class="sv">1BD7E7</span></div>
+              <div class="staff-stat"><span class="sk">Status</span><span class="sv" style="color:var(--green)">● ONLINE</span></div>
+              <div class="staff-stat"><span class="sk">Tracked Players</span><span class="sv" id="ss-players">–</span></div>
+              <div class="staff-stat"><span class="sk">Top Coin Score</span><span class="sv" id="ss-topscore">–</span></div>
+              <div class="staff-stat"><span class="sk">Top Click Score</span><span class="sv" id="ss-topclicks">–</span></div>
+              <div class="staff-stat"><span class="sk">Active Bans</span><span class="sv" id="ss-bans" style="color:var(--p2)">–</span></div>
+              <button class="staff-btn info" onclick="refreshStaffStats()" style="margin-top:14px">↺ REFRESH STATS</button>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🔍 Quick Player Lookup</div>
+              <input class="staff-input" id="lookup-id" placeholder="PlayFab ID">
+              <button class="staff-btn info" onclick="staffLookupPlayer()">LOOKUP</button>
+              <div id="lookup-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card full">
+              <div class="staff-card-title">📋 Action Log <span style="font-size:10px;color:var(--muted);font-weight:400">(this session)</span></div>
+              <div id="staff-log"><div style="color:var(--muted);font-size:11px">No actions yet this session.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PLAYERS ── -->
+        <div class="staff-panel" id="spanel-players">
+          <div class="staff-grid">
+            <div class="staff-card full">
+              <div class="staff-card-title">👥 Player Browser</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+                <select class="staff-select" id="pb-stat" style="width:auto;flex:1;min-width:160px">
+                  <option value="TotalCoins">Sort: Total Coins</option>
+                  <option value="TotalClicks">Sort: Total Clicks</option>
+                </select>
+                <select class="staff-select" id="pb-count" style="width:auto;flex:0 0 100px">
+                  <option value="10">Top 10</option>
+                  <option value="25">Top 25</option>
+                  <option value="50">Top 50</option>
+                </select>
+                <button class="staff-btn info" onclick="staffLoadTopPlayers()" style="margin:0">LOAD</button>
+              </div>
+              <div id="staff-users-list"><div style="color:var(--muted);font-size:11px">Click LOAD to fetch players.</div></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🪙 Manage Coins</div>
+              <input class="staff-input" id="coins-pid" placeholder="PlayFab ID">
+              <input class="staff-input" id="coins-amount" type="number" placeholder="Amount (negative to remove)">
+              <button class="staff-btn good" onclick="staffGiveCoins()">GRANT / REMOVE COINS</button>
+              <div id="coins-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🏅 Grant Badge</div>
+              <input class="staff-input" id="badge-pid" placeholder="PlayFab ID">
+              <select class="staff-select" id="badge-id">
+                <option value="badge_og">OG Badge 🥇</option>
+                <option value="badge_staff">Staff Badge ⚡</option>
+                <option value="badge_whale">Whale Badge 🐋</option>
+                <option value="badge_clickgod">Click God 🖱️</option>
+              </select>
+              <button class="staff-btn gold" onclick="staffGrantBadge()">GRANT BADGE</button>
+              <button class="staff-btn danger" onclick="staffRevokeBadge()">REVOKE BADGE</button>
+              <div id="badge-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">✏️ Rename Player</div>
+              <input class="staff-input" id="rename-pid" placeholder="PlayFab ID">
+              <input class="staff-input" id="rename-new" placeholder="New display name">
+              <button class="staff-btn warn" onclick="staffRenamePlayer()">FORCE RENAME</button>
+              <div id="rename-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🔁 Reset Player Stats</div>
+              <input class="staff-input" id="resetstats-pid" placeholder="PlayFab ID">
+              <select class="staff-select" id="resetstats-type">
+                <option value="both">Reset ALL Stats</option>
+                <option value="TotalCoins">Reset Coins Only</option>
+                <option value="TotalClicks">Reset Clicks Only</option>
+              </select>
+              <button class="staff-btn danger" onclick="staffResetPlayerStats()">RESET STATS</button>
+              <div id="resetstats-result" class="staff-result"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── MODERATION ── -->
+        <div class="staff-panel" id="spanel-moderation">
+          <div class="staff-grid">
+            <div class="staff-card">
+              <div class="staff-card-title">🔨 Ban Player</div>
+              <input class="staff-input" id="ban-pid" placeholder="PlayFab ID">
+              <input class="staff-input" id="ban-reason" placeholder="Reason (required)">
+              <select class="staff-select" id="ban-duration">
+                <option value="">Permanent</option>
+                <option value="1">1 Hour</option>
+                <option value="24">24 Hours</option>
+                <option value="168">1 Week</option>
+                <option value="720">30 Days</option>
+              </select>
+              <button class="staff-btn danger" onclick="staffBan()">🔨 BAN PLAYER</button>
+              <div id="ban-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">✅ Unban Player</div>
+              <input class="staff-input" id="unban-pid" placeholder="PlayFab ID">
+              <button class="staff-btn good" onclick="staffUnban()">✅ UNBAN PLAYER</button>
+              <div id="unban-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">⚠️ Warn Player</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Stores a warning flag on the player's account. Visible in lookups.</p>
+              <input class="staff-input" id="warn-pid" placeholder="PlayFab ID">
+              <input class="staff-input" id="warn-msg" placeholder="Warning message">
+              <button class="staff-btn warn" onclick="staffWarnPlayer()">⚠️ ISSUE WARNING</button>
+              <button class="staff-btn info" onclick="staffCheckWarnings()">📋 CHECK WARNINGS</button>
+              <div id="warn-result" class="staff-result"></div>
+              <div id="warn-list"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🔇 Mute / Unmute</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Sets a <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">is_muted</code> flag — enforce in-game.</p>
+              <input class="staff-input" id="mute-pid" placeholder="PlayFab ID">
+              <select class="staff-select" id="mute-duration">
+                <option value="1">1 Hour</option>
+                <option value="24">24 Hours</option>
+                <option value="168">1 Week</option>
+                <option value="perm">Permanent</option>
+              </select>
+              <button class="staff-btn warn" onclick="staffMutePlayer()">🔇 MUTE</button>
+              <button class="staff-btn good" onclick="staffUnmutePlayer()">🔊 UNMUTE</button>
+              <div id="mute-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card full">
+              <div class="staff-card-title">🕵️ Player Audit</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <input class="staff-input" id="audit-pid" placeholder="PlayFab ID" style="flex:1;margin-bottom:0">
+                <button class="staff-btn info" onclick="staffAuditPlayer()" style="margin:0 0 8px">RUN AUDIT</button>
+              </div>
+              <div id="audit-result" style="margin-top:12px;font-size:11px;color:var(--muted)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── LEADERBOARD ── -->
+        <div class="staff-panel" id="spanel-leaderboard">
+          <div class="staff-grid">
+            <div class="staff-card full">
+              <div class="staff-card-title" style="display:flex;justify-content:space-between;align-items:center">
+                <span>🏆 Leaderboard Audit</span>
+                <div style="display:flex;gap:6px">
+                  <select class="staff-select" id="lba-stat" style="width:auto;margin:0">
+                    <option value="TotalCoins">Coins</option>
+                    <option value="TotalClicks">Clicks</option>
+                  </select>
+                  <button class="staff-btn info" onclick="staffLoadLeaderboardAudit()" style="margin:0">LOAD</button>
+                </div>
+              </div>
+              <p style="font-size:11px;color:var(--muted);margin:8px 0 14px">⚑ Flagged = top 1% score, 10× the #2 score, or score changed > 500k in one session.</p>
+              <div id="lb-audit-list"><div style="color:var(--muted);font-size:11px">Click LOAD to fetch leaderboard.</div></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🔧 Override Player Score</div>
+              <input class="staff-input" id="score-pid" placeholder="PlayFab ID">
+              <select class="staff-select" id="score-stat">
+                <option value="TotalCoins">Coins</option>
+                <option value="TotalClicks">Clicks</option>
+              </select>
+              <input class="staff-input" id="score-val" type="number" placeholder="New value">
+              <button class="staff-btn warn" onclick="staffOverrideScore()">SET SCORE</button>
+              <div id="score-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🏅 Leaderboard Snapshot</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Save current top-10 to TitleData for archiving.</p>
+              <button class="staff-btn gold" onclick="staffSnapshotLeaderboard()">📸 SNAPSHOT NOW</button>
+              <div id="snapshot-result" class="staff-result"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── BROADCAST ── -->
+        <div class="staff-panel" id="spanel-broadcast">
+          <div class="staff-grid">
+            <div class="staff-card">
+              <div class="staff-card-title">📢 Message of the Day</div>
+              <textarea class="staff-input" id="motd-text" rows="4" placeholder="Message shown to all players on next login..." style="resize:vertical"></textarea>
+              <select class="staff-select" id="motd-type">
+                <option value="info">ℹ️ Info</option>
+                <option value="warn">⚠️ Warning</option>
+                <option value="hype">🎉 Event / Hype</option>
+                <option value="maintenance">🔧 Maintenance</option>
+              </select>
+              <button class="staff-btn info" onclick="staffSetMOTD()">📡 PUBLISH MOTD</button>
+              <button class="staff-btn danger" onclick="staffClearMOTD()">✖ CLEAR MOTD</button>
+              <div id="motd-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">📜 MOTD History <span style="font-size:10px;color:var(--muted)">(this session)</span></div>
+              <div id="motd-history"><div style="color:var(--muted);font-size:11px">No MOTDs published yet.</div></div>
+            </div>
+            <div class="staff-card full">
+              <div class="staff-card-title">🎁 Double Coins Event</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Sets a TitleData flag <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">event_double_coins</code> that your game client can read and apply a 2× multiplier. Enforce coin multiplier server-side for full protection.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="staff-btn gold" onclick="staffStartEvent('double_coins')">🪙 START 2× COINS EVENT</button>
+                <button class="staff-btn good" onclick="staffStartEvent('xp_boost')">⚡ START XP BOOST EVENT</button>
+                <button class="staff-btn danger" onclick="staffEndAllEvents()">✖ END ALL EVENTS</button>
+              </div>
+              <div id="event-result" class="staff-result"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ROLES ── -->
+        <div class="staff-panel" id="spanel-roles">
+          <div class="staff-grid">
+            <div class="staff-card">
+              <div class="staff-card-title">👮 Grant Staff Role</div>
+              <input class="staff-input" id="grant-pid" placeholder="PlayFab ID">
+              <button class="staff-btn warn" onclick="staffGrantRole()">✅ GRANT STAFF</button>
+              <button class="staff-btn danger" onclick="staffRevokeRole()">✖ REVOKE STAFF</button>
+              <div id="grant-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">👑 Grant Moderator Role</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Sets <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">is_mod</code> flag. Mods can warn + mute but cannot ban or access danger zone.</p>
+              <input class="staff-input" id="mod-pid" placeholder="PlayFab ID">
+              <button class="staff-btn info" onclick="staffGrantMod()">✅ GRANT MOD</button>
+              <button class="staff-btn danger" onclick="staffRevokeMod()">✖ REVOKE MOD</button>
+              <div id="mod-result" class="staff-result"></div>
+            </div>
+            <div class="staff-card">
+              <div class="staff-card-title">🔍 Check Player Role</div>
+              <input class="staff-input" id="rolecheck-pid" placeholder="PlayFab ID">
+              <button class="staff-btn info" onclick="staffCheckRole()">CHECK ROLE</button>
+              <div id="rolecheck-result" class="staff-result"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── DANGER ZONE ── -->
+        <div class="staff-panel" id="spanel-danger">
+          <div class="staff-card" style="border-color:rgba(255,48,96,0.35);margin-bottom:18px">
+            <div class="staff-card-title" style="color:var(--p2)">⚠️ Danger Zone — Irreversible Actions</div>
+            <p style="font-size:11px;color:var(--muted);margin-bottom:18px">These actions permanently alter game data. A confirmation prompt will appear. There is no undo.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalCoins')">💀 WIPE COIN LEADERBOARD</button>
+              <button class="staff-btn danger" onclick="staffResetLeaderboard('TotalClicks')">💀 WIPE CLICK LEADERBOARD</button>
+              <button class="staff-btn warn" onclick="staffClearTitleData()">🗑️ CLEAR TITLE DATA</button>
+              <button class="staff-btn warn" onclick="staffTab('danger');document.getElementById('nuke-pid').focus()">☢️ WIPE PLAYER DATA (BY ID)</button>
+            </div>
+            <div id="danger-result" class="staff-result" style="margin-top:14px"></div>
+          </div>
+          <div class="staff-card">
+            <div class="staff-card-title">☢️ Wipe Specific Player Data</div>
+            <input class="staff-input" id="nuke-pid" placeholder="PlayFab ID">
+            <select class="staff-select" id="nuke-type">
+              <option value="coins">Coins Only</option>
+              <option value="cosmetics">Owned Cosmetics</option>
+              <option value="all">All Player Data</option>
+            </select>
+            <button class="staff-btn danger" onclick="staffNukePlayerData()">☢️ WIPE DATA</button>
+            <div id="nuke-result" class="staff-result"></div>
+          </div>
+        </div>
+
+        <!-- ── AUTO CLICKER ── -->
+        <div class="staff-panel" id="spanel-autoclicker">
+          <div class="staff-grid">
+            <div class="staff-card">
+              <div class="staff-card-title">🤖 Staff Auto Clicker</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Staff-only auto clicker built into Click Frenzy. Settings are saved to TitleData and applied immediately in-game for any logged-in staff member.</p>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <span style="font-size:12px;font-weight:700">Auto Clicker</span>
+                <div style="display:flex;gap:8px">
+                  <button class="staff-btn good" id="ac-enable-btn" onclick="staffACToggle(true)">▶ ENABLE</button>
+                  <button class="staff-btn danger" id="ac-disable-btn" onclick="staffACToggle(false)">■ DISABLE</button>
+                </div>
+              </div>
+
+              <div class="staff-stat">
+                <span class="sk">Status</span>
+                <span class="sv" id="ac-status-badge" style="color:var(--muted)">– loading –</span>
+              </div>
+              <div class="staff-stat">
+                <span class="sk">Current CPS</span>
+                <span class="sv" id="ac-cps-display" style="color:var(--p1)">–</span>
+              </div>
+              <div class="staff-stat">
+                <span class="sk">Click Mode</span>
+                <span class="sv" id="ac-mode-display" style="color:var(--gold)">–</span>
+              </div>
+
+              <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Clicks Per Second (CPS)</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                <input class="staff-input" id="ac-cps" type="number" min="0.1" max="50" step="0.1" value="5" placeholder="CPS" style="margin-bottom:0;flex:1">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <button class="staff-btn info" style="padding:3px 8px;font-size:9px;margin:0" onclick="document.getElementById('ac-cps').value=1">×1</button>
+                  <button class="staff-btn info" style="padding:3px 8px;font-size:9px;margin:0" onclick="document.getElementById('ac-cps').value=5">×5</button>
+                  <button class="staff-btn warn" style="padding:3px 8px;font-size:9px;margin:0" onclick="document.getElementById('ac-cps').value=20">×20</button>
+                  <button class="staff-btn danger" style="padding:3px 8px;font-size:9px;margin:0" onclick="document.getElementById('ac-cps').value=50">MAX</button>
+                </div>
+              </div>
+
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Click Mode</label>
+              <select class="staff-select" id="ac-mode" style="margin-bottom:12px">
+                <option value="normal">Normal Click</option>
+                <option value="center">Always Center</option>
+                <option value="random">Random Position</option>
+                <option value="golden">Target Golden Clicks Only</option>
+              </select>
+
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Auto Boost</label>
+              <select class="staff-select" id="ac-boost" style="margin-bottom:14px">
+                <option value="off">Don't Auto-Boost</option>
+                <option value="on">Always Activate Boost When Ready</option>
+              </select>
+
+              <button class="staff-btn gold" onclick="staffACSave()" style="width:100%">💾 SAVE &amp; APPLY</button>
+              <div id="ac-result" class="staff-result"></div>
+            </div>
+
+            <div class="staff-card">
+              <div class="staff-card-title">⌨️ Staff Keybinds</div>
+              <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Staff members get a <strong style="color:var(--gold)">second click keybind</strong> in Click Frenzy — both keys trigger clicks simultaneously.</p>
+
+              <div class="staff-stat">
+                <span class="sk">Click Key 1</span>
+                <span class="sv" id="sk-click1-display" style="color:var(--p1)">SPACE</span>
+              </div>
+              <div class="staff-stat">
+                <span class="sk">Click Key 2 <span style="color:var(--gold);font-size:9px">STAFF</span></span>
+                <span class="sv" id="sk-click2-display" style="color:var(--gold)">F</span>
+              </div>
+
+              <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+
+              <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Set Click Key 2</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                <input class="staff-input" id="sk-click2-input" placeholder="Press a key..." readonly style="margin-bottom:0;flex:1;cursor:pointer;color:var(--gold)"
+                  onclick="startKeybindCapture('sk-click2-input','sk-click2-captured')">
+                <input type="hidden" id="sk-click2-captured" value="KeyF">
+              </div>
+              <p style="font-size:10px;color:var(--muted);margin-bottom:12px">Click the field then press any key to capture it.</p>
+
+              <button class="staff-btn gold" onclick="staffSaveKeybind2()" style="width:100%">💾 SAVE KEYBIND</button>
+              <div id="sk-result" class="staff-result"></div>
+            </div>
+
+            <div class="staff-card full">
+              <div class="staff-card-title">📊 Auto Clicker Stats</div>
+              <div style="display:flex;gap:20px;flex-wrap:wrap">
+                <div class="staff-stat" style="flex:1;min-width:160px"><span class="sk">Session Clicks (Auto)</span><span class="sv" id="ac-stat-clicks" style="color:var(--p1)">–</span></div>
+                <div class="staff-stat" style="flex:1;min-width:160px"><span class="sk">Coins from Auto</span><span class="sv" id="ac-stat-coins" style="color:var(--gold)">–</span></div>
+                <div class="staff-stat" style="flex:1;min-width:160px"><span class="sk">Active Since</span><span class="sv" id="ac-stat-since" style="color:var(--green)">–</span></div>
+              </div>
+              <p style="font-size:10px;color:var(--muted);margin-top:10px">Stats update live from the clicker iframe. Only available while Click Frenzy is loaded.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -691,6 +1111,11 @@ function showPage(id){
   if(id==='shop') loadShop();
   if(id==='hub') loadHubPreview();
   if(id==='settings') loadSettings();
+  if(id==='staff'){ const el=document.getElementById('staff-session-id'); if(el) el.textContent=window._pfPlayer?.id||'–'; }
+  // Focus iframes so they receive keyboard events
+  if(id==='clicker') setTimeout(()=>{ try{ document.getElementById('clicker-frame').contentWindow.focus(); }catch{} }, 100);
+  if(id==='puck')    setTimeout(()=>{ try{ document.getElementById('puck-frame').contentWindow.focus(); }catch{} }, 100);
+  if(id==='dash')    setTimeout(()=>{ try{ document.getElementById('dash-frame').contentWindow.focus(); }catch{} }, 100);
 }
 document.querySelectorAll('.ntab').forEach(t=>{
   if(t.dataset.page) t.addEventListener('click',()=>showPage(t.dataset.page));
@@ -763,6 +1188,7 @@ function onLoggedIn(){
   document.getElementById('nav-username').textContent = p.username;
   checkStaffTab();
   broadcastAuth();
+  loadHubPreview(); // refresh leaderboard preview now that we're signed in
 }
 
 function onLoggedOut(){
@@ -775,11 +1201,34 @@ function onLoggedOut(){
 }
 
 function openProfileModal(){
-  // Simple logout menu for now
-  if(confirm(`Logged in as ${window._pfPlayer?.username}\n\nLog out?`)){
-    onLoggedOut();
-    toast('Logged out', 'info');
-  }
+  // Toggle profile dropdown
+  let drop = document.getElementById('profile-drop');
+  if(drop){ drop.remove(); return; }
+  const chip = document.getElementById('user-chip');
+  const rect = chip.getBoundingClientRect();
+  drop = document.createElement('div');
+  drop.id = 'profile-drop';
+  drop.style.cssText = `position:fixed;top:${rect.bottom+6}px;right:${window.innerWidth-rect.right}px;
+    background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
+    padding:8px;min-width:200px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,0.5);`;
+  const p = window._pfPlayer;
+  drop.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);margin-bottom:6px">
+      <div class="uavatar" style="background:${stringToColor(p.username)};width:32px;height:32px;font-size:14px">${p.username[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:13px;font-weight:700">${p.username}</div>
+        <div style="font-size:10px;color:var(--muted)">${p.email||'—'}</div>
+      </div>
+    </div>
+    <button onclick="drop.remove();showPage('settings')" style="width:100%;text-align:left;background:none;border:none;color:var(--text);font-family:var(--mono);font-size:11px;padding:8px 12px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='none'">⚙️ Settings</button>
+    <button onclick="drop.remove();onLoggedOut();toast('Logged out','info')" style="width:100%;text-align:left;background:none;border:none;color:var(--p2);font-family:var(--mono);font-size:11px;padding:8px 12px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='rgba(255,48,96,0.08)'" onmouseout="this.style.background='none'">→ Sign Out</button>
+  `;
+  document.body.appendChild(drop);
+  // Close on outside click
+  setTimeout(()=>{
+    const close = (e)=>{ if(!drop.contains(e.target)&&e.target!==chip){ drop.remove(); document.removeEventListener('mousedown',close); } };
+    document.addEventListener('mousedown', close);
+  }, 10);
 }
 
 async function checkStaffTab(){
@@ -805,6 +1254,7 @@ function broadcastAuth(){
   const msg = { type:'auth', session: window._pfSession, player: window._pfPlayer };
   try{ document.getElementById('clicker-frame').contentWindow.postMessage(msg,'*'); }catch{}
   try{ document.getElementById('puck-frame').contentWindow.postMessage(msg,'*'); }catch{}
+  try{ document.getElementById('dash-frame').contentWindow.postMessage(msg,'*'); }catch{}
 }
 
 // ── SETTINGS ──────────────────────────────────────────────
@@ -820,11 +1270,13 @@ function broadcastSettings(){
   const msg = { type:'settings', settings };
   try{ document.getElementById('clicker-frame').contentWindow.postMessage(msg,'*'); }catch{}
   try{ document.getElementById('puck-frame').contentWindow.postMessage(msg,'*'); }catch{}
+  try{ document.getElementById('dash-frame').contentWindow.postMessage(msg,'*'); }catch{}
 }
 
 function loadSettings(){
   const kb = settings.keybinds;
-  const fmt = k => k.replace('Key','').replace('Arrow','').toUpperCase();
+  const arrowMap = {ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+  const fmt = k => arrowMap[k] || k.replace(/^Key/,'').replace(/^Arrow/,'').replace(/^Digit/,'').toUpperCase();
   ['click','boost','auto','p1up','p1down','p1left','p1right','p2up','p2down','p2left','p2right'].forEach(k=>{
     const el = document.getElementById(`kb-${k}`);
     if(el) el.textContent = fmt(kb[k]||k);
@@ -838,41 +1290,58 @@ function loadSettings(){
 let listeningFor = null;
 let _kbHandler = null;
 let _kbClickCancel = null;
+
 function listenKeybind(action, btn){
-  // Cancel any existing listener first
+  // Cancel any in-progress listen
   if(_kbHandler){ window.removeEventListener('keydown', _kbHandler, true); _kbHandler=null; }
   if(_kbClickCancel){ window.removeEventListener('mousedown', _kbClickCancel, true); _kbClickCancel=null; }
   document.querySelectorAll('.keybind-btn').forEach(b=>b.classList.remove('listening'));
-  listeningFor = action; btn.classList.add('listening'); btn.textContent='PRESS KEY...';
 
-  // Delay so the click event that triggered this doesn't also fire the keydown
+  listeningFor = action;
+  btn.classList.add('listening');
+  btn.textContent = 'PRESS A KEY...';
+
+  // Wait 200ms so the click opening this doesn't immediately fire
   setTimeout(()=>{
     _kbHandler = (e)=>{
+      // Ignore standalone modifiers
       if(['Shift','Control','Alt','Meta'].includes(e.key)) return;
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Save as e.code (e.g. "KeyA", "Space", "ArrowUp", "Digit1")
       settings.keybinds[action] = e.code;
-      const display = e.code.replace('Key','').replace('Arrow','').replace('Digit','').toUpperCase();
+
+      // Display nicely
+      const arrowMap = {ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+      const display = arrowMap[e.code] ||
+        e.code.replace(/^Key/,'').replace(/^Arrow/,'').replace(/^Digit/,'').toUpperCase() ||
+        e.key.toUpperCase();
       btn.textContent = display;
       btn.classList.remove('listening');
       listeningFor = null;
+
       window.removeEventListener('keydown', _kbHandler, true);
-      _kbHandler = null;
+      window.removeEventListener('mousedown', _kbClickCancel, true);
+      _kbHandler = null; _kbClickCancel = null;
+
       saveSettings();
-      toast('Keybind saved: ' + display, 'success');
+      toast('Keybind set to ' + display, 'success');
     };
     window.addEventListener('keydown', _kbHandler, true);
 
+    // Click elsewhere = cancel
     _kbClickCancel = (e)=>{
-      if(e.target === btn) return; // ignore clicking the same button
-      if(listeningFor===action){
-        btn.classList.remove('listening');
-        listeningFor=null;
-        loadSettings();
-        if(_kbHandler){ window.removeEventListener('keydown', _kbHandler, true); _kbHandler=null; }
-      }
+      if(e.target === btn) return;
+      btn.classList.remove('listening');
+      listeningFor = null;
+      window.removeEventListener('keydown', _kbHandler, true);
+      window.removeEventListener('mousedown', _kbClickCancel, true);
+      _kbHandler = null; _kbClickCancel = null;
+      loadSettings(); // restore display
     };
-    window.addEventListener('mousedown', _kbClickCancel, {capture:true});
-  }, 250);
+    window.addEventListener('mousedown', _kbClickCancel, true);
+  }, 200);
 }
 
 function toggleSetting(key, btn){
@@ -921,11 +1390,18 @@ async function loadLeaderboard(){
 
 // ── HUB PREVIEW ───────────────────────────────────────────
 async function loadHubPreview(){
-  if(!window._pfSession) return;
+  const wrap = document.getElementById('hub-lb-preview');
+  if(!window._pfSession){
+    wrap.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:11px;letter-spacing:2px">// sign in to see top players</div>`;
+    return;
+  }
   try {
     const data = await pfGetLeaderboard('TotalCoins', 3);
     const entries = data.Leaderboard||[];
-    const wrap = document.getElementById('hub-lb-preview');
+    if(!entries.length){
+      wrap.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:11px;letter-spacing:2px">// no players yet — be the first!</div>`;
+      return;
+    }
     wrap.innerHTML = entries.map((e,i)=>{
       const medals=['🥇','🥈','🥉'];
       return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;align-items:center;gap:12px">
@@ -1029,168 +1505,701 @@ async function handleCosmClick(id){
 function broadcastCosmetics(){
   const msg = { type:'cosmetics', equipped: playerEquipped };
   try{ document.getElementById('clicker-frame').contentWindow.postMessage(msg,'*'); }catch{}
+  try{ document.getElementById('puck-frame').contentWindow.postMessage(msg,'*'); }catch{}
+  try{ document.getElementById('dash-frame').contentWindow.postMessage(msg,'*'); }catch{}
 }
 
 // ── STAFF FUNCTIONS ───────────────────────────────────────
-async function refreshStaffStats(){
-  try {
-    const lb = await pfGetLeaderboard('TotalCoins', 100);
-    document.getElementById('ss-players').textContent = lb.Leaderboard?.length||0;
-    document.getElementById('ss-topscore').textContent = lb.Leaderboard?.[0]?.StatValue?.toLocaleString()||'0';
-    toast('Stats refreshed','success');
-  } catch(e){ toast('Error: '+e.message,'error'); }
+
+// Staff sub-tab switcher
+function staffTab(name) {
+  document.querySelectorAll('.staff-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.staff-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('spanel-' + name).classList.add('active');
+  document.getElementById('stab-' + name).classList.add('active');
+  if (name === 'autoclicker') { staffACLoad(); staffACLoadKeybind2(); }
+  if (name === 'staff') { const el = document.getElementById('staff-session-id'); if (el) el.textContent = window._pfPlayer?.id || '–'; }
 }
 
-async function staffLookupPlayer(){
+// Action log
+const _staffLog = [];
+function staffLogAction(type, msg) {
+  const now = new Date().toLocaleTimeString();
+  _staffLog.unshift({ time: now, type, msg });
+  const el = document.getElementById('staff-log');
+  if (!el) return;
+  el.innerHTML = _staffLog.slice(0, 30).map(e =>
+    `<div class="log-entry"><span class="log-time">${e.time}</span><span class="log-action ${e.type}">${e.msg}</span></div>`
+  ).join('') || '<div style="color:var(--muted);font-size:11px">No actions yet.</div>';
+}
+
+// Set result helper
+function sRes(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+async function refreshStaffStats() {
+  try {
+    const [lb1, lb2] = await Promise.all([
+      pfGetLeaderboard('TotalCoins', 100),
+      pfGetLeaderboard('TotalClicks', 100)
+    ]);
+    const coins = lb1.Leaderboard || [];
+    const clicks = lb2.Leaderboard || [];
+    document.getElementById('ss-players').textContent = coins.length;
+    document.getElementById('ss-topscore').textContent = coins[0]?.StatValue?.toLocaleString() || '0';
+    document.getElementById('ss-topclicks').textContent = clicks[0]?.StatValue?.toLocaleString() || '0';
+    // Count bans via title data (we store ban count there)
+    try {
+      const td = await pfGetTitleData(['ban_count']);
+      document.getElementById('ss-bans').textContent = td.Data?.ban_count || '0';
+    } catch { document.getElementById('ss-bans').textContent = 'N/A'; }
+    toast('Stats refreshed', 'success');
+    staffLogAction('info', 'Refreshed live stats');
+  } catch (e) { toast('Error: ' + e.message, 'error'); }
+}
+
+async function staffLookupPlayer() {
   const id = document.getElementById('lookup-id').value.trim();
   const res = document.getElementById('lookup-result');
-  if(!id){ res.textContent='Enter a PlayFab ID'; return; }
-  res.textContent = 'Looking up...';
+  if (!id) { sRes('lookup-result', 'Enter a PlayFab ID'); return; }
+  sRes('lookup-result', 'Looking up...');
   try {
-    const data = await pfCall('/Admin/GetPlayerProfile',{PlayFabId:id,ProfileConstraints:{ShowDisplayName:true,ShowStatistics:true,ShowCreated:true}},true);
-    const p = data.PlayerProfile;
-    res.innerHTML = `<div style="color:var(--text)"><b>${p.DisplayName||'Unknown'}</b><br>
-      ID: ${p.PlayFabId}<br>
-      Created: ${p.Created ? new Date(p.Created).toLocaleDateString() : 'Unknown'}
-    </div>`;
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const [profile, data] = await Promise.all([
+      pfCall('/Admin/GetPlayerProfile', { PlayFabId: id, ProfileConstraints: { ShowDisplayName: true, ShowStatistics: true, ShowCreated: true, ShowBannedUntil: true } }, true),
+      pfCall('/Admin/GetUserData', { PlayFabId: id, Keys: ['is_staff', 'is_mod', 'is_muted', 'warnings', 'coins'] }, true)
+    ]);
+    const p = profile.PlayerProfile;
+    const d = data.Data || {};
+    const banned = p.BannedUntil ? `<span class="stat-pill pill-ban">BANNED</span>` : `<span class="stat-pill pill-ok">OK</span>`;
+    const staffBadge = d.is_staff?.Value === 'true' ? `<span class="stat-pill pill-staff">STAFF</span>` : '';
+    const modBadge = d.is_mod?.Value === 'true' ? `<span class="stat-pill pill-staff" style="background:rgba(0,240,255,0.1);color:var(--p1);border-color:rgba(0,240,255,0.3)">MOD</span>` : '';
+    const mutedBadge = d.is_muted?.Value && d.is_muted.Value !== 'false' ? `<span class="stat-pill pill-ban">MUTED</span>` : '';
+    const warns = d.warnings ? JSON.parse(d.warnings.Value || '[]').length : 0;
+    const stats = (p.Statistics || []).reduce((o, s) => { o[s.Name] = s.Value; return o; }, {});
+    res.innerHTML = `
+      <div style="background:var(--surface2);border-radius:6px;padding:12px;color:var(--text)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div class="lb-avatar" style="background:${stringToColor(p.DisplayName||'?')};width:32px;height:32px;font-size:14px">${(p.DisplayName||'?')[0].toUpperCase()}</div>
+          <div>
+            <b style="font-size:13px">${p.DisplayName || 'Unknown'}</b>
+            <div style="font-size:10px;color:var(--muted)">${p.PlayFabId}</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:4px;flex-wrap:wrap">${banned}${staffBadge}${modBadge}${mutedBadge}</div>
+        </div>
+        <div class="staff-stat"><span class="sk">Joined</span><span class="sv">${p.Created ? new Date(p.Created).toLocaleDateString() : '?'}</span></div>
+        <div class="staff-stat"><span class="sk">Coins</span><span class="sv">${(stats['TotalCoins']||0).toLocaleString()} 🪙</span></div>
+        <div class="staff-stat"><span class="sk">Clicks</span><span class="sv">${(stats['TotalClicks']||0).toLocaleString()} 🖱️</span></div>
+        <div class="staff-stat"><span class="sk">Warnings</span><span class="sv" style="color:${warns>0?'var(--orange)':'var(--green)'}">${warns}</span></div>
+        ${p.BannedUntil ? `<div class="staff-stat"><span class="sk">Banned Until</span><span class="sv" style="color:var(--p2)">${new Date(p.BannedUntil).toLocaleString()}</span></div>` : ''}
+      </div>`;
+    staffLogAction('info', `Looked up player: ${p.DisplayName} (${id})`);
+  } catch (e) { sRes('lookup-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffGiveCoins(){
+async function staffGiveCoins() {
   const pid = document.getElementById('coins-pid').value.trim();
   const amt = parseInt(document.getElementById('coins-amount').value);
-  const res = document.getElementById('coins-result');
-  if(!pid||isNaN(amt)){ res.textContent='Fill all fields'; return; }
-  res.textContent='Processing...';
+  if (!pid || isNaN(amt)) { sRes('coins-result', 'Fill all fields'); return; }
+  sRes('coins-result', 'Processing...');
   try {
-    // Get current coins
-    const pdata = await pfCall('/Admin/GetUserData',{PlayFabId:pid,Keys:['coins']},true);
-    const curr = parseInt(pdata.Data?.coins?.Value||'0');
-    const newVal = Math.max(0, curr+amt);
-    await pfCall('/Admin/UpdateUserData',{PlayFabId:pid,Data:{coins:String(newVal)}},true);
-    await pfCall('/Admin/UpdatePlayerStatistics',{PlayFabId:pid,Statistics:[{StatisticName:'TotalCoins',Value:newVal}]},true);
-    res.innerHTML = `<span style="color:var(--green)">✓ Done! ${curr} → ${newVal} coins</span>`;
-    toast(`${amt>0?'Granted':'Removed'} ${Math.abs(amt)} coins to player`,'success');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const pdata = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['coins'] }, true);
+    const curr = parseInt(pdata.Data?.coins?.Value || '0');
+    const newVal = Math.max(0, curr + amt);
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { coins: String(newVal) } }, true);
+    await pfCall('/Admin/UpdatePlayerStatistics', { PlayFabId: pid, Statistics: [{ StatisticName: 'TotalCoins', Value: newVal }] }, true);
+    sRes('coins-result', `<span style="color:var(--green)">✓ ${curr.toLocaleString()} → ${newVal.toLocaleString()} coins</span>`);
+    toast(`${amt > 0 ? 'Granted' : 'Removed'} ${Math.abs(amt)} coins`, 'success');
+    staffLogAction(amt > 0 ? 'good' : 'warn-log', `${amt > 0 ? 'Granted' : 'Removed'} ${Math.abs(amt)} coins to ${pid}`);
+  } catch (e) { sRes('coins-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffGrantRole(){
-  const pid = document.getElementById('grant-pid').value.trim();
-  const res = document.getElementById('grant-result');
-  if(!pid){ res.textContent='Enter PlayFab ID'; return; }
+async function staffGrantBadge() {
+  const pid = document.getElementById('badge-pid').value.trim();
+  const badge = document.getElementById('badge-id').value;
+  if (!pid) { sRes('badge-result', 'Enter PlayFab ID'); return; }
   try {
-    await pfCall('/Admin/UpdateUserData',{PlayFabId:pid,Data:{is_staff:'true'},Permission:'Public'},true);
-    res.innerHTML=`<span style="color:var(--green)">✓ Staff role granted</span>`;
-    toast('Staff role granted','success');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const d = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['owned_cosmetics'] }, true);
+    const owned = JSON.parse(d.Data?.owned_cosmetics?.Value || '[]');
+    if (!owned.includes(badge)) owned.push(badge);
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { owned_cosmetics: JSON.stringify(owned) }, Permission: 'Public' }, true);
+    sRes('badge-result', `<span style="color:var(--green)">✓ Badge granted</span>`);
+    toast('Badge granted!', 'success');
+    staffLogAction('gold', `Granted badge ${badge} to ${pid}`);
+  } catch (e) { sRes('badge-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffRevokeRole(){
-  const pid = document.getElementById('grant-pid').value.trim();
-  const res = document.getElementById('grant-result');
-  if(!pid){ res.textContent='Enter PlayFab ID'; return; }
+async function staffRevokeBadge() {
+  const pid = document.getElementById('badge-pid').value.trim();
+  const badge = document.getElementById('badge-id').value;
+  if (!pid) { sRes('badge-result', 'Enter PlayFab ID'); return; }
   try {
-    await pfCall('/Admin/UpdateUserData',{PlayFabId:pid,Data:{is_staff:'false'},Permission:'Public'},true);
-    res.innerHTML=`<span style="color:var(--p2)">Staff role revoked</span>`;
-    toast('Staff role revoked','warn');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const d = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['owned_cosmetics'] }, true);
+    let owned = JSON.parse(d.Data?.owned_cosmetics?.Value || '[]');
+    owned = owned.filter(x => x !== badge);
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { owned_cosmetics: JSON.stringify(owned) }, Permission: 'Public' }, true);
+    sRes('badge-result', `<span style="color:var(--orange)">Badge revoked</span>`);
+    staffLogAction('warn-log', `Revoked badge ${badge} from ${pid}`);
+  } catch (e) { sRes('badge-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffBan(){
+async function staffRenamePlayer() {
+  const pid = document.getElementById('rename-pid').value.trim();
+  const name = document.getElementById('rename-new').value.trim();
+  if (!pid || !name) { sRes('rename-result', 'Fill all fields'); return; }
+  if (!confirm(`Force rename player ${pid} to "${name}"?`)) return;
+  try {
+    await pfCall('/Admin/UpdateUserTitleDisplayName', { PlayFabId: pid, DisplayName: name }, true);
+    sRes('rename-result', `<span style="color:var(--green)">✓ Renamed to "${name}"</span>`);
+    toast('Player renamed', 'success');
+    staffLogAction('warn-log', `Force renamed ${pid} to "${name}"`);
+  } catch (e) { sRes('rename-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffResetPlayerStats() {
+  const pid = document.getElementById('resetstats-pid').value.trim();
+  const type = document.getElementById('resetstats-type').value;
+  if (!pid) { sRes('resetstats-result', 'Enter PlayFab ID'); return; }
+  if (!confirm(`Reset ${type} stats for ${pid}? This cannot be undone.`)) return;
+  try {
+    const stats = [];
+    if (type === 'both' || type === 'TotalCoins') stats.push({ StatisticName: 'TotalCoins', Value: 0 });
+    if (type === 'both' || type === 'TotalClicks') stats.push({ StatisticName: 'TotalClicks', Value: 0 });
+    await pfCall('/Admin/UpdatePlayerStatistics', { PlayFabId: pid, Statistics: stats }, true);
+    sRes('resetstats-result', `<span style="color:var(--green)">✓ Stats reset</span>`);
+    toast('Stats reset', 'warn');
+    staffLogAction('warn-log', `Reset ${type} stats for ${pid}`);
+  } catch (e) { sRes('resetstats-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffBan() {
   const pid = document.getElementById('ban-pid').value.trim();
   const reason = document.getElementById('ban-reason').value.trim();
-  const res = document.getElementById('ban-result');
-  if(!pid){ res.textContent='Enter PlayFab ID'; return; }
-  if(!confirm(`Ban player ${pid}?\nReason: ${reason||'None'}`)) return;
+  const dur = document.getElementById('ban-duration').value;
+  if (!pid) { sRes('ban-result', 'Enter PlayFab ID'); return; }
+  if (!reason) { sRes('ban-result', 'Reason is required'); return; }
+  if (!confirm(`Ban player ${pid}?\nReason: ${reason}\nDuration: ${dur ? dur + 'h' : 'Permanent'}`)) return;
   try {
-    await pfCall('/Admin/BanUsers',{Bans:[{PlayFabId:pid,Reason:reason||'Staff action',IPAddress:null,DurationInHours:null}]},true);
-    res.innerHTML=`<span style="color:var(--p2)">✓ Player banned</span>`;
-    toast('Player banned','warn');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const ban = { PlayFabId: pid, Reason: reason, IPAddress: null };
+    if (dur) ban.DurationInHours = parseInt(dur);
+    await pfCall('/Admin/BanUsers', { Bans: [ban] }, true);
+    // Increment ban count in title data
+    try {
+      const td = await pfGetTitleData(['ban_count']);
+      const count = parseInt(td.Data?.ban_count || '0') + 1;
+      await pfSetTitleData('ban_count', count);
+    } catch {}
+    sRes('ban-result', `<span style="color:var(--green)">✓ Player banned</span>`);
+    toast('Player banned', 'warn');
+    staffLogAction('ban', `Banned ${pid} — reason: "${reason}" (${dur ? dur + 'h' : 'perm'})`);
+  } catch (e) { sRes('ban-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffUnban(){
-  const pid = document.getElementById('ban-pid').value.trim();
-  const res = document.getElementById('ban-result');
-  if(!pid){ res.textContent='Enter PlayFab ID'; return; }
+async function staffUnban() {
+  const pid = document.getElementById('unban-pid').value.trim();
+  if (!pid) { sRes('unban-result', 'Enter PlayFab ID'); return; }
+  sRes('unban-result', 'Checking bans...');
   try {
-    // Get ban ID first
-    const bans = await pfCall('/Admin/GetUserBans',{PlayFabId:pid},true);
-    const activeBan = bans.BanData?.find(b=>b.Active);
-    if(!activeBan){ res.textContent='No active ban found'; return; }
-    await pfCall('/Admin/RevokeBans',{BanIds:[activeBan.BanId]},true);
-    res.innerHTML=`<span style="color:var(--green)">✓ Player unbanned</span>`;
-    toast('Player unbanned','success');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const bans = await pfCall('/Admin/GetUserBans', { PlayFabId: pid }, true);
+    const activeBan = bans.BanData?.find(b => b.Active);
+    if (!activeBan) { sRes('unban-result', 'No active ban found'); return; }
+    await pfCall('/Admin/RevokeBans', { BanIds: [activeBan.BanId] }, true);
+    sRes('unban-result', `<span style="color:var(--green)">✓ Player unbanned</span>`);
+    toast('Player unbanned', 'success');
+    staffLogAction('good', `Unbanned player ${pid}`);
+  } catch (e) { sRes('unban-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffSetMOTD(){
-  const text = document.getElementById('motd-text').value.trim();
-  const res = document.getElementById('motd-result');
-  if(!text){ res.textContent='Enter a message'; return; }
+async function staffWarnPlayer() {
+  const pid = document.getElementById('warn-pid').value.trim();
+  const msg = document.getElementById('warn-msg').value.trim();
+  if (!pid || !msg) { sRes('warn-result', 'Fill all fields'); return; }
   try {
-    await pfSetTitleData('MOTD', { message: text, date: new Date().toISOString() });
-    res.innerHTML=`<span style="color:var(--green)">✓ MOTD published</span>`;
-    toast('MOTD published to all players','success');
-  } catch(e){ res.textContent='Error: '+e.message; }
+    const d = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['warnings'] }, true);
+    const warns = JSON.parse(d.Data?.warnings?.Value || '[]');
+    warns.push({ msg, date: new Date().toISOString(), by: window._pfPlayer?.username || 'staff' });
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { warnings: JSON.stringify(warns) }, Permission: 'Public' }, true);
+    sRes('warn-result', `<span style="color:var(--green)">✓ Warning issued (total: ${warns.length})</span>`);
+    toast('Warning issued', 'warn');
+    staffLogAction('warn-log', `Warned ${pid}: "${msg}"`);
+  } catch (e) { sRes('warn-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffResetLeaderboard(stat){
-  if(!confirm(`Reset ${stat} leaderboard? This cannot be undone.`)) return;
+async function staffCheckWarnings() {
+  const pid = document.getElementById('warn-pid').value.trim();
+  if (!pid) { sRes('warn-result', 'Enter PlayFab ID'); return; }
   try {
-    await pfCall('/Admin/ResetUserStatistics',{StatisticName:stat},true);
-    toast(`${stat} leaderboard reset`,'warn');
-  } catch(e){ toast('Error: '+e.message,'error'); }
+    const d = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['warnings'] }, true);
+    const warns = JSON.parse(d.Data?.warnings?.Value || '[]');
+    const list = document.getElementById('warn-list');
+    if (!warns.length) { sRes('warn-result', 'No warnings'); list.innerHTML = ''; return; }
+    sRes('warn-result', `${warns.length} warning(s):`);
+    list.innerHTML = warns.map(w => `
+      <div class="warn-row">
+        <span style="flex:1">${w.msg}</span>
+        <span style="color:var(--muted);font-size:10px">${new Date(w.date).toLocaleDateString()} by ${w.by||'staff'}</span>
+      </div>`).join('');
+  } catch (e) { sRes('warn-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffClearTitleData(){
-  if(!confirm('Clear all title data? This is permanent.')) return;
-  toast('This would clear title data – disabled for safety','warn');
+async function staffMutePlayer() {
+  const pid = document.getElementById('mute-pid').value.trim();
+  const dur = document.getElementById('mute-duration').value;
+  if (!pid) { sRes('mute-result', 'Enter PlayFab ID'); return; }
+  try {
+    const muteVal = dur === 'perm' ? 'permanent' : new Date(Date.now() + parseInt(dur) * 3600000).toISOString();
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_muted: muteVal }, Permission: 'Public' }, true);
+    sRes('mute-result', `<span style="color:var(--green)">✓ Player muted (${dur === 'perm' ? 'permanent' : dur + 'h'})</span>`);
+    toast('Player muted', 'warn');
+    staffLogAction('warn-log', `Muted ${pid} (${dur === 'perm' ? 'permanent' : dur + 'h'})`);
+  } catch (e) { sRes('mute-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
 }
 
-async function staffLoadTopPlayers(){
-  const list = document.getElementById('staff-users-list');
-  list.innerHTML='<div style="color:var(--muted);font-size:11px">Loading...</div>';
+async function staffUnmutePlayer() {
+  const pid = document.getElementById('mute-pid').value.trim();
+  if (!pid) { sRes('mute-result', 'Enter PlayFab ID'); return; }
   try {
-    const lb = await pfGetLeaderboard('TotalCoins',10);
-    const entries = lb.Leaderboard||[];
-    list.innerHTML = entries.map(e=>`
-      <div class="staff-user-row">
-        <div class="lb-avatar" style="background:${stringToColor(e.DisplayName||'?')};width:28px;height:28px;font-size:12px">${(e.DisplayName||'?')[0].toUpperCase()}</div>
-        <div class="suf-name">${e.DisplayName||'Anonymous'}</div>
-        <div style="font-size:10px;color:var(--gold)">🪙 ${e.StatValue.toLocaleString()}</div>
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_muted: 'false' }, Permission: 'Public' }, true);
+    sRes('mute-result', `<span style="color:var(--green)">✓ Player unmuted</span>`);
+    toast('Player unmuted', 'success');
+    staffLogAction('good', `Unmuted player ${pid}`);
+  } catch (e) { sRes('mute-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffAuditPlayer() {
+  const pid = document.getElementById('audit-pid').value.trim();
+  if (!pid) { sRes('audit-result', 'Enter PlayFab ID'); return; }
+  sRes('audit-result', '🔍 Running audit...');
+  try {
+    const [profile, data] = await Promise.all([
+      pfCall('/Admin/GetPlayerProfile', { PlayFabId: pid, ProfileConstraints: { ShowDisplayName: true, ShowStatistics: true, ShowCreated: true, ShowBannedUntil: true, ShowLocations: true } }, true),
+      pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['is_staff', 'is_mod', 'is_muted', 'warnings', 'coins', 'owned_cosmetics'] }, true)
+    ]);
+    const p = profile.PlayerProfile;
+    const d = data.Data || {};
+    const stats = (p.Statistics || []).reduce((o, s) => { o[s.Name] = s.Value; return o; }, {});
+    const warns = JSON.parse(d.warnings?.Value || '[]').length;
+    const owned = JSON.parse(d.owned_cosmetics?.Value || '[]').length;
+    // Flags
+    const flags = [];
+    if (stats.TotalCoins > 1000000) flags.push('⚑ Suspicious coin count (>1M)');
+    if (stats.TotalClicks > 5000000) flags.push('⚑ Suspicious click count (>5M)');
+    if (warns >= 3) flags.push('⚑ Multiple warnings (≥3)');
+    if (d.is_muted?.Value && d.is_muted.Value !== 'false') flags.push('🔇 Currently muted');
+    if (p.BannedUntil) flags.push('🔨 Currently banned');
+
+    document.getElementById('audit-result').innerHTML = `
+      <div style="background:var(--surface2);border-radius:8px;padding:14px;color:var(--text)">
+        <b style="font-size:13px">Audit: ${p.DisplayName || 'Unknown'}</b><br>
+        <span style="color:var(--muted);font-size:10px">${p.PlayFabId}</span>
+        <hr style="border:none;border-top:1px solid var(--border);margin:10px 0">
+        <div class="staff-stat"><span class="sk">Account Created</span><span class="sv">${p.Created ? new Date(p.Created).toLocaleDateString() : '?'}</span></div>
+        <div class="staff-stat"><span class="sk">Coins</span><span class="sv">${(stats.TotalCoins||0).toLocaleString()}</span></div>
+        <div class="staff-stat"><span class="sk">Clicks</span><span class="sv">${(stats.TotalClicks||0).toLocaleString()}</span></div>
+        <div class="staff-stat"><span class="sk">Cosmetics Owned</span><span class="sv">${owned}</span></div>
+        <div class="staff-stat"><span class="sk">Warnings</span><span class="sv" style="color:${warns>0?'var(--orange)':'var(--green)'}">${warns}</span></div>
+        <div class="staff-stat"><span class="sk">Staff</span><span class="sv">${d.is_staff?.Value === 'true' ? '✅' : '–'}</span></div>
+        <div class="staff-stat"><span class="sk">Mod</span><span class="sv">${d.is_mod?.Value === 'true' ? '✅' : '–'}</span></div>
+        ${flags.length ? `<div style="margin-top:12px;padding:10px;background:rgba(255,48,96,0.08);border:1px solid rgba(255,48,96,0.25);border-radius:5px;font-size:11px;color:var(--p2)">${flags.join('<br>')}</div>` : `<div style="margin-top:10px;padding:8px;background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.2);border-radius:5px;font-size:11px;color:var(--green)">✓ No flags detected</div>`}
+      </div>`;
+    staffLogAction('info', `Audited player ${p.DisplayName} (${pid})`);
+  } catch (e) { sRes('audit-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffLoadLeaderboardAudit() {
+  const stat = document.getElementById('lba-stat').value;
+  const list = document.getElementById('lb-audit-list');
+  list.innerHTML = '<div style="color:var(--muted);font-size:11px">Loading...</div>';
+  try {
+    const lb = await pfGetLeaderboard(stat, 50);
+    const entries = lb.Leaderboard || [];
+    if (!entries.length) { list.innerHTML = '<div style="color:var(--muted);font-size:11px">No data.</div>'; return; }
+    const top = entries[0]?.StatValue || 1;
+    list.innerHTML = entries.map((e, i) => {
+      const flags = [];
+      if (i === 0 && entries.length > 1 && e.StatValue > entries[1].StatValue * 10) flags.push('10× #2');
+      if (e.StatValue > 10000000) flags.push('>10M');
+      const flagHtml = flags.map(f => `<span class="lba-flag">⚑ ${f}</span>`).join('');
+      return `<div class="lba-row">
+        <span class="lba-rank">#${e.Position + 1}</span>
+        <div class="lb-avatar" style="background:${stringToColor(e.DisplayName||'?')};width:24px;height:24px;font-size:10px;flex-shrink:0">${(e.DisplayName||'?')[0].toUpperCase()}</div>
+        <span class="lba-name">${e.DisplayName || 'Anonymous'}${flagHtml}</span>
+        <span class="lba-score">${e.StatValue.toLocaleString()}</span>
         <div class="suf-actions">
-          <button class="suf-btn" style="border-color:var(--p1);color:var(--p1)" onclick="document.getElementById('lookup-id').value='${e.PlayFabId}';staffLookupPlayer()">INFO</button>
-          <button class="suf-btn" style="border-color:var(--p2);color:var(--p2)" onclick="document.getElementById('ban-pid').value='${e.PlayFabId}'">BAN</button>
+          <button class="suf-btn" style="border-color:var(--p1);color:var(--p1)" onclick="document.getElementById('audit-pid').value='${e.PlayFabId}';staffTab('moderation');staffAuditPlayer()">AUDIT</button>
+          <button class="suf-btn" style="border-color:var(--p2);color:var(--p2)" onclick="document.getElementById('ban-pid').value='${e.PlayFabId}';staffTab('moderation')">BAN</button>
+          <button class="suf-btn" style="border-color:var(--orange);color:var(--orange)" onclick="document.getElementById('score-pid').value='${e.PlayFabId}'">EDIT</button>
         </div>
-      </div>
-    `).join('');
-  } catch(e){ list.innerHTML=`<div style="color:var(--p2);font-size:11px">Error: ${e.message}</div>`; }
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = `<div style="color:var(--p2);font-size:11px">Error: ${e.message}</div>`; }
 }
 
-// ── BOOT ──────────────────────────────────────────────────
-window.addEventListener('message', e=>{
+async function staffOverrideScore() {
+  const pid = document.getElementById('score-pid').value.trim();
+  const stat = document.getElementById('score-stat').value;
+  const val = parseInt(document.getElementById('score-val').value);
+  if (!pid || isNaN(val)) { sRes('score-result', 'Fill all fields'); return; }
+  if (!confirm(`Set ${stat} to ${val} for ${pid}?`)) return;
+  try {
+    await pfCall('/Admin/UpdatePlayerStatistics', { PlayFabId: pid, Statistics: [{ StatisticName: stat, Value: val }] }, true);
+    if (stat === 'TotalCoins') await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { coins: String(val) } }, true);
+    sRes('score-result', `<span style="color:var(--green)">✓ Score set to ${val.toLocaleString()}</span>`);
+    toast('Score updated', 'success');
+    staffLogAction('warn-log', `Override ${stat} = ${val} for ${pid}`);
+  } catch (e) { sRes('score-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffSnapshotLeaderboard() {
+  sRes('snapshot-result', 'Snapshotting...');
+  try {
+    const [lb1, lb2] = await Promise.all([pfGetLeaderboard('TotalCoins', 10), pfGetLeaderboard('TotalClicks', 10)]);
+    const snap = { date: new Date().toISOString(), coins: lb1.Leaderboard, clicks: lb2.Leaderboard };
+    await pfSetTitleData('leaderboard_snapshot', snap);
+    sRes('snapshot-result', `<span style="color:var(--green)">✓ Snapshot saved at ${new Date().toLocaleTimeString()}</span>`);
+    toast('Leaderboard snapshot saved!', 'success');
+    staffLogAction('gold', 'Saved leaderboard snapshot to TitleData');
+  } catch (e) { sRes('snapshot-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+const _motdHistory = [];
+async function staffSetMOTD() {
+  const text = document.getElementById('motd-text').value.trim();
+  const type = document.getElementById('motd-type').value;
+  if (!text) { sRes('motd-result', 'Enter a message'); return; }
+  const icons = { info: 'ℹ️', warn: '⚠️', hype: '🎉', maintenance: '🔧' };
+  try {
+    await pfSetTitleData('MOTD', { message: `${icons[type]} ${text}`, date: new Date().toISOString(), type });
+    sRes('motd-result', `<span style="color:var(--green)">✓ MOTD published</span>`);
+    toast('MOTD published to all players', 'success');
+    _motdHistory.unshift({ text: `${icons[type]} ${text}`, time: new Date().toLocaleTimeString() });
+    const hist = document.getElementById('motd-history');
+    hist.innerHTML = _motdHistory.map(m => `<div class="motd-hist-row"><div class="motd-hist-time">${m.time}</div>${m.text}</div>`).join('');
+    staffLogAction('info', `Published MOTD (${type}): "${text}"`);
+  } catch (e) { sRes('motd-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffClearMOTD() {
+  try {
+    await pfSetTitleData('MOTD', null);
+    sRes('motd-result', `<span style="color:var(--orange)">MOTD cleared</span>`);
+    staffLogAction('warn-log', 'Cleared MOTD');
+  } catch (e) { sRes('motd-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffStartEvent(eventType) {
+  const icons = { double_coins: '🪙 2× Coins', xp_boost: '⚡ XP Boost' };
+  try {
+    await pfSetTitleData('active_event', { type: eventType, started: new Date().toISOString(), by: window._pfPlayer?.username || 'staff' });
+    sRes('event-result', `<span style="color:var(--green)">✓ Event "${icons[eventType]}" started!</span>`);
+    toast(`${icons[eventType]} event started!`, 'success');
+    staffLogAction('gold', `Started event: ${eventType}`);
+  } catch (e) { sRes('event-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffEndAllEvents() {
+  try {
+    await pfSetTitleData('active_event', null);
+    sRes('event-result', `<span style="color:var(--orange)">All events ended</span>`);
+    toast('Events ended', 'warn');
+    staffLogAction('warn-log', 'Ended all active events');
+  } catch (e) { sRes('event-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffGrantRole() {
+  const pid = document.getElementById('grant-pid').value.trim();
+  if (!pid) { sRes('grant-result', 'Enter PlayFab ID'); return; }
+  try {
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_staff: 'true' }, Permission: 'Public' }, true);
+    sRes('grant-result', `<span style="color:var(--green)">✓ Staff role granted</span>`);
+    toast('Staff role granted', 'success');
+    staffLogAction('gold', `Granted STAFF role to ${pid}`);
+  } catch (e) { sRes('grant-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffRevokeRole() {
+  const pid = document.getElementById('grant-pid').value.trim();
+  if (!pid) { sRes('grant-result', 'Enter PlayFab ID'); return; }
+  try {
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_staff: 'false' }, Permission: 'Public' }, true);
+    sRes('grant-result', `<span style="color:var(--p2)">Staff role revoked</span>`);
+    staffLogAction('warn-log', `Revoked STAFF role from ${pid}`);
+  } catch (e) { sRes('grant-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffGrantMod() {
+  const pid = document.getElementById('mod-pid').value.trim();
+  if (!pid) { sRes('mod-result', 'Enter PlayFab ID'); return; }
+  try {
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_mod: 'true' }, Permission: 'Public' }, true);
+    sRes('mod-result', `<span style="color:var(--green)">✓ Mod role granted</span>`);
+    staffLogAction('gold', `Granted MOD role to ${pid}`);
+  } catch (e) { sRes('mod-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffRevokeMod() {
+  const pid = document.getElementById('mod-pid').value.trim();
+  if (!pid) { sRes('mod-result', 'Enter PlayFab ID'); return; }
+  try {
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: { is_mod: 'false' }, Permission: 'Public' }, true);
+    sRes('mod-result', `<span style="color:var(--p2)">Mod role revoked</span>`);
+    staffLogAction('warn-log', `Revoked MOD role from ${pid}`);
+  } catch (e) { sRes('mod-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffCheckRole() {
+  const pid = document.getElementById('rolecheck-pid').value.trim();
+  if (!pid) { sRes('rolecheck-result', 'Enter PlayFab ID'); return; }
+  try {
+    const d = await pfCall('/Admin/GetUserData', { PlayFabId: pid, Keys: ['is_staff', 'is_mod'] }, true);
+    const isS = d.Data?.is_staff?.Value === 'true';
+    const isM = d.Data?.is_mod?.Value === 'true';
+    const role = isS ? `<span class="stat-pill pill-staff">STAFF</span>` : isM ? `<span class="stat-pill" style="background:rgba(0,240,255,0.1);color:var(--p1);border-color:rgba(0,240,255,0.3);padding:3px 9px;border-radius:12px;font-size:10px;font-family:var(--mono);font-weight:700;letter-spacing:1px">MOD</span>` : `<span class="stat-pill pill-ok">PLAYER</span>`;
+    sRes('rolecheck-result', role);
+  } catch (e) { sRes('rolecheck-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffLoadTopPlayers() {
+  const stat = document.getElementById('pb-stat').value;
+  const count = parseInt(document.getElementById('pb-count').value);
+  const list = document.getElementById('staff-users-list');
+  list.innerHTML = '<div style="color:var(--muted);font-size:11px">Loading...</div>';
+  try {
+    const lb = await pfGetLeaderboard(stat, count);
+    const entries = lb.Leaderboard || [];
+    list.innerHTML = entries.map(e => `
+      <div class="staff-user-row">
+        <div class="lb-avatar" style="background:${stringToColor(e.DisplayName||'?')};width:28px;height:28px;font-size:12px;flex-shrink:0">${(e.DisplayName||'?')[0].toUpperCase()}</div>
+        <span style="color:var(--muted);font-size:10px;width:22px;text-align:right">#${e.Position+1}</span>
+        <div class="suf-name">${e.DisplayName || 'Anonymous'}</div>
+        <div style="font-size:10px;color:var(--gold)">${stat==='TotalCoins'?'🪙':'🖱️'} ${e.StatValue.toLocaleString()}</div>
+        <div class="suf-actions">
+          <button class="suf-btn" style="border-color:var(--p1);color:var(--p1)" onclick="document.getElementById('lookup-id').value='${e.PlayFabId}';staffTab('overview');staffLookupPlayer()">INFO</button>
+          <button class="suf-btn" style="border-color:var(--purple);color:var(--purple)" onclick="document.getElementById('audit-pid').value='${e.PlayFabId}';staffTab('moderation');staffAuditPlayer()">AUDIT</button>
+          <button class="suf-btn" style="border-color:var(--p2);color:var(--p2)" onclick="document.getElementById('ban-pid').value='${e.PlayFabId}';staffTab('moderation')">BAN</button>
+          <button class="suf-btn" style="border-color:var(--green);color:var(--green)" onclick="document.getElementById('coins-pid').value='${e.PlayFabId}';staffTab('players')">COINS</button>
+        </div>
+      </div>`).join('');
+  } catch (e) { list.innerHTML = `<div style="color:var(--p2);font-size:11px">Error: ${e.message}</div>`; }
+}
+
+async function staffResetLeaderboard(stat) {
+  if (!confirm(`Wipe ${stat} leaderboard? THIS CANNOT BE UNDONE.`)) return;
+  try {
+    // PlayFab doesn't have a bulk-reset endpoint for client API; we flag it in title data
+    await pfSetTitleData('lb_wipe_' + stat, { by: window._pfPlayer?.username, date: new Date().toISOString() });
+    sRes('danger-result', `<span style="color:var(--orange)">Wipe flag set for ${stat}. Apply via PlayFab dashboard if needed.</span>`);
+    toast(`${stat} wipe flagged`, 'warn');
+    staffLogAction('ban', `Flagged leaderboard wipe: ${stat}`);
+  } catch (e) { sRes('danger-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+async function staffClearTitleData() {
+  if (!confirm('Clear all title data? This is PERMANENT and affects all players.')) return;
+  toast('This action is disabled for safety. Use PlayFab dashboard.', 'warn');
+  staffLogAction('warn-log', 'Attempted title data clear — blocked for safety');
+}
+
+async function staffNukePlayerData() {
+  const pid = document.getElementById('nuke-pid').value.trim();
+  const type = document.getElementById('nuke-type').value;
+  if (!pid) { sRes('nuke-result', 'Enter PlayFab ID'); return; }
+  if (!confirm(`Wipe "${type}" data for player ${pid}? CANNOT BE UNDONE.`)) return;
+  try {
+    const updates = {};
+    if (type === 'coins' || type === 'all') updates.coins = '0';
+    if (type === 'cosmetics' || type === 'all') updates.owned_cosmetics = JSON.stringify(['fx_default','trail_none','name_default','btn_default']);
+    if (type === 'all') { updates.upgrades = '{}'; updates.clicks = '0'; }
+    await pfCall('/Admin/UpdateUserData', { PlayFabId: pid, Data: updates }, true);
+    if (type === 'coins' || type === 'all') {
+      await pfCall('/Admin/UpdatePlayerStatistics', { PlayFabId: pid, Statistics: [{ StatisticName: 'TotalCoins', Value: 0 }] }, true);
+    }
+    sRes('nuke-result', `<span style="color:var(--green)">✓ ${type} data wiped</span>`);
+    toast('Player data wiped', 'warn');
+    staffLogAction('ban', `Wiped ${type} data for ${pid}`);
+  } catch (e) { sRes('nuke-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`); }
+}
+
+// ── STAFF AUTO CLICKER ────────────────────────────────────
+
+// Load current AC settings from TitleData and populate the UI
+async function staffACLoad() {
+  try {
+    const td = await pfGetTitleData(['staff_autoclicker']);
+    const raw = td.Data?.staff_autoclicker;
+    const cfg = raw ? JSON.parse(raw) : { enabled: false, cps: 5, mode: 'normal', boost: 'off' };
+    document.getElementById('ac-cps').value = cfg.cps ?? 5;
+    document.getElementById('ac-mode').value = cfg.mode ?? 'normal';
+    document.getElementById('ac-boost').value = cfg.boost ?? 'off';
+    staffACUpdateStatusUI(cfg);
+  } catch (e) {
+    sRes('ac-result', `<span style="color:var(--p2)">Could not load settings: ${e.message}</span>`);
+  }
+}
+
+function staffACUpdateStatusUI(cfg) {
+  const badge = document.getElementById('ac-status-badge');
+  const cpsD = document.getElementById('ac-cps-display');
+  const modeD = document.getElementById('ac-mode-display');
+  if (!badge) return;
+  if (cfg.enabled) {
+    badge.textContent = '● ACTIVE';
+    badge.style.color = 'var(--green)';
+  } else {
+    badge.textContent = '○ INACTIVE';
+    badge.style.color = 'var(--muted)';
+  }
+  cpsD.textContent = (cfg.cps ?? 5) + ' CPS';
+  modeD.textContent = { normal:'Normal Click', center:'Always Center', random:'Random Position', golden:'Golden Only' }[cfg.mode ?? 'normal'] || 'Normal';
+}
+
+async function staffACSave() {
+  const cfg = {
+    enabled: false, // preserve enabled state — only toggle changes it
+    cps: parseFloat(document.getElementById('ac-cps').value) || 5,
+    mode: document.getElementById('ac-mode').value,
+    boost: document.getElementById('ac-boost').value,
+    updated: Date.now(),
+  };
+  // Read current enabled state
+  try {
+    const td = await pfGetTitleData(['staff_autoclicker']);
+    const curr = td.Data?.staff_autoclicker ? JSON.parse(td.Data.staff_autoclicker) : {};
+    cfg.enabled = curr.enabled ?? false;
+  } catch {}
+  await _staffACSaveConfig(cfg);
+}
+
+async function staffACToggle(on) {
+  let cfg = { enabled: on, cps: 5, mode: 'normal', boost: 'off', updated: Date.now() };
+  try {
+    const td = await pfGetTitleData(['staff_autoclicker']);
+    if (td.Data?.staff_autoclicker) {
+      cfg = { ...JSON.parse(td.Data.staff_autoclicker), enabled: on, updated: Date.now() };
+    }
+  } catch {}
+  cfg.enabled = on;
+  // Also pull UI values
+  cfg.cps = parseFloat(document.getElementById('ac-cps')?.value) || cfg.cps;
+  cfg.mode = document.getElementById('ac-mode')?.value || cfg.mode;
+  cfg.boost = document.getElementById('ac-boost')?.value || cfg.boost;
+  await _staffACSaveConfig(cfg);
+}
+
+async function _staffACSaveConfig(cfg) {
+  try {
+    await pfSetTitleData('staff_autoclicker', cfg);
+    staffACUpdateStatusUI(cfg);
+    sRes('ac-result', `<span style="color:var(--green)">✓ Config saved & pushed to game</span>`);
+    toast('Auto Clicker ' + (cfg.enabled ? 'ENABLED' : 'saved'), cfg.enabled ? 'success' : 'info');
+    staffLogAction(cfg.enabled ? 'good' : 'warn-log', `Auto Clicker ${cfg.enabled ? 'enabled' : 'updated'} — ${cfg.cps} CPS, mode: ${cfg.mode}`);
+    // Push to clicker iframe immediately
+    const frame = document.getElementById('game-clicker');
+    if (frame) frame.contentWindow.postMessage({ type: 'staff_autoclicker', config: cfg }, '*');
+  } catch (e) {
+    sRes('ac-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`);
+  }
+}
+
+// Keybind capture for the staff click2 key
+let _capturingField = null, _capturingHidden = null;
+function startKeybindCapture(inputId, hiddenId) {
+  const inp = document.getElementById(inputId);
+  const hid = document.getElementById(hiddenId);
+  inp.classList.add('capturing');
+  inp.value = '[ press a key... ]';
+  _capturingField = inp;
+  _capturingHidden = hid;
+}
+document.addEventListener('keydown', function(e) {
+  if (!_capturingField) return;
+  e.preventDefault();
+  const arrowMap = { ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→' };
+  const display = arrowMap[e.code] || e.code.replace(/^Key/, '').replace(/^Arrow/, '').replace(/^Digit/, '').toUpperCase();
+  _capturingField.value = display;
+  _capturingField.classList.remove('capturing');
+  if (_capturingHidden) _capturingHidden.value = e.code;
+  _capturingField = null;
+  _capturingHidden = null;
+}, true);
+
+async function staffSaveKeybind2() {
+  const code = document.getElementById('sk-click2-captured')?.value;
+  const display = document.getElementById('sk-click2-input')?.value;
+  if (!code) { sRes('sk-result', 'Capture a key first'); return; }
+  try {
+    // Save to TitleData so clicker can pick it up
+    await pfSetTitleData('staff_click2', { code, display, updated: Date.now() });
+    // Also update local settings and push to clicker iframe
+    const frame = document.getElementById('game-clicker');
+    if (frame) frame.contentWindow.postMessage({ type: 'staff_click2', code }, '*');
+    document.getElementById('sk-click2-display').textContent = display;
+    sRes('sk-result', `<span style="color:var(--green)">✓ Click Key 2 set to ${display}</span>`);
+    toast('Click Key 2 saved: ' + display, 'success');
+    staffLogAction('gold', `Set staff Click Key 2 to ${display} (${code})`);
+  } catch (e) {
+    sRes('sk-result', `<span style="color:var(--p2)">Error: ${e.message}</span>`);
+  }
+}
+
+// Load staff keybind2 display on dashboard open
+async function staffACLoadKeybind2() {
+  try {
+    const td = await pfGetTitleData(['staff_click2']);
+    const raw = td.Data?.staff_click2;
+    if (raw) {
+      const cfg = JSON.parse(raw);
+      const inp = document.getElementById('sk-click2-input');
+      const hid = document.getElementById('sk-click2-captured');
+      const disp = document.getElementById('sk-click2-display');
+      if (inp) inp.value = cfg.display || cfg.code.replace(/^Key/,'').replace(/^Arrow/,'');
+      if (hid) hid.value = cfg.code;
+      if (disp) disp.textContent = cfg.display || cfg.code;
+    }
+  } catch {}
+}
+
+// Receive stats back from clicker iframe
+window.addEventListener('message', function(e) {
+  if (e.data?.type === 'staff_ac_stats') {
+    const s = e.data.stats;
+    const el = id => document.getElementById(id);
+    if (el('ac-stat-clicks')) el('ac-stat-clicks').textContent = (s.clicks||0).toLocaleString();
+    if (el('ac-stat-coins')) el('ac-stat-coins').textContent = '🪙' + (s.coins||0).toLocaleString();
+    if (el('ac-stat-since')) el('ac-stat-since').textContent = s.since || '–';
+  }
   if(e.data?.type==='coins_update'){
-    // Clicker game reporting back new coin count
     playerCoins = e.data.coins;
-    document.getElementById('shop-coins').textContent = playerCoins.toLocaleString();
+    const sc = document.getElementById('shop-coins');
+    if (sc) sc.textContent = playerCoins.toLocaleString();
   }
 });
+
+// Close modal with Escape key
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeModal();
+});
+
+// Enter key submits auth forms
+document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('reg-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doRegister(); });
 
 // Restore session
 if(loadSession()){
   onLoggedIn();
-  // Check MOTD
-  pfGetTitleData(['MOTD']).then(d=>{
-    const motd = d.Data?.MOTD;
-    if(motd){
-      try{
-        const m = JSON.parse(motd);
-        if(m.message) toast('📢 '+m.message,'info');
-      }catch{}
-    }
-  }).catch(()=>{});
 }
+
+// Always check MOTD (works for guests too via public title data)
+pfGetTitleData(['MOTD']).then(d=>{
+  const motd = d.Data?.MOTD;
+  if(motd){
+    try{
+      const m = JSON.parse(motd);
+      if(m.message) setTimeout(()=>toast('📢 '+m.message,'info'), 800);
+    }catch{}
+  }
+}).catch(()=>{});
 
 loadSettings();
 loadHubPreview();

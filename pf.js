@@ -1,4 +1,10 @@
 // ── DEVHUB · PlayFab Client ──────────────────────────────
+// ⚠️  SECURITY WARNING: PF_SECRET is a server-side admin key.
+//     In production, NEVER expose this in client-side code.
+//     All /Admin/* calls should go through your own backend proxy
+//     (e.g., an Azure Function / CloudFlare Worker) so the key
+//     is never shipped to the browser.  It is kept here only for
+//     local / demo use while a backend is not yet set up.
 const PF_TITLE = "1BD7E7";
 const PF_SECRET = "DRQFFSTB51NSS61NPZNKZCD9IS84APY6UW88G1451AQZCYHSEH";
 const PF_BASE = `https://${PF_TITLE}.playfabapi.com`;
@@ -100,15 +106,13 @@ async function pfUpdateStat(name, value) {
 
 async function pfGetLeaderboard(statName, maxResults=50) {
   return pfCall("/Client/GetLeaderboard", {
-    StatisticName: statName, StartPosition: 0, MaxResultsCount: maxResults,
-    ProfileConstraints: { ShowDisplayName: true, ShowAvatarUrl: true }
+    StatisticName: statName, StartPosition: 0, MaxResultsCount: maxResults
   });
 }
 
-async function pfGetLeaderboardAround(statName) {
+async function pfGetLeaderboardAround(statName, maxResults=5) {
   return pfCall("/Client/GetLeaderboardAroundPlayer", {
-    StatisticName: statName, MaxResultsCount: 5,
-    ProfileConstraints: { ShowDisplayName: true }
+    StatisticName: statName, MaxResultsCount: maxResults
   });
 }
 

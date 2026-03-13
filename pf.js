@@ -84,17 +84,30 @@ async function pfRegister(username, email, password) {
 
 async function pfLogin(email, password) {
   const data = await pfCall("/Client/LoginWithEmailAddress", {
-    TitleId: PF_TITLE, Email: email, Password: password
+    TitleId: PF_TITLE,
+    Email: email,
+    Password: password,
+    InfoRequestParameters: {
+      GetUserAccountInfo: true,
+      GetPlayerProfile: true,
+      ProfileConstraints: { ShowDisplayName: true }
+    }
   });
   window._pfSession = data.SessionTicket;
-  // Fetch display name separately — more reliable than CombinedInfo
-  let username = email.split('@')[0];
-  try {
-    const profile = await pfCall("/Client/GetPlayerProfile", {
-      ProfileConstraints: { ShowDisplayName: true }
-    });
-    username = profile.PlayerProfile?.DisplayName || username;
-  } catch {}
+  // Try to get display name from the combined info response first
+  let username =
+    data.InfoResultPayload?.PlayerProfile?.DisplayName ||
+    data.InfoResultPayload?.AccountInfo?.TitleInfo?.DisplayName ||
+    email.split('@')[0];
+  // Fall back to a separate profile call if needed
+  if (!username || username === email.split('@')[0]) {
+    try {
+      const profile = await pfCall("/Client/GetPlayerProfile", {
+        ProfileConstraints: { ShowDisplayName: true }
+      });
+      username = profile.PlayerProfile?.DisplayName || username;
+    } catch {}
+  }
   window._pfPlayer = { id: data.PlayFabId, username, email };
   saveSession();
   return data;

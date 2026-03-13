@@ -71,35 +71,7 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 .page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;}
 .page.hidden{display:none!important;}
 
-/* ══════════════════ MOBILE NAV ══════════════════ */
-@media (max-width: 768px) {
-  #nav { padding: 0 12px; height: 50px; }
-  .logo { font-size: 14px; letter-spacing: 3px; }
-  .nav-tabs { gap: 1px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
-  .nav-tabs::-webkit-scrollbar { display: none; }
-  .ntab { font-size: 9px; padding: 5px 10px; letter-spacing: 1px; white-space: nowrap; }
-  #user-chip span { display: none; }
-  .settings-grid { grid-template-columns: 1fr; }
-  .staff-grid, .staff-grid-3 { grid-template-columns: 1fr; }
-  .game-grid { grid-template-columns: 1fr; }
-  #page-hub { padding: 24px 16px; }
-  #page-leaderboard, #page-shop, #page-settings, #page-staff { padding: 16px; }
-  .lb-val { font-size: 14px; }
-  .lb-name { font-size: 11px; }
-}
-@media (max-width: 480px) {
-  .ntab { font-size: 8px; padding: 5px 8px; }
-  .modal { min-width: unset; width: 95vw; padding: 24px 18px; }
-}
 
-/* ══════════════════ OFFLINE BANNER ══════════════════ */
-#offline-banner {
-  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-  background: rgba(255,136,0,0.95); color: #07070e; text-align: center;
-  font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 8px;
-  backdrop-filter: blur(4px);
-}
-#offline-banner.show { display: block; }
 
 /* ══════════════════ RANK CHIP ══════════════════ */
 #hub-rank-chip {
@@ -427,7 +399,6 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
 <body>
 <canvas id="bg-canvas"></canvas>
 <div id="toast-root"></div>
-<div id="offline-banner">⚠ &nbsp; PlayFab is unreachable — some features may not work. Check your connection.</div>
 
 <div id="app">
   <!-- NAV -->
@@ -1103,7 +1074,251 @@ html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-fam
   </div>
 </div>
 
-<script src="pf.js?v=8"></script>
+<script>
+// ── DEVHUB · PlayFab Client · v8 ─────────────────────────
+//
+// ⚠️  SECURITY — READ BEFORE DEPLOYING PUBLICLY
+// ─────────────────────────────────────────────
+// PF_SECRET is a server-side admin key. Shipping it in
+// client-side JS means any user can read it via DevTools
+// and make Admin API calls directly (wipe leaderboards,
+// read all player data, grant items, etc.).
+//
+// TO FIX: Create a thin backend proxy (Cloudflare Worker,
+// Vercel Edge Function, or Azure Function) that:
+//   1. Accepts requests from authenticated users only
+//   2. Validates the session ticket server-side first
+//   3. Forwards only whitelisted Admin calls using PF_SECRET
+//      — the key never reaches the browser
+//
+// Cloudflare Worker docs:
+//   https://developers.cloudflare.com/workers/
+//
+// This key is kept here for LOCAL / DEMO use only.
+// ─────────────────────────────────────────────
+const PF_TITLE  = "1BD7E7";
+const PF_SECRET = "DRQFFSTB51NSS61NPZNKZCD9IS84APY6UW88G1451AQZCYHSEH";
+const PF_BASE   = `https://${PF_TITLE}.playfabapi.com`;
+
+// ── COSMETICS CATALOG ────────────────────────────────────
+const COSMETICS_CATALOG = [
+  { id:"fx_default",   name:"Default Click",    type:"clickfx",  price:0,      rarity:"common",   icon:"👆", desc:"The classic tap.", color:"#aaaaaa" },
+  { id:"fx_neon",      name:"Neon Burst",        type:"clickfx",  price:500,    rarity:"uncommon", icon:"⚡", desc:"Electric neon burst on every click.", color:"#00f0ff" },
+  { id:"fx_fire",      name:"Fire Strike",       type:"clickfx",  price:1200,   rarity:"rare",     icon:"🔥", desc:"Flames erupt from each tap.", color:"#ff6600" },
+  { id:"fx_galaxy",    name:"Galaxy Tap",        type:"clickfx",  price:3000,   rarity:"epic",     icon:"🌌", desc:"Stars scatter across the screen.", color:"#9945ff" },
+  { id:"fx_rainbow",   name:"Rainbow Wave",      type:"clickfx",  price:8000,   rarity:"legendary",icon:"🌈", desc:"A chromatic shockwave on every hit.", color:"#ffd700" },
+  { id:"fx_glitch",    name:"Glitch Pulse",      type:"clickfx",  price:5000,   rarity:"epic",     icon:"📡", desc:"Reality glitches around your cursor.", color:"#ff3060" },
+  { id:"trail_none",   name:"No Trail",          type:"trail",    price:0,      rarity:"common",   icon:"➡️", desc:"Clean, no trail.", color:"#aaaaaa" },
+  { id:"trail_spark",  name:"Spark Trail",       type:"trail",    price:800,    rarity:"uncommon", icon:"✨", desc:"Sparks follow your cursor.", color:"#ffe600" },
+  { id:"trail_smoke",  name:"Smoke Trail",       type:"trail",    price:1500,   rarity:"rare",     icon:"💨", desc:"Smoky wisps trail behind you.", color:"#8888aa" },
+  { id:"trail_plasma", name:"Plasma Trail",      type:"trail",    price:4000,   rarity:"epic",     icon:"🔮", desc:"Plasma energy streams from your cursor.", color:"#9945ff" },
+  { id:"name_default", name:"Default Name",      type:"namecolor",price:0,      rarity:"common",   icon:"🏷️", desc:"Standard white name.", color:"#e0e0f0" },
+  { id:"name_cyan",    name:"Cyan Name",         type:"namecolor",price:300,    rarity:"uncommon", icon:"💠", desc:"Cyan username in chat & leaderboard.", color:"#00f0ff" },
+  { id:"name_red",     name:"Red Name",          type:"namecolor",price:300,    rarity:"uncommon", icon:"❤️", desc:"Red username.", color:"#ff3060" },
+  { id:"name_gold",    name:"Gold Name",         type:"namecolor",price:2000,   rarity:"rare",     icon:"👑", desc:"Glittering gold username.", color:"#ffd700" },
+  { id:"name_rainbow", name:"Rainbow Name",      type:"namecolor",price:10000,  rarity:"legendary",icon:"🌟", desc:"Your name cycles through all colours.", color:"#ff00ff" },
+  { id:"btn_default",  name:"Default Button",    type:"button",   price:0,      rarity:"common",   icon:"⬜", desc:"Plain white button.", color:"#e0e0f0" },
+  { id:"btn_neon",     name:"Neon Button",       type:"button",   price:600,    rarity:"uncommon", icon:"🟦", desc:"Glowing neon blue button.", color:"#00f0ff" },
+  { id:"btn_lava",     name:"Lava Button",       type:"button",   price:2500,   rarity:"rare",     icon:"🟥", desc:"Molten lava effect button.", color:"#ff4400" },
+  { id:"btn_void",     name:"Void Button",       type:"button",   price:6000,   rarity:"epic",     icon:"🟣", desc:"Dark void with purple energy.", color:"#9945ff" },
+  { id:"btn_holo",     name:"Holographic",       type:"button",   price:15000,  rarity:"legendary",icon:"💎", desc:"Holographic iridescent button.", color:"#ffd700" },
+];
+
+const RARITY_COLORS = {
+  common:"#aaaaaa", uncommon:"#00ff88", rare:"#00a0ff", epic:"#9945ff", legendary:"#ffd700"
+};
+
+// ── API CALL ─────────────────────────────────────────────
+async function pfCall(endpoint, body={}, useSecret=false) {
+  const headers = { "Content-Type":"application/json" };
+  if (useSecret) headers["X-SecretKey"] = PF_SECRET;
+  else if (window._pfSession) headers["X-Authorization"] = window._pfSession;
+  const res = await fetch(`${PF_BASE}${endpoint}`, {
+    method:"POST", headers, body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (data.code !== 200) {
+    // PlayFab surfaces errors in several different fields depending on the endpoint
+    const msg = data.errorMessage || data.error || data.message ||
+      (data.errorDetails ? Object.values(data.errorDetails).flat().join(', ') : null) ||
+      `PlayFab error ${data.code || res.status}`;
+    console.error('[PlayFab] Error on', endpoint, data);
+    throw new Error(msg);
+  }
+  return data.data;
+}
+
+// Run multiple pfCall promises in parallel.
+async function pfBatch(promises) { return Promise.all(promises); }
+
+// ── AUTH ─────────────────────────────────────────────────
+async function pfRegister(username, email, password) {
+  const data = await pfCall("/Client/RegisterPlayFabUser", {
+    TitleId: PF_TITLE, Username: username,
+    Email: email, Password: password,
+    RequireBothUsernameAndEmail: true
+  });
+  window._pfSession = data.SessionTicket;
+  window._pfPlayer = { id: data.PlayFabId, username, email };
+  saveSession();
+  await pfCall("/Client/UpdateUserTitleDisplayName", { DisplayName: username });
+  await initPlayerData();
+  return data;
+}
+
+async function pfLogin(email, password) {
+  const data = await pfCall("/Client/LoginWithEmailAddress", {
+    TitleId: PF_TITLE,
+    Email: email.trim(),
+    Password: password,
+    InfoRequestParameters: { GetUserAccountInfo: true }
+  });
+  window._pfSession = data.SessionTicket;
+  // Try display name from combined info response first, then fall back to a profile call
+  let username =
+    data.InfoResultPayload?.AccountInfo?.TitleInfo?.DisplayName ||
+    email.split('@')[0];
+  if (!data.InfoResultPayload?.AccountInfo?.TitleInfo?.DisplayName) {
+    try {
+      const profile = await pfCall("/Client/GetPlayerProfile", {
+        ProfileConstraints: { ShowDisplayName: true }
+      });
+      username = profile.PlayerProfile?.DisplayName || username;
+    } catch {}
+  }
+  window._pfPlayer = { id: data.PlayFabId, username, email: email.trim() };
+  saveSession();
+  return data;
+}
+
+async function pfGetPlayerData(keys=[]) {
+  return pfCall("/Client/GetUserData", keys.length ? { Keys: keys } : {});
+}
+
+async function pfSetPlayerData(data) {
+  return pfCall("/Client/UpdateUserData", { Data: data });
+}
+
+async function pfGetStats() {
+  return pfCall("/Client/GetPlayerStatistics", {});
+}
+
+async function pfUpdateStat(name, value) {
+  return pfCall("/Client/UpdatePlayerStatistics", {
+    Statistics: [{ StatisticName: name, Value: Math.floor(value) }]
+  });
+}
+
+async function pfGetLeaderboard(statName, maxResults=50) {
+  return pfCall("/Client/GetLeaderboard", {
+    StatisticName: statName, StartPosition: 0, MaxResultsCount: maxResults
+  });
+}
+
+async function pfGetLeaderboardAround(statName, maxResults=5) {
+  return pfCall("/Client/GetLeaderboardAroundPlayer", {
+    StatisticName: statName, MaxResultsCount: maxResults
+  });
+}
+
+// ── TITLE DATA ────────────────────────────────────────────
+async function pfGetTitleData(keys=[]) {
+  return pfCall("/Client/GetTitleData", keys.length ? { Keys: keys } : {});
+}
+
+async function pfSetTitleData(key, value) {
+  return pfCall("/Admin/SetTitleData", { Key: key, Value: JSON.stringify(value) }, true);
+}
+
+// ── VIRTUAL CURRENCY ──────────────────────────────────────
+async function pfGetInventory() {
+  return pfCall("/Client/GetUserInventory", {});
+}
+
+// ── SHOP PURCHASE — SERVER-AUTHORITATIVE ─────────────────
+// Always re-fetches coin balance from PlayFab before deducting.
+// This means a user cannot cheat by editing local JS variables
+// and calling handleCosmClick — the server balance is the truth.
+// (True server-side enforcement requires Cloud Script / Azure
+// Function, but this is meaningfully better than pure client trust.)
+async function pfPurchaseCosmetic(itemId) {
+  const item = COSMETICS_CATALOG.find(c => c.id === itemId);
+  if (!item) throw new Error("Unknown item");
+
+  // Re-fetch authoritative balance — never trust local playerCoins
+  const fresh = await pfGetPlayerData(["coins", "owned_cosmetics"]);
+  const serverCoins = parseInt(fresh.Data?.coins?.Value || "0");
+  const serverOwned = JSON.parse(fresh.Data?.owned_cosmetics?.Value || "[]");
+
+  if (serverOwned.includes(itemId)) throw new Error("Already owned");
+  if (serverCoins < item.price)     throw new Error("Not enough coins");
+
+  const newCoins = serverCoins - item.price;
+  const newOwned = [...serverOwned, itemId];
+
+  // Single write for atomicity
+  await pfSetPlayerData({
+    coins: String(newCoins),
+    owned_cosmetics: JSON.stringify(newOwned),
+  });
+  await pfUpdateStat("TotalCoins", newCoins);
+
+  return { newCoins, newOwned };
+}
+
+// ── STAFF CHECK ───────────────────────────────────────────
+async function isStaff() {
+  if (!window._pfPlayer?.id) return false;
+  try {
+    const d = await pfCall("/Admin/GetUserData", {
+      PlayFabId: window._pfPlayer.id, Keys: ["is_staff"]
+    }, true);
+    if (d?.Data?.is_staff?.Value === "true") return true;
+  } catch {}
+  try {
+    const d = await pfGetPlayerData(["is_staff"]);
+    if (d?.Data?.is_staff?.Value === "true") return true;
+  } catch {}
+  return false;
+}
+
+// ── SESSION PERSISTENCE ───────────────────────────────────
+function saveSession() {
+  if (!window._pfSession) return;
+  localStorage.setItem("devhub_session", window._pfSession);
+  localStorage.setItem("devhub_player", JSON.stringify(window._pfPlayer));
+}
+
+function loadSession() {
+  const s = localStorage.getItem("devhub_session");
+  const p = localStorage.getItem("devhub_player");
+  if (s && p) {
+    try { window._pfSession = s; window._pfPlayer = JSON.parse(p); return true; }
+    catch { return false; }
+  }
+  return false;
+}
+
+function clearSession() {
+  window._pfSession = null;
+  window._pfPlayer = null;
+  localStorage.removeItem("devhub_session");
+  localStorage.removeItem("devhub_player");
+}
+
+// ── INIT PLAYER DATA ─────────────────────────────────────
+async function initPlayerData() {
+  const defaults = {
+    coins: "0", clicks: "0", upgrades: "{}",
+    equipped: JSON.stringify({ clickfx:"fx_default", trail:"trail_none", namecolor:"name_default", button:"btn_default" }),
+    owned_cosmetics: JSON.stringify(["fx_default","trail_none","name_default","btn_default"]),
+  };
+  await pfSetPlayerData(defaults);
+  await pfUpdateStat("TotalClicks", 0);
+  await pfUpdateStat("TotalCoins", 0);
+}
+
+</script>
 <script>
 // ── BACKGROUND PARTICLES ──────────────────────────────────
 const bgC = document.getElementById('bg-canvas');
@@ -1218,9 +1433,8 @@ async function doRegister(){
     toast(`Account created! Welcome, ${uname}!`, 'success');
   } catch(e){
     let msg = e.message;
-    if(msg.includes('already exists') || msg.includes('EmailAddressAlreadyUsed')) msg = 'Email already registered';
-    if(msg.includes('UsernameNotAvailable')) msg = 'Username already taken';
-    if(msg.includes('InvalidParams') || msg.includes('Username')) msg = 'Invalid username — use 3-20 letters/numbers';
+    if(msg.includes('EmailAddressAlreadyUsed')) msg = 'Email already registered';
+    else if(msg.includes('UsernameNotAvailable')) msg = 'Username already taken';
     err.textContent = msg; err.classList.add('show');
   }
   btn.textContent='Create Account'; btn.disabled=false;
@@ -2267,55 +2481,26 @@ document.addEventListener('keydown', e=>{
 document.getElementById('login-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 document.getElementById('reg-pw').addEventListener('keydown', e=>{ if(e.key==='Enter') doRegister(); });
 
-// ── PLAYFAB OFFLINE DETECTION ─────────────────────────────
-let _pfOnline = true;
-async function checkPfHealth() {
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000); // 8s timeout
-    const res = await fetch(`${PF_BASE}/Client/GetTitleData`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ TitleId: PF_TITLE }),
-      signal: ctrl.signal
-    });
-    clearTimeout(timer);
-    // Got any HTTP response = server is reachable
-    _pfOnline = true;
-    document.getElementById('offline-banner').classList.remove('show');
-    // Parse MOTD while we have the response
-    try {
-      const json = await res.json();
-      const motd = json.data?.Data?.MOTD;
-      if (motd) {
-        const m = JSON.parse(motd);
-        if (m.message) setTimeout(() => toast('📢 ' + m.message, 'info'), 800);
-      }
-    } catch {}
-  } catch (err) {
-    // Only show banner if it's truly a network failure (not AbortError from timeout)
-    if (err.name === 'AbortError') {
-      // Timed out — still might be reachable, don't flag offline yet
-      console.warn('[DevHub] PlayFab health check timed out');
-      return;
-    }
-    _pfOnline = false;
-    document.getElementById('offline-banner').classList.add('show');
-  }
-}
-
 // Restore session — validate token is still alive before trusting it
 async function restoreSession() {
   if (!loadSession()) return;
   try {
     await pfGetPlayerData(['coins']);
     onLoggedIn();
+    // Show MOTD if one is set
+    try {
+      const td = await pfGetTitleData(['MOTD']);
+      const motd = td?.Data?.MOTD;
+      if (motd) {
+        const m = JSON.parse(motd);
+        if (m.message) setTimeout(() => toast('\u{1F4E2} ' + m.message, 'info'), 800);
+      }
+    } catch {}
   } catch {
     clearSession();
   }
 }
 restoreSession();
-checkPfHealth();
 
 loadSettings();
 loadHubPreview();

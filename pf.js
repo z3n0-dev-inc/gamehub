@@ -60,7 +60,14 @@ async function pfCall(endpoint, body={}, useSecret=false) {
     method:"POST", headers, body: JSON.stringify(body)
   });
   const data = await res.json();
-  if (data.code !== 200) throw new Error(data.errorMessage || `PF error ${data.code}`);
+  if (data.code !== 200) {
+    // PlayFab surfaces errors in several different fields depending on the endpoint
+    const msg = data.errorMessage || data.error || data.message ||
+      (data.errorDetails ? Object.values(data.errorDetails).flat().join(', ') : null) ||
+      `PlayFab error ${data.code || res.status}`;
+    console.error('[PlayFab] Error on', endpoint, data);
+    throw new Error(msg);
+  }
   return data.data;
 }
 
@@ -85,22 +92,16 @@ async function pfRegister(username, email, password) {
 async function pfLogin(email, password) {
   const data = await pfCall("/Client/LoginWithEmailAddress", {
     TitleId: PF_TITLE,
-    Email: email,
+    Email: email.trim(),
     Password: password,
-    InfoRequestParameters: {
-      GetUserAccountInfo: true,
-      GetPlayerProfile: true,
-      ProfileConstraints: { ShowDisplayName: true }
-    }
+    InfoRequestParameters: { GetUserAccountInfo: true }
   });
   window._pfSession = data.SessionTicket;
-  // Try to get display name from the combined info response first
+  // Try display name from combined info response first, then fall back to a profile call
   let username =
-    data.InfoResultPayload?.PlayerProfile?.DisplayName ||
     data.InfoResultPayload?.AccountInfo?.TitleInfo?.DisplayName ||
     email.split('@')[0];
-  // Fall back to a separate profile call if needed
-  if (!username || username === email.split('@')[0]) {
+  if (!data.InfoResultPayload?.AccountInfo?.TitleInfo?.DisplayName) {
     try {
       const profile = await pfCall("/Client/GetPlayerProfile", {
         ProfileConstraints: { ShowDisplayName: true }
@@ -108,7 +109,7 @@ async function pfLogin(email, password) {
       username = profile.PlayerProfile?.DisplayName || username;
     } catch {}
   }
-  window._pfPlayer = { id: data.PlayFabId, username, email };
+  window._pfPlayer = { id: data.PlayFabId, username, email: email.trim() };
   saveSession();
   return data;
 }

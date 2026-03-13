@@ -1277,19 +1277,24 @@ function openProfileModal(){
 }
 
 async function checkStaffTab(){
+  if (!window._pfPlayer?.id) return;
   try {
     const staff = await isStaff();
-    if(staff){
-      if(!document.querySelector('.ntab.staff')){
+    console.log('[DevHub] isStaff:', staff, '— player:', window._pfPlayer?.id);
+    if (staff) {
+      if (!document.querySelector('.ntab.staff')) {
         const t = document.createElement('button');
-        t.className='ntab staff'; t.dataset.page='staff';
-        t.textContent='⚡ Staff';
-        t.addEventListener('click',()=>showPage('staff'));
+        t.className = 'ntab staff'; t.dataset.page = 'staff';
+        t.textContent = '⚡ Staff';
+        t.addEventListener('click', () => showPage('staff'));
         document.getElementById('nav-tabs').appendChild(t);
       }
+    } else {
+      const existing = document.querySelector('.ntab.staff');
+      if (existing) existing.remove();
     }
-  } catch(e){
-    console.warn('Staff check failed:', e);
+  } catch(e) {
+    console.warn('[DevHub] Staff check error:', e);
   }
 }
 
@@ -2263,38 +2268,37 @@ document.getElementById('reg-pw').addEventListener('keydown', e=>{ if(e.key==='E
 let _pfOnline = true;
 async function checkPfHealth() {
   try {
-    // GetTitleData works unauthenticated — cheap health check
-    await pfGetTitleData(['MOTD']);
-    if (!_pfOnline) {
-      _pfOnline = true;
-      document.getElementById('offline-banner').classList.remove('show');
-    }
+    // GetTitleData is the safest unauthenticated ping.
+    // Pass empty Keys array — returns whatever public title data exists.
+    // We catch errors but only flag offline if it's a network failure,
+    // not a PlayFab API error (which means the server IS reachable).
+    const res = await fetch(`${PF_BASE}/Client/GetTitleData`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ TitleId: PF_TITLE })
+    });
+    // Any HTTP response (even 4xx) means the server is up
+    _pfOnline = true;
+    document.getElementById('offline-banner').classList.remove('show');
+    // Also parse MOTD while we have the response
+    try {
+      const json = await res.json();
+      const motd = json.data?.Data?.MOTD;
+      if (motd) {
+        const m = JSON.parse(motd);
+        if (m.message) setTimeout(() => toast('📢 ' + m.message, 'info'), 800);
+      }
+    } catch {}
   } catch {
+    // Only a network/fetch error means truly offline
     _pfOnline = false;
     document.getElementById('offline-banner').classList.add('show');
   }
 }
 
-// Restore session — if login cached data exists, restore instantly.
-// Otherwise do a lightweight ping to validate the stored ticket.
+// Restore session — validate token is still alive before trusting it
 async function restoreSession() {
   if (!loadSession()) return;
-
-  // If we have cached player data from last login, trust it immediately
-  // and show the UI without waiting for a network round-trip.
-  if (window._pfPlayer?._cachedData) {
-    onLoggedIn();
-    // Quietly validate in the background — clear if expired
-    pfGetPlayerData(['coins']).catch(() => {
-      clearSession();
-      onLoggedOut();
-      toast('Session expired — please sign in again', 'warn');
-      setTimeout(() => openAuthModal(), 400);
-    });
-    return;
-  }
-
-  // No cached data — validate synchronously (first-time after old session format)
   try {
     await pfGetPlayerData(['coins']);
     onLoggedIn();
@@ -2304,17 +2308,6 @@ async function restoreSession() {
 }
 restoreSession();
 checkPfHealth();
-
-// Always check MOTD (works for guests too via public title data)
-pfGetTitleData(['MOTD']).then(d=>{
-  const motd = d.Data?.MOTD;
-  if(motd){
-    try{
-      const m = JSON.parse(motd);
-      if(m.message) setTimeout(()=>toast('📢 '+m.message,'info'), 800);
-    }catch{}
-  }
-}).catch(()=>{});
 
 loadSettings();
 loadHubPreview();

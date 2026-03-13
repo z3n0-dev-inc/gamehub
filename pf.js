@@ -83,15 +83,13 @@ async function pfRegister(username, email, password) {
 }
 
 async function pfLogin(email, password) {
-  // Fetch everything we need in one round-trip so session restore
-  // doesn't need a separate ping call on page load.
+  // Keep InfoRequestParameters minimal — only request what PlayFab
+  // guarantees exists. Requesting UserDataKeys for keys that don't
+  // exist yet on a new account triggers "Invalid input parameters".
   const data = await pfCall("/Client/LoginWithEmailAddress", {
     TitleId: PF_TITLE, Email: email, Password: password,
     InfoRequestParameters: {
-      GetUserAccountInfo: true,
-      GetUserData: true,
-      GetPlayerStatistics: true,
-      UserDataKeys: ["coins", "owned_cosmetics", "equipped"]
+      GetUserAccountInfo: true
     }
   });
   window._pfSession = data.SessionTicket;
@@ -99,8 +97,7 @@ async function pfLogin(email, password) {
   window._pfPlayer = {
     id: data.PlayFabId,
     username: info?.TitleInfo?.DisplayName || info?.Username || "Player",
-    email,
-    _cachedData: data.CombinedInfo?.UserData || null // available immediately, no extra call
+    email
   };
   saveSession();
   return data;
